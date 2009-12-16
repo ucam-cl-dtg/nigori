@@ -46,22 +46,33 @@ class AddResource(webapp.RequestHandler):
     resource.put()
 
     self.response.out.write('Saved')
-        
-class GetResource(webapp.RequestHandler):
-  def get(self):
-    self.response.headers['Content-Type'] = 'text/html'
-    write = self.response.out.write
-    write('<html><body><h1>Lookup Result</h1>')
 
-    resources = db.GqlQuery('SELECT * FROM Resource ORDER BY ctime')
+class ResourceLister(webapp.RequestHandler):
+  def forEach(self, fn, which):
+    totalVersions = Resource.all().filter('name =', which).count()
+    resources = db.GqlQuery("SELECT * FROM Resource WHERE name = '"
+                            + which + "' ORDER BY ctime")
     version = 0
     for resource in resources:
-      write('%04d ' % version)
+      fn(resource, version, totalVersions)
       version += 1
-      write('%f ' % resource.ctime)
-      write(' (%s) ' % time.strftime('%d/%m/%y %H:%M:%S',
-                                     time.gmtime(resource.ctime)))
-      write('<code>' + resource.name + ' = ' + resource.value + '</code><br />')
+        
+class GetResource(ResourceLister):
+  def get(self):
+    self.response.headers['Content-Type'] = 'text/html'
+
+    self.response.out.write('<html><body><h1>Lookup Result</h1>')
+
+    self.forEach(self.list, self.request.get('name'))
+
+  def list(self, resource, version, totalVersions):
+    write = self.response.out.write
+    
+    write('%04d/%04d ' % (version, totalVersions))
+    write('%f ' % resource.ctime)
+    write(' (%s) ' % time.strftime('%d/%m/%y %H:%M:%S',
+                                   time.gmtime(resource.ctime)))
+    write('<code>' + resource.name + ' = ' + resource.value + '</code><br />')
 
 application = webapp.WSGIApplication(
                                      [('/', MainPage),
