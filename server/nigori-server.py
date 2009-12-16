@@ -21,11 +21,24 @@ class MainPage(webapp.RequestHandler):
       </html>""")
         
     self.response.out.write("""
+          <form action="/list-resource" method="get">
+            <div>
+              Key <input type="text" name="name" />
+            </div>
+            <div><input type="submit" value="List"></div>
+          </form>
+        </body>
+      </html>""")
+    
+    self.response.out.write("""
           <form action="/get-resource" method="get">
             <div>
               Key <input type="text" name="name" />
             </div>
-            <div><input type="submit" value="Find"></div>
+            <div>
+              Version <input type="text" name="version" />
+            </div>
+            <div><input type="submit" value="Get"></div>
           </form>
         </body>
       </html>""")
@@ -54,10 +67,11 @@ class ResourceLister(webapp.RequestHandler):
                             + which + "' ORDER BY ctime")
     version = 0
     for resource in resources:
-      fn(resource, version, totalVersions)
+      if not fn(resource, version, totalVersions):
+        break
       version += 1
         
-class GetResource(ResourceLister):
+class ListResource(ResourceLister):
   def get(self):
     self.response.headers['Content-Type'] = 'text/html'
 
@@ -73,10 +87,35 @@ class GetResource(ResourceLister):
     write(' (%s) ' % time.strftime('%d/%m/%y %H:%M:%S',
                                    time.gmtime(resource.ctime)))
     write('<code>' + resource.name + ' = ' + resource.value + '</code><br />')
+    return True
+
+class GetResource(ResourceLister):
+  def get(self):
+    self.response.headers['Content-Type'] = 'text/plain'
+
+    t = self.request.get('version')
+    if t == '':
+      t = -1
+    else:
+      t = int(t)
+    self.targetVersion = t
+    self.forEach(self.list, self.request.get('name'))
+
+  def list(self, resource, version, totalVersions):
+    if self.targetVersion == -1 and version != totalVersions - 1:
+      return True
+    if self.targetVersion != -1  and self.targetVersion != version:
+      return True
+    
+    self.response.out.write("%04d\n%04d\n%f\n%s\n"
+                            % (version, totalVersions, resource.ctime,
+                               resource.value))
+    return False
 
 application = webapp.WSGIApplication(
                                      [('/', MainPage),
                                       ('/add-resource', AddResource),
+                                      ('/list-resource', ListResource),
                                       ('/get-resource', GetResource)],
                                      debug=True)
 
