@@ -1,58 +1,67 @@
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
+import time
 
 class MainPage(webapp.RequestHandler):
-    def get(self):
-        self.response.headers['Content-Type'] = 'text/html'
-        self.response.out.write('<html><body><h1>Test Form</h1>')
+  def get(self):
+    self.response.headers['Content-Type'] = 'text/html'
+    self.response.out.write('<html><body><h1>Test Form</h1>')
         
-        self.response.out.write("""
-              <form action="/add-resource" method="post">
-                <div>
-                  Key <input type="text" name="name" />
-                </div>
-                <div>
-                  Resource <input type="text" name="value" />
-                <div><input type="submit" value="Send"></div>
-              </form>
-            </body>
-          </html>""")
+    self.response.out.write("""
+          <form action="/add-resource" method="post">
+            <div>
+              Key <input type="text" name="name" />
+            </div>
+            <div>
+              Resource <input type="text" name="value" />
+            <div><input type="submit" value="Send"></div>
+          </form>
+        </body>
+      </html>""")
         
-        self.response.out.write("""
-              <form action="/get-resource" method="get">
-                <div>
-                  Key <input type="text" name="name" />
-                </div>
-                <div><input type="submit" value="Find"></div>
-              </form>
-            </body>
-          </html>""")
+    self.response.out.write("""
+          <form action="/get-resource" method="get">
+            <div>
+              Key <input type="text" name="name" />
+            </div>
+            <div><input type="submit" value="Find"></div>
+          </form>
+        </body>
+      </html>""")
 
 class Resource(db.Model):
-    name = db.StringProperty()
-    value = db.StringProperty()
+  name = db.StringProperty()
+  value = db.StringProperty()
+  ctime = db.FloatProperty()
 
 class AddResource(webapp.RequestHandler):
-    def post(self):
-        self.response.headers['Content-Type'] = 'text/plain'
+  def post(self):
+    self.response.headers['Content-Type'] = 'text/plain'
 
-        resource = Resource()
-        resource.name = self.request.get('name')
-        resource.value = self.request.get('value')
-        resource.put()
+    resource = Resource()
+    resource.name = self.request.get('name')
+    resource.value = self.request.get('value')
+    resource.ctime = time.time()
+    resource.put()
 
-        self.response.out.write('Saved')
+    self.response.out.write('Saved')
         
 class GetResource(webapp.RequestHandler):
-    def get(self):
-        self.response.headers['Content-Type'] = 'text/html'
-        self.response.out.write('<html><body><h1>Lookup Result</h1>')
+  def get(self):
+    self.response.headers['Content-Type'] = 'text/html'
+    write = self.response.out.write
+    write('<html><body><h1>Lookup Result</h1>')
 
-        resources = db.GqlQuery('SELECT * FROM Resource')
-        for resource in resources:
-            self.response.out.write('<code>' + resource.name + ' = '
-                                    + resource.value + '</code><br />')
+    resources = db.GqlQuery('SELECT * FROM Resource ORDER BY ctime')
+    version = 0
+    for resource in resources:
+      write('%04d ' % version)
+      version += 1
+      write('%f ' % resource.ctime)
+      write(' (%s) ' % time.strftime('%d/%m/%y %H:%M:%S',
+                                     time.gmtime(resource.ctime)))
+      write('<code>' + resource.name + ' = ' + resource.value + '</code><br />')
 
 application = webapp.WSGIApplication(
                                      [('/', MainPage),
@@ -61,7 +70,7 @@ application = webapp.WSGIApplication(
                                      debug=True)
 
 def main():
-    run_wsgi_app(application)
+  run_wsgi_app(application)
 
 if __name__ == "__main__":
-    main()
+  main()
