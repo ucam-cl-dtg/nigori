@@ -99,9 +99,9 @@ class GetResource(ResourceLister):
     else:
       t = int(t)
     self.targetVersion = t
-    self.forEach(self.list, self.request.get('name'))
+    self.forEach(self.choose, self.request.get('name'))
 
-  def list(self, resource, version, totalVersions):
+  def choose(self, resource, version, totalVersions):
     if self.targetVersion == -1 and version != totalVersions - 1:
       return True
     if self.targetVersion != -1  and self.targetVersion != version:
