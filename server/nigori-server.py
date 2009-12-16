@@ -50,15 +50,13 @@ class Resource(db.Model):
 
 class AddResource(webapp.RequestHandler):
   def post(self):
-    self.response.headers['Content-Type'] = 'text/plain'
-
     resource = Resource()
     resource.name = self.request.get('name')
     resource.value = self.request.get('value')
     resource.ctime = time.time()
     resource.put()
 
-    self.response.out.write('Saved')
+    self.redirect('/list-resource?name=' + resource.name)
 
 class ResourceLister(webapp.RequestHandler):
   def forEach(self, fn, which):
