@@ -1,7 +1,10 @@
+from django.utils import simplejson
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
 import time
+
+PROTOCOL_VERSION = 0
 
 class MainPage(webapp.RequestHandler):
   def get(self):
@@ -61,6 +64,9 @@ class AddResource(webapp.RequestHandler):
 class ResourceLister(webapp.RequestHandler):
   def forEach(self, fn, which):
     totalVersions = Resource.all().filter('name =', which).count()
+    # Database merges could cause this query to return more results
+    # than the total indicated above on some architectures. The
+    # protocol should tolerate that.
     resources = db.GqlQuery("SELECT * FROM Resource WHERE name = '"
                             + which + "' ORDER BY ctime")
     version = 0
@@ -104,10 +110,11 @@ class GetResource(ResourceLister):
       return True
     if self.targetVersion != -1  and self.targetVersion != version:
       return True
+
+    result = dict(version = version, totalVersions = totalVersions,
+                  creationTime = resource.ctime, value = resource.value)
     
-    self.response.out.write("%04d\n%04d\n%f\n%s\n"
-                            % (version, totalVersions, resource.ctime,
-                               resource.value))
+    self.response.out.write(simplejson.dumps(result))
     return False
 
 application = webapp.WSGIApplication(
