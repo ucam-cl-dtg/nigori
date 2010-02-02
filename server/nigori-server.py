@@ -56,10 +56,15 @@ class AddResource(webapp.RequestHandler):
     resource = Resource()
     resource.name = self.request.get('name')
     resource.value = self.request.get('value')
+    import urllib
+    print urllib.urlencode({"value": resource.value})
     resource.ctime = time.time()
+    if resource.name == '':
+      self.response.set_status(400, "Name must be supplied")
+      return
     resource.put()
 
-    self.redirect('/list-resource?name=' + resource.name)
+#    self.redirect('/list-resource?name=' + resource.name)
 
 class ResourceLister(webapp.RequestHandler):
   def forEach(self, fn, which):
@@ -69,13 +74,26 @@ class ResourceLister(webapp.RequestHandler):
     # protocol should tolerate that.
     resources = db.GqlQuery("SELECT * FROM Resource WHERE name = '"
                             + which + "' ORDER BY ctime")
+#    resources = db.GqlQuery("SELECT * FROM Resource ORDER BY ctime")
     version = 0
     for resource in resources:
       if not fn(resource, version, totalVersions):
         break
       version += 1
-        
+
 class ListResource(ResourceLister):
+  def get(self):
+    self.response.headers['Content-Type'] = 'text/html'
+    self.result = []
+    self.forEach(self.list, self.request.get('name'))
+    self.response.out.write(simplejson.dumps(self.result))
+
+  def list(self, resource, version, totalVersions):
+    self.result.append(dict(version = version, creationTime = resource.ctime,
+                            value = resource.value, name = resource.name))
+    return True
+
+class ListResourceHTML(ResourceLister):
   def get(self):
     self.response.headers['Content-Type'] = 'text/html'
 
@@ -121,6 +139,7 @@ application = webapp.WSGIApplication(
                                      [('/', MainPage),
                                       ('/add-resource', AddResource),
                                       ('/list-resource', ListResource),
+                                      ('/list-resource-html', ListResourceHTML),
                                       ('/get-resource', GetResource)],
                                      debug=True)
 

@@ -1,0 +1,94 @@
+#!/usr/local/bin/python
+
+from base64 import b64encode, b64decode
+from Crypto.Cipher import AES
+from Crypto.Hash import HMAC
+from Crypto.Hash import SHA256
+from Crypto.Util import randpool
+
+import httplib
+import simplejson
+import sys
+import urllib
+
+class KeyDeriver:
+  def __init__(self, password):
+    self.crypt = SHA256.new(password).digest()
+    self.mac = SHA256.new(self.crypt).digest()
+    self.authenticate = SHA256.new(self.mac).digest()
+
+  def encrypt(self, plain):
+    pool = randpool.RandomPool()
+    iv = pool.get_bytes(16)
+    crypter = AES.new(self.crypt, AES.MODE_CBC, iv)
+    pad = 16 - len(plain) % 16
+    c = '%c' % pad
+    for i in range(pad):
+      plain = plain + c
+    crypted = crypter.encrypt(plain)
+    hmac = HMAC.new(self.mac, crypted)
+    crypted = b64encode(iv + crypted + hmac.digest(), "+-")
+    return crypted
+
+  def decrypt(self, crypted):
+    crypted = b64decode(crypted,"+-")
+    l = len(crypted)
+    if l < 32:
+      raise ValueError("value too short")
+    mac = crypted[l-16:]
+    iv = crypted[:16]
+    crypted = crypted [16:l-16]
+    hmac = HMAC.new(self.mac, crypted)
+    if mac != hmac.digest():
+      raise ValueError("mac doesn't match")
+    crypter = AES.new(self.crypt, AES.MODE_CBC, iv)
+    plain = crypter.decrypt(crypted)
+    c = plain[-1]
+    for i in range(-1, -ord(c), -1):
+      if plain[i] != c:
+        raise ValueError("padding error")
+    plain = plain[:-ord(c)]
+    return plain
+
+def connect():
+  return httplib.HTTPConnection("localhost", 8080)
+
+def getList(password, name):
+  conn = connect()
+  conn.request("GET", "/list-resource?name=" + name)
+  response = conn.getresponse()
+#  print response.status, response.reason
+  if response.status != 200:
+    # FIXME: define a ProtocolError, perhaps?
+    raise LookupError("HTTP error: %d %s" % (response.status, response.reason))
+  json = response.read()
+#  print json
+  records = simplejson.loads(json)
+  keys = KeyDeriver(password)
+  for record in records:
+#    print record
+    value = keys.decrypt(record['value'])
+    print "%d at %f: %s" % (record['version'], record['creationTime'], value)
+
+def add(password, name, value):
+  keys = KeyDeriver(password)
+  params = urllib.urlencode({"name": name, "value": keys.encrypt(value)})
+  headers = {"Content-Type": "application/x-www-form-urlencoded",
+             "Accept": "text/plain" }
+  conn = connect()
+  conn.request("POST", "/add-resource", params, headers)
+  response = conn.getresponse()
+  print response.status, response.reason
+  print response.read()
+
+def main():
+  action = sys.argv[1]
+  if action == "get":
+    getList(sys.argv[2], sys.argv[3])
+  elif action == "add":
+    add(sys.argv[2], sys.argv[3], sys.argv[4])
+  else:
+    raise ValueError("Unrecognised action: " + action)
+
+if __name__ == "__main__":
+  main()
