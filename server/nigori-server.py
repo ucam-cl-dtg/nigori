@@ -151,27 +151,27 @@ class Register(webapp.RequestHandler):
     user.put()
 
 class Authenticate(webapp.RequestHandler):
-  def post(self):
-    # AppEngine runs in Unicode, so we need to convert to ASCII
-    ascii = codecs.lookup('ascii')
+  # AppEngine runs in Unicode, so we need to convert to ASCII
+  ascii = codecs.lookup('ascii')
 
+  def getb64(self, param):
+    v = self.request.get(param)
+    (v, l) = self.ascii.encode(v)
+    return b64dec(v)
+    
+  def post(self):
     user = self.request.get('user')
     users = db.GqlQuery("SELECT * FROM User WHERE user ='" + user +"'")
     assert users.count(2) == 1
 
-    (key, l) = ascii.encode(users[0].publicKey)
+    (key, l) = self.ascii.encode(users[0].publicKey)
     verifier = SchnorrVerifier(bin2int(b64dec(key)))
     
     t = self.request.get('t')
     # FIXME: check t for replay, check is recent
     
-    s = self.request.get('s')
-    (s, l) = ascii.encode(s)
-    s = b64dec(s)
-
-    e = self.request.get('e')
-    (e, l) = ascii.encode(e)
-    e = b64dec(e)
+    s = self.getb64('s')
+    e = self.getb64('e')
     
     if not verifier.verify(t, bin2int(s), bin2int(e)):
       # FIXME: if I am going to issue this error, I should be getting

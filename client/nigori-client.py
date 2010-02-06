@@ -75,6 +75,7 @@ def register(user, password):
 def authenticate(user, password):
   keys = KeyDeriver(password)
   schnorr = keys.schnorr()
+  # FIXME: include server name, user name in t
   t = "%d:%d" % (int(time.time()), random.SystemRandom().getrandbits(20))
   (e,s) = schnorr.sign(t)
   params = urllib.urlencode({"user": user,
