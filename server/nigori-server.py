@@ -150,6 +150,9 @@ class Register(webapp.RequestHandler):
     user.publicKey = self.request.get('publicKey')
     user.put()
 
+class Token(db.Model):
+  token = db.StringProperty()
+
 class Authenticate(webapp.RequestHandler):
   # AppEngine runs in Unicode, so we need to convert to ASCII
   ascii = codecs.lookup('ascii')
@@ -168,7 +171,15 @@ class Authenticate(webapp.RequestHandler):
     verifier = SchnorrVerifier(bin2int(b64dec(key)))
     
     t = self.request.get('t')
-    # FIXME: check t for replay, check is recent
+    # FIXME: check t is recent, expire old tokens
+    tokens = db.GqlQuery("SELECT * FROM Token WHERE token = '"
+                         + t + "'")
+    if tokens.count(1) > 0:
+      self.response.set_status(401, "This is a replay")
+      return
+    token = Token()
+    token.token = t
+    token.put()
     
     s = self.getb64('s')
     e = self.getb64('e')

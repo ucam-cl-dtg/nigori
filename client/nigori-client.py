@@ -72,11 +72,9 @@ def register(user, password):
   print response.status, response.reason
   print response.read()
 
-def authenticate(user, password):
+def do_auth(user, password, t):
   keys = KeyDeriver(password)
   schnorr = keys.schnorr()
-  # FIXME: include server name, user name in t
-  t = "%d:%d" % (int(time.time()), random.SystemRandom().getrandbits(20))
   (e,s) = schnorr.sign(t)
   params = urllib.urlencode({"user": user,
                              "t": t,
@@ -88,6 +86,14 @@ def authenticate(user, password):
   response = conn.getresponse()
   print response.status, response.reason
   print response.read()
+
+def authenticate(user, password):
+  # FIXME: include server name, user name in t
+  t = "%d:%d" % (int(time.time()), random.SystemRandom().getrandbits(20))
+  do_auth(user, password, t)
+  # test replay attack
+  print "Replaying: this should fail"
+  do_auth(user, password, t)
   
 def getList(password, name):
   conn = connect()
