@@ -72,14 +72,20 @@ def register(user, password):
   print response.status, response.reason
   print response.read()
 
-def do_auth(user, password, t):
+def makeAuthParams(user, password):
+  # FIXME: include server name, user name in t
+  t = "%d:%d" % (int(time.time()), random.SystemRandom().getrandbits(20))
   keys = KeyDeriver(password)
   schnorr = keys.schnorr()
   (e,s) = schnorr.sign(t)
-  params = urllib.urlencode({"user": user,
-                             "t": t,
-                             "e": b64enc(e),
-                             "s": b64enc(s)})
+  params = {"user": user,
+            "t": t,
+            "e": b64enc(e),
+            "s": b64enc(s)}
+  return params
+
+def do_auth(params):
+  params = urllib.urlencode(params)
   headers = {"Content-Type": "application/x-www-form-urlencoded"}
   conn = connect()
   conn.request("POST", "/authenticate", params, headers)
@@ -88,14 +94,13 @@ def do_auth(user, password, t):
   print response.read()
 
 def authenticate(user, password):
-  # FIXME: include server name, user name in t
-  t = "%d:%d" % (int(time.time()), random.SystemRandom().getrandbits(20))
-  do_auth(user, password, t)
+  params = makeAuthParams(user, password)
+  do_auth(params)
   # test replay attack
   print "Replaying: this should fail"
-  do_auth(user, password, t)
+  do_auth(params)
   
-def getList(password, name):
+def getList(user, password, name):
   conn = connect()
   conn.request("GET", "/list-resource?name=" + name)
   response = conn.getresponse()
