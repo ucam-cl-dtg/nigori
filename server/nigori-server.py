@@ -57,6 +57,9 @@ class Resource(db.Model):
 
 class AddResource(webapp.RequestHandler):
   def post(self):
+    if not wrapAuth(self.request, self.response):
+      return
+    
     resource = Resource()
     resource.name = self.request.get('name')
     resource.value = self.request.get('value')
@@ -68,7 +71,57 @@ class AddResource(webapp.RequestHandler):
       return
     resource.put()
 
-#    self.redirect('/list-resource?name=' + resource.name)
+class ReplayError(Exception):
+  pass
+
+class VerifyError(Exception):
+  pass
+
+# AppEngine runs in Unicode, so we need to convert to ASCII
+ascii = codecs.lookup('ascii')
+
+def getb64(request, param):
+  v = request.get(param)
+  (v, l) = ascii.encode(v)
+  return b64dec(v)
+
+def authenticate(request):
+  user = request.get('user')
+  users = db.GqlQuery("SELECT * FROM User WHERE user ='" + user +"'")
+  assert users.count(2) == 1
+
+  (key, l) = ascii.encode(users[0].publicKey)
+  verifier = SchnorrVerifier(bin2int(b64dec(key)))
+    
+  t = request.get('t')
+  # FIXME: check t is recent, expire old tokens
+  tokens = db.GqlQuery("SELECT * FROM Token WHERE token = '"
+                       + t + "'")
+  if tokens.count(1) > 0:
+    raise ReplayError()
+
+  token = Token()
+  token.token = t
+  token.put()
+    
+  s = getb64(request, 's')
+  e = getb64(request, 'e')
+    
+  if not verifier.verify(t, bin2int(s), bin2int(e)):
+    raise VerifyError()
+
+def wrapAuth(request, response):
+  try:
+    authenticate(request)
+  except VerifyError:
+    # FIXME: if I am going to issue this error, I should be getting
+    # the signature in a WWW-Authenticate field
+    response.set_status(401, "Signature doesn't verify")
+    return False
+  except ReplayError:
+    response.set_status(401, "This is a replay")
+    return False
+  return True
 
 class ResourceLister(webapp.RequestHandler):
   def forEach(self, fn, which):
@@ -87,6 +140,9 @@ class ResourceLister(webapp.RequestHandler):
 
 class ListResource(ResourceLister):
   def get(self):
+    if not wrapAuth(self.request, self.response):
+      return
+    
     self.response.headers['Content-Type'] = 'text/html'
     self.result = []
     self.forEach(self.list, self.request.get('name'))
@@ -154,40 +210,8 @@ class Token(db.Model):
   token = db.StringProperty()
 
 class Authenticate(webapp.RequestHandler):
-  # AppEngine runs in Unicode, so we need to convert to ASCII
-  ascii = codecs.lookup('ascii')
-
-  def getb64(self, param):
-    v = self.request.get(param)
-    (v, l) = self.ascii.encode(v)
-    return b64dec(v)
-    
   def post(self):
-    user = self.request.get('user')
-    users = db.GqlQuery("SELECT * FROM User WHERE user ='" + user +"'")
-    assert users.count(2) == 1
-
-    (key, l) = self.ascii.encode(users[0].publicKey)
-    verifier = SchnorrVerifier(bin2int(b64dec(key)))
-    
-    t = self.request.get('t')
-    # FIXME: check t is recent, expire old tokens
-    tokens = db.GqlQuery("SELECT * FROM Token WHERE token = '"
-                         + t + "'")
-    if tokens.count(1) > 0:
-      self.response.set_status(401, "This is a replay")
-      return
-    token = Token()
-    token.token = t
-    token.put()
-    
-    s = self.getb64('s')
-    e = self.getb64('e')
-    
-    if not verifier.verify(t, bin2int(s), bin2int(e)):
-      # FIXME: if I am going to issue this error, I should be getting
-      # the signature in a WWW-Authenticate field
-      self.response.set_status(401, "Signature doesn't verify")
+    wrapAuth(self.request, self.response)
 
 application = webapp.WSGIApplication(
                                      [('/', MainPage),

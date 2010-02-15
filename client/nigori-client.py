@@ -101,25 +101,27 @@ def authenticate(user, password):
   do_auth(params)
   
 def getList(user, password, name):
+  params = makeAuthParams(user, password)
+  params['name'] = name
   conn = connect()
-  conn.request("GET", "/list-resource?name=" + name)
+  conn.request("GET", "/list-resource?" + urllib.urlencode(params))
   response = conn.getresponse()
-#  print response.status, response.reason
   if response.status != 200:
     # FIXME: define a ProtocolError, perhaps?
     raise LookupError("HTTP error: %d %s" % (response.status, response.reason))
   json = response.read()
-#  print json
   records = simplejson.loads(json)
   keys = KeyDeriver(password)
   for record in records:
-#    print record
     value = keys.decrypt(record['value'])
     print "%d at %f: %s" % (record['version'], record['creationTime'], value)
 
-def add(password, name, value):
+def add(user, password, name, value):
+  params = makeAuthParams(user, password)
   keys = KeyDeriver(password)
-  params = urllib.urlencode({"name": name, "value": keys.encrypt(value)})
+  params['name'] = name
+  params['value'] = keys.encrypt(value)
+  params = urllib.urlencode(params)
   headers = {"Content-Type": "application/x-www-form-urlencoded",
              "Accept": "text/plain" }
   conn = connect()
@@ -131,9 +133,9 @@ def add(password, name, value):
 def main():
   action = sys.argv[1]
   if action == "get":
-    getList(sys.argv[2], sys.argv[3])
+    getList(sys.argv[2], sys.argv[3], sys.argv[4])
   elif action == "add":
-    add(sys.argv[2], sys.argv[3], sys.argv[4])
+    add(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
   elif action == "register":
     register(sys.argv[2], sys.argv[3])
   elif action == "authenticate":
