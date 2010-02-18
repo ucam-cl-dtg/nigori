@@ -24,23 +24,24 @@ def share(secret, k, n, p):
 
 def recover(shares, p):
   secret = 0
-  for i in range(len(shares)):
+  for i in shares.iterkeys():
     c = 1
-    for j in range(len(shares)):
+    for j in shares.iterkeys():
       if i != j:
         inv = gcd.mod_inverse((j - i) % p, p)
-        c = (c * (j + 1) * inv) % p
+        c = (c * j * inv) % p
     secret = (secret + c * shares[i]) % p
   return secret
 
 def main():
   s = share(12, 2, 3, 17)
-  r = recover([s[0], s[1]], 17)
+  r = recover({1: s[0], 2: s[1]}, 17)
   print "r =", r
+  assert r == 12
 
   secret = random.SystemRandom().getrandbits(1000)
-  s = share(secret, 2, 3, prime4096)
-  r = recover([s[0], s[1]], prime4096)
+  s = share(secret, 3, 5, prime4096)
+  r = recover({1: s[0], 3: s[2], 5: s[4]}, prime4096)
   print "secret =", secret, "r =", r
   assert secret == r
 
