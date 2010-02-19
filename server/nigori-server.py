@@ -201,8 +201,13 @@ class User(db.Model):
 
 class Register(webapp.RequestHandler):
   def post(self):
+    user = self.request.get('user')
+    users = db.GqlQuery("SELECT * FROM User WHERE user ='" + user +"'")
+    if users.count(1) != 0:
+      self.response.set_status(400, "user " + user + " already registered")
+      return
     user = User()
-    user.user = self.request.get('user')
+    user.user = user
     user.publicKey = self.request.get('publicKey')
     user.put()
 
