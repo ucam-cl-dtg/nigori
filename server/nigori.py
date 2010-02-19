@@ -54,7 +54,7 @@ class SchnorrSigner(Schnorr):
     self.x = bin2int(x)
 
   def public(self):
-    return b64enc(int2bin(pow(self.g, self.x, self.p)))
+    return int2bin(pow(self.g, self.x, self.p))
 
   def sign(self, message):
     k = random.SystemRandom().randrange(self.q)

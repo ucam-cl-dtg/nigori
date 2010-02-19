@@ -62,7 +62,7 @@ def connect():
 def register(user, password):
   keys = KeyDeriver(password)
   schnorr = keys.schnorr()
-  public = schnorr.public()
+  public = b64enc(schnorr.public())
   params = urllib.urlencode({"user": user, "publicKey": public})
   headers = {"Content-Type": "application/x-www-form-urlencoded",
              "Accept": "text/plain" }
