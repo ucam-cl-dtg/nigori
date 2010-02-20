@@ -5,7 +5,7 @@ from Crypto.Cipher import AES
 from Crypto.Hash import HMAC
 from Crypto.Hash import SHA256
 from Crypto.Util import randpool
-from nigori import SchnorrSigner
+from nigori import SchnorrSigner, concat, int2bin
 
 import httplib
 import random
@@ -20,9 +20,7 @@ class KeyDeriver:
     self.mac = SHA256.new(self.crypt).digest()
     self.authenticate = SHA256.new(self.mac).digest()
 
-  def encrypt(self, plain):
-    pool = randpool.RandomPool()
-    iv = pool.get_bytes(16)
+  def encryptWithIV(self, plain, iv):
     crypter = AES.new(self.crypt, AES.MODE_CBC, iv)
     pad = 16 - len(plain) % 16
     c = '%c' % pad
@@ -30,8 +28,19 @@ class KeyDeriver:
       plain = plain + c
     crypted = crypter.encrypt(plain)
     hmac = HMAC.new(self.mac, crypted)
-    crypted = b64enc(iv + crypted + hmac.digest())
+    crypted = crypted + hmac.digest()
     return crypted
+
+  def encrypt(self, plain):
+    pool = randpool.RandomPool()
+    iv = pool.get_bytes(16)
+    return b64enc(iv + self.encryptWithIV(plain, iv))
+
+  def permute(self, plain):
+    iv = ""
+    for i in range(16):
+      iv = iv + ("%c" % 0)
+    return b64enc(self.encryptWithIV(plain, iv))
 
   def decrypt(self, crypted):
     crypted = b64dec(crypted)
@@ -57,7 +66,7 @@ class KeyDeriver:
     return SchnorrSigner(self.authenticate)
 
 def connect():
-  return httplib.HTTPConnection("localhost", 8080)
+  return httplib.HTTPConnection(server, port)
 
 def register(user, password):
   keys = KeyDeriver(password)
@@ -100,9 +109,10 @@ def authenticate(user, password):
   print "Replaying: this should fail"
   do_auth(params)
   
-def getList(user, password, name):
+def getList(user, password, type, name):
   params = makeAuthParams(user, password)
-  params['name'] = name
+  keys = KeyDeriver(password)
+  params['name'] = keys.permute(concat([int2bin(type), name]))
   conn = connect()
   conn.request("GET", "/list-resource?" + urllib.urlencode(params))
   response = conn.getresponse()
@@ -116,10 +126,10 @@ def getList(user, password, name):
     value = keys.decrypt(record['value'])
     print "%d at %f: %s" % (record['version'], record['creationTime'], value)
 
-def add(user, password, name, value):
+def add(user, password, type, name, value):
   params = makeAuthParams(user, password)
   keys = KeyDeriver(password)
-  params['name'] = name
+  params['name'] = keys.permute(concat([int2bin(type), name]))
   params['value'] = keys.encrypt(value)
   params = urllib.urlencode(params)
   headers = {"Content-Type": "application/x-www-form-urlencoded",
@@ -130,16 +140,24 @@ def add(user, password, name, value):
   print response.status, response.reason
   print response.read()
 
+def initSplit(user, password, splits):
+  add(user, password, 2, "split servers", concat(splits))
+
 def main():
-  action = sys.argv[1]
+  global server, port
+  server = sys.argv[1]
+  port = int(sys.argv[2])
+  action = sys.argv[3]
   if action == "get":
-    getList(sys.argv[2], sys.argv[3], sys.argv[4])
+    getList(sys.argv[4], sys.argv[5], 1, sys.argv[6])
   elif action == "add":
-    add(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+    add(sys.argv[4], sys.argv[5], 1, sys.argv[6], sys.argv[7])
   elif action == "register":
-    register(sys.argv[2], sys.argv[3])
+    register(sys.argv[4], sys.argv[5])
   elif action == "authenticate":
-    authenticate(sys.argv[2], sys.argv[3])
+    authenticate(sys.argv[4], sys.argv[5])
+  elif action == "create-split":
+    initSplit(sys.argv[4], sys.argv[5], sys.argv[6:])
   else:
     raise ValueError("Unrecognised action: " + action)
 

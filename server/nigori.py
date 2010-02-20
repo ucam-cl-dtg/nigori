@@ -32,6 +32,12 @@ def lengthOf(x):
     t = ("%c" % 0) + t
   return t
 
+def concat(strings):
+  out = ""
+  for string in strings:
+    out = out + lengthOf(string) + string
+  return out
+
 class HashWrapper:
   def __init__(self):
     self.h = hashlib.sha256()
