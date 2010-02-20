@@ -52,7 +52,7 @@ class MainPage(webapp.RequestHandler):
 
 class Resource(db.Model):
   name = db.StringProperty()
-  value = db.StringProperty()
+  value = db.TextProperty()
   ctime = db.FloatProperty()
 
 class AddResource(webapp.RequestHandler):

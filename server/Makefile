@@ -12,6 +12,6 @@ upload:
 
 2:
 	mkdir -p ../server2
-	cp nigori-server.py nigori.py app.yaml ../server2
+	cp nigori-server.py nigori.py gcd.py app.yaml ../server2
 #	$(AS) -d ../server2
 

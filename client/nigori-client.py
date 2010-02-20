@@ -5,7 +5,7 @@ from Crypto.Cipher import AES
 from Crypto.Hash import HMAC
 from Crypto.Hash import SHA256
 from Crypto.Util import randpool
-from nigori import SchnorrSigner, concat, int2bin
+from nigori import SchnorrSigner, concat, int2bin, unconcat, ShamirSplit, bin2int
 
 import httplib
 import random
@@ -34,7 +34,7 @@ class KeyDeriver:
   def encrypt(self, plain):
     pool = randpool.RandomPool()
     iv = pool.get_bytes(16)
-    return b64enc(iv + self.encryptWithIV(plain, iv))
+    return iv + self.encryptWithIV(plain, iv)
 
   def permute(self, plain):
     iv = ""
@@ -108,8 +108,8 @@ def authenticate(user, password):
   # test replay attack
   print "Replaying: this should fail"
   do_auth(params)
-  
-def getList(user, password, type, name):
+
+def baseGetList(user, password, type, name):
   params = makeAuthParams(user, password)
   keys = KeyDeriver(password)
   params['name'] = keys.permute(concat([int2bin(type), name]))
@@ -120,8 +120,10 @@ def getList(user, password, type, name):
     # FIXME: define a ProtocolError, perhaps?
     raise LookupError("HTTP error: %d %s" % (response.status, response.reason))
   json = response.read()
-  records = simplejson.loads(json)
-  keys = KeyDeriver(password)
+  return simplejson.loads(json)
+  
+def getList(user, password, name):
+  records = baseGetList(user, password, 1, name)
   for record in records:
     value = keys.decrypt(record['value'])
     print "%d at %f: %s" % (record['version'], record['creationTime'], value)
@@ -130,7 +132,7 @@ def add(user, password, type, name, value):
   params = makeAuthParams(user, password)
   keys = KeyDeriver(password)
   params['name'] = keys.permute(concat([int2bin(type), name]))
-  params['value'] = keys.encrypt(value)
+  params['value'] = b64enc(keys.encrypt(value))
   params = urllib.urlencode(params)
   headers = {"Content-Type": "application/x-www-form-urlencoded",
              "Accept": "text/plain" }
@@ -143,13 +145,60 @@ def add(user, password, type, name, value):
 def initSplit(user, password, splits):
   add(user, password, 2, "split servers", concat(splits))
 
+def getSplits(user, password):
+  records = baseGetList(user, password, 2, "split servers")
+  record = records[-1]
+  keys = KeyDeriver(password)
+  splits = unconcat(keys.decrypt(record['value']))
+  return splits
+
+def splitAdd(user, password, name, value):
+  splits = getSplits(user, password)
+  k = int(splits[0])
+  n = (len(splits) - 1)/2
+  assert int(n) == n
+  assert k <= n
+  splitter = ShamirSplit()
+  shares = splitter.share(bin2int(value), k, n)
+  for s in range(n):
+    global host, port
+    host = splits[2*s + 1]
+    port = splits[2*s + 2]
+    print "Sending split", s, "to", host + ":" + port
+    add(user, password, 1, name, concat([int2bin(s + 1), int2bin(shares[s])]))
+
+def splitGet(user, password, name):
+  splits = getSplits(user, password)
+  k = int(splits[0])
+  n = (len(splits) - 1)/2
+  assert int(n) == n
+  assert k <= n
+  
+  keys = KeyDeriver(password)
+  shares = {}
+  # FIXME: obviously we should try all n until we get k splits
+  for s in range(k):
+    global host, port
+    host = splits[2*s + 1]
+    port = splits[2*s + 2]
+    print "Getting split", s, "from", host + ":" + port
+    records = baseGetList(user, password, 1, name)
+    record = records[-1]
+    share = unconcat(keys.decrypt(record['value']))
+    assert len(share) == 2
+    shares[bin2int(share[0])] = bin2int(share[1])
+
+  splitter = ShamirSplit()
+  secret = splitter.recover(shares)
+  print "value =", int2bin(secret)
+
 def main():
   global server, port
   server = sys.argv[1]
   port = int(sys.argv[2])
   action = sys.argv[3]
   if action == "get":
-    getList(sys.argv[4], sys.argv[5], 1, sys.argv[6])
+    getList(sys.argv[4], sys.argv[5], sys.argv[6])
   elif action == "add":
     add(sys.argv[4], sys.argv[5], 1, sys.argv[6], sys.argv[7])
   elif action == "register":
@@ -158,6 +207,10 @@ def main():
     authenticate(sys.argv[4], sys.argv[5])
   elif action == "create-split":
     initSplit(sys.argv[4], sys.argv[5], sys.argv[6:])
+  elif action == "split-add":
+    splitAdd(sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7])
+  elif action == "split-get":
+    splitGet(sys.argv[4], sys.argv[5], sys.argv[6])
   else:
     raise ValueError("Unrecognised action: " + action)
 
