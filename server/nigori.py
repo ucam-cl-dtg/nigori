@@ -25,13 +25,15 @@ def hexdump(str):
     t = t + c
   return t
 
-def lengthOf(x):
-  l = len(x)
-  t = int2bin(l)
-  assert len(t) <= 4
+def pad_int2bin(x, n):
+  t = int2bin(x)
+  assert len(t) <= n
   for i in range(len(t), 4):
     t = ("%c" % 0) + t
   return t
+
+def lengthOf(x):
+  return pad_int2bin(len(x), 4)
 
 def concat(strings):
   out = ""
