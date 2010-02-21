@@ -1,3 +1,4 @@
 .*~
 server/index\.yaml
 .*\.pyc
+server2/.*
