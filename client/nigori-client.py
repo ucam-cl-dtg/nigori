@@ -5,6 +5,7 @@ from Crypto.Cipher import AES
 from Crypto.Hash import HMAC
 from Crypto.Hash import SHA256
 from Crypto.Util import randpool
+from Crypto.PublicKey import RSA
 from nigori import SchnorrSigner, concat, int2bin, unconcat, ShamirSplit, bin2int
 
 import httplib
@@ -142,6 +143,27 @@ def add(user, password, type, name, value):
   print response.status, response.reason
   print response.read()
 
+def getRandomBytes(bytes):
+  r = random.SystemRandom().getrandbits
+  t = ""
+  for n in range(bytes):
+    t = t + chr(r(8))
+  return t
+
+def addNewRSA(user, password, name):
+  rsa = RSA.generate(1024, getRandomBytes)
+  key = {'n': rsa.n, 'e': rsa.e, 'd': rsa.d, 'p': rsa.p, 'q': rsa.q, 'u': rsa.u }
+  value = simplejson.dumps(key)
+  add(user, password, 3, name, value)
+  print "added", value
+
+def getRSA(user, password, name):
+  rsas = baseGetList(user, password, 3, name)
+  keys = KeyDeriver(password)
+  for rsa in rsas:
+    key = simplejson.loads(keys.decrypt(rsa['value']))
+    print key
+
 def initSplit(user, password, splits):
   add(user, password, 2, "split servers", concat(splits))
 
@@ -211,6 +233,10 @@ def main():
     splitAdd(sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7])
   elif action == "split-get":
     splitGet(sys.argv[4], sys.argv[5], sys.argv[6])
+  elif action == "add-rsa":
+    addNewRSA(sys.argv[4], sys.argv[5], sys.argv[6])
+  elif action == "get-rsa":
+    getRSA(sys.argv[4], sys.argv[5], sys.argv[6])
   else:
     raise ValueError("Unrecognised action: " + action)
 
