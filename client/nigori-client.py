@@ -15,57 +15,6 @@ import sys
 import time
 import urllib
 
-class KeyDeriver:
-  def __init__(self, password):
-    self.crypt = SHA256.new(password).digest()
-    self.mac = SHA256.new(self.crypt).digest()
-    self.authenticate = SHA256.new(self.mac).digest()
-
-  def encryptWithIV(self, plain, iv):
-    crypter = AES.new(self.crypt, AES.MODE_CBC, iv)
-    pad = 16 - len(plain) % 16
-    c = '%c' % pad
-    for i in range(pad):
-      plain = plain + c
-    crypted = crypter.encrypt(plain)
-    hmac = HMAC.new(self.mac, crypted)
-    crypted = crypted + hmac.digest()
-    return crypted
-
-  def encrypt(self, plain):
-    pool = randpool.RandomPool()
-    iv = pool.get_bytes(16)
-    return iv + self.encryptWithIV(plain, iv)
-
-  def permute(self, plain):
-    iv = ""
-    for i in range(16):
-      iv = iv + ("%c" % 0)
-    return b64enc(self.encryptWithIV(plain, iv))
-
-  def decrypt(self, crypted):
-    crypted = b64dec(crypted)
-    l = len(crypted)
-    if l < 32:
-      raise ValueError("value too short")
-    mac = crypted[l-16:]
-    iv = crypted[:16]
-    crypted = crypted [16:l-16]
-    hmac = HMAC.new(self.mac, crypted)
-    if mac != hmac.digest():
-      raise ValueError("mac doesn't match")
-    crypter = AES.new(self.crypt, AES.MODE_CBC, iv)
-    plain = crypter.decrypt(crypted)
-    c = plain[-1]
-    for i in range(-1, -ord(c), -1):
-      if plain[i] != c:
-        raise ValueError("padding error")
-    plain = plain[:-ord(c)]
-    return plain
-
-  def schnorr(self):
-    return SchnorrSigner(self.authenticate)
-
 def connect():
   return httplib.HTTPConnection(server, port)
 

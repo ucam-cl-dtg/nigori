@@ -1,6 +1,6 @@
+import gcd
 import hashlib
 import random
-import gcd
 
 def bin2int(str):
   t = 0
