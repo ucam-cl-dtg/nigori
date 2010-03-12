@@ -7,6 +7,8 @@ from Crypto.Hash import SHA256
 from Crypto.Util import randpool
 from Crypto.PublicKey import RSA
 from nigori import SchnorrSigner, concat, int2bin, unconcat, ShamirSplit, bin2int
+# FIXME: use this library properly!
+from nigori_client_lib import KeyDeriver
 
 import httplib
 import random
