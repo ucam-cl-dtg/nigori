@@ -2,6 +2,7 @@ from base64 import urlsafe_b64encode as b64enc, urlsafe_b64decode as b64dec
 from Crypto.Cipher import AES
 from Crypto.Hash import HMAC
 from Crypto.Hash import SHA256
+from Crypto.Util import randpool
 from nigori import SchnorrSigner, concat, int2bin
 
 import httplib
