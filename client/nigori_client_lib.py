@@ -1,15 +1,24 @@
-from base64 import urlsafe_b64encode as b64enc, urlsafe_b64decode as b64dec
+from base64 import urlsafe_b64encode as b64enc, urlsafe_b64decode
 from Crypto.Cipher import AES
 from Crypto.Hash import HMAC
 from Crypto.Hash import SHA256
 from Crypto.Util import randpool
 from nigori import SchnorrSigner, concat, int2bin
 
+import codecs
 import httplib
 import random
 import simplejson
 import time
 import urllib
+
+# AppEngine runs in Unicode, and so may other things, so we need to
+# convert to ASCII
+ascii = codecs.lookup('ascii')
+
+def b64dec(b64):
+  (v, l) = ascii.encode(b64)
+  return urlsafe_b64decode(v)
 
 class KeyDeriver:
   def __init__(self, password):
