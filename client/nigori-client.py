@@ -61,9 +61,9 @@ def authenticate(user, password):
   print "Replaying: this should fail"
   do_auth(params)
 
-def baseGetList(user, password, type, name):
+def baseGetList(user, password, type, name, use_des = 0):
   params = makeAuthParams(user, password)
-  keys = KeyDeriver(password)
+  keys = KeyDeriver(password, use_des)
   params['name'] = keys.permute(concat([int2bin(type), name]))
   conn = connect()
   conn.request("GET", "/list-resource?" + urllib.urlencode(params))
@@ -80,9 +80,9 @@ def getList(user, password, name):
     value = keys.decrypt(record['value'])
     print "%d at %f: %s" % (record['version'], record['creationTime'], value)
 
-def add(user, password, type, name, value):
+def add(user, password, type, name, value, use_des = 0):
   params = makeAuthParams(user, password)
-  keys = KeyDeriver(password)
+  keys = KeyDeriver(password, use_des)
   params['name'] = keys.permute(concat([int2bin(type), name]))
   params['value'] = b64enc(keys.encrypt(value))
   params = urllib.urlencode(params)
@@ -105,12 +105,12 @@ def addNewRSA(user, password, name):
   rsa = RSA.generate(1024, getRandomBytes)
   key = {'n': rsa.n, 'e': rsa.e, 'd': rsa.d, 'p': rsa.p, 'q': rsa.q, 'u': rsa.u }
   value = simplejson.dumps(key)
-  add(user, password, 3, name, value)
+  add(user, password, 3, name, value, use_des = 1)
   print "added", value
 
 def getRSA(user, password, name):
-  rsas = baseGetList(user, password, 3, name)
-  keys = KeyDeriver(password)
+  rsas = baseGetList(user, password, 3, name, use_des = 1)
+  keys = KeyDeriver(password, 1)
   for rsa in rsas:
     key = simplejson.loads(keys.decrypt(rsa['value']))
     print key
