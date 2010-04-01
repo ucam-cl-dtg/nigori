@@ -20,8 +20,11 @@ import urllib
 def connect():
   return httplib.HTTPConnection(server, port)
 
+def servername():
+  return server + ":" + str(port)
+
 def register(user, password):
-  keys = KeyDeriver(password)
+  keys = KeyDeriver(user, servername(), password)
   schnorr = keys.schnorr()
   public = b64enc(schnorr.public())
   params = urllib.urlencode({"user": user, "publicKey": public})
@@ -36,7 +39,7 @@ def register(user, password):
 def makeAuthParams(user, password):
   # FIXME: include server name, user name in t
   t = "%d:%d" % (int(time.time()), random.SystemRandom().getrandbits(20))
-  keys = KeyDeriver(password)
+  keys = KeyDeriver(user, servername(), password)
   schnorr = keys.schnorr()
   (e,s) = schnorr.sign(t)
   params = {"user": user,
@@ -63,7 +66,7 @@ def authenticate(user, password):
 
 def baseGetList(user, password, type, name, use_des = 0):
   params = makeAuthParams(user, password)
-  keys = KeyDeriver(password, use_des)
+  keys = KeyDeriver(user, servername(), password, use_des)
   params['name'] = keys.permute(concat([int2bin(type), name]))
   conn = connect()
   conn.request("GET", "/list-resource?" + urllib.urlencode(params))
@@ -76,13 +79,14 @@ def baseGetList(user, password, type, name, use_des = 0):
   
 def getList(user, password, name):
   records = baseGetList(user, password, 1, name)
+  keys = KeyDeriver(user, servername(), password)
   for record in records:
     value = keys.decrypt(record['value'])
     print "%d at %f: %s" % (record['version'], record['creationTime'], value)
 
 def add(user, password, type, name, value, use_des = 0):
   params = makeAuthParams(user, password)
-  keys = KeyDeriver(password, use_des)
+  keys = KeyDeriver(user, servername(), password, use_des)
   params['name'] = keys.permute(concat([int2bin(type), name]))
   params['value'] = b64enc(keys.encrypt(value))
   params = urllib.urlencode(params)

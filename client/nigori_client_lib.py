@@ -5,6 +5,7 @@ from Crypto.Hash import HMAC
 from Crypto.Hash import SHA256
 from Crypto.Util import randpool
 from nigori import SchnorrSigner, concat, int2bin
+from pbkdf2 import PBKDF2
 
 import codecs
 import httplib
@@ -17,6 +18,12 @@ import urllib
 # convert to ASCII
 ascii = codecs.lookup('ascii')
 
+# Counts for PBKDF2
+Nsalt = 1000
+Nuser = 1001
+Nenc = 1002
+Nmac = 1003
+
 def b64dec(b64):
   (v, l) = ascii.encode(b64)
   return urlsafe_b64decode(v)
@@ -25,17 +32,18 @@ class KeyDeriver:
   # use_des is a temporary measure so clients running on appspot can
   # be demoed. Yes, I am using it incorrectly (I am pretending it has
   # 16 byte blocks for padding)
-  def __init__(self, password, use_des = 0):
-    self.crypt = SHA256.new(password).digest()
-    self.mac = SHA256.new(self.crypt).digest()
-    self.authenticate = SHA256.new(self.mac).digest()
+  def __init__(self, username, servername, password, use_des = 0):
+    s_user = PBKDF2(concat([username, servername]), "user salt", Nsalt, 8)
+    self.user = PBKDF2(password, s_user, Nuser, 16)
+    self.enc = PBKDF2(password, s_user, Nenc, 16)
+    self.mac = PBKDF2(password, s_user, Nmac, 16)
     self.use_des = use_des
 
   def encryptWithIV(self, plain, iv):
     if self.use_des:
-      crypter = DES.new(self.crypt[:8], DES.MODE_CBC, iv)
+      crypter = DES.new(self.enc[:8], DES.MODE_CBC, iv)
     else:
-      crypter = AES.new(self.crypt, AES.MODE_CBC, iv)
+      crypter = AES.new(self.enc, AES.MODE_CBC, iv)
     pad = 16 - len(plain) % 16
     c = '%c' % pad
     for i in range(pad):
@@ -75,9 +83,9 @@ class KeyDeriver:
     if mac != hmac.digest():
       raise ValueError("mac doesn't match")
     if self.use_des:
-      crypter = DES.new(self.crypt[:8], DES.MODE_CBC, iv)
+      crypter = DES.new(self.enc[:8], DES.MODE_CBC, iv)
     else:
-      crypter = AES.new(self.crypt, AES.MODE_CBC, iv)
+      crypter = AES.new(self.enc, AES.MODE_CBC, iv)
     plain = crypter.decrypt(crypted)
     c = plain[-1]
     for i in range(-1, -ord(c), -1):
@@ -87,7 +95,7 @@ class KeyDeriver:
     return plain
 
   def schnorr(self):
-    return SchnorrSigner(self.authenticate)
+    return SchnorrSigner(self.user)
 
 class NigoriClient:
   TYPE_RSA = 3
