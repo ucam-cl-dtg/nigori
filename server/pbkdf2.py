@@ -23,10 +23,15 @@ def PBKDF2(p, s, c, dkLen):
   return out
 
 def F(p, s, c, i):
-  prev = hmac.new(p, s + pad_int2bin(i, 4), hashlib.sha1).digest()
+  mac = hmac.new(p, digestmod = hashlib.sha1)
+  m2 = mac.copy()
+  m2.update(s + pad_int2bin(i, 4))
+  prev = m2.digest()
   u = bin2int(prev)
   for i in range(c - 1):
-    prev = hmac.new(p, prev, hashlib.sha1).digest()
+    m2 = mac.copy()
+    m2.update(prev)
+    prev = m2.digest()
     u = u ^ bin2int(prev)
   return int2bin(u)
 
