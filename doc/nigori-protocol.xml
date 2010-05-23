@@ -268,7 +268,7 @@
       <t>The server checks that nt is recent (so it can drop old
       entries from its replay database), checks that it has not seen u
       || ns || nt || nr before, looks up g ^ Kuser for the user u, and
-      verifies the Schnorr signature. If all these checks pass, the
+      verifies the DSA signature. If all these checks pass, the
       user is authenticated.</t>
 
     </section>
@@ -925,8 +925,9 @@ b431d76ac97e4e6d de7fcd80cba7ed31 1cf7bf400ad122b8 9999999999999999
     </section>
 
     <section anchor="Acknowledgements" title="Acknowledgements"> 
-      <t>Thanks to Wan-Teh Chang (and others who should remind me who
-      they are) for feedback on earlier versions.</t> 
+      <t>Thanks to Wan-Teh Chang and Adam Langley (and others who
+      should remind me who they are) for feedback on earlier
+      versions.</t>
     </section> 
  
     <!-- Possibly a 'Contributors' section ... --> 
