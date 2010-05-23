@@ -5,7 +5,7 @@ all: nigori-overview.dvi nigori-protocol.html
 dist: $(DIST)
 
 publish: dist
-	scp $(DIST) sump2.links.org:files
+	rsync -v $(DIST) sump2.links.org:files
 
 .SUFFIXES: .dvi .tex .pdf .bib .html .xml .txt
 
