@@ -1,8 +1,19 @@
-all: nigori-overview.dvi
+DIST = nigori-overview.pdf nigori-protocol.html nigori-protocol.txt
 
-pdf: nigori-overview.pdf
+all: nigori-overview.dvi nigori-protocol.html
 
-.SUFFIXES: .dvi .tex .pdf .bib
+dist: $(DIST)
+
+publish: dist
+	scp $(DIST) sump2.links.org:files
+
+.SUFFIXES: .dvi .tex .pdf .bib .html .xml .txt
+
+.xml.html:
+	DISPLAY= xml2rfc $* $*.html
+
+.xml.txt:
+	DISPLAY= xml2rfc $* $*.txt
 
 .tex.dvi:
 	latex $*.tex
