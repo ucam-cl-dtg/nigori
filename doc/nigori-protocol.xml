@@ -503,8 +503,11 @@ DBBBC2DB04DE8EF9 2E8EFC141FBECAA6 287C59474E6BC05D 99B2964FA090C3A2
 	    <t>Create an array, a, of length k.</t>
 	    <t>Set a[0] = secret.</t>
 	    <t>Set a[1] to a[k-1] to random integers in the range
-	      [1,p) (i.e. 0 &lt; a[i] &lt; p). Use a cryptographic random
-	      number generator.</t>
+	      [0,p) (i.e. 0 &lt; a[i] &lt; p). Use a cryptographic random
+	      number generator.<cref>Ian Goldberg points out that 0
+	      has to be allowed or a small amount of data is leaked:
+	      e.g. if k=2 and some share is s, then the secret cannot
+	      be s (proof left as an exercise for the reader)</cref></t>
 	    <t>For i in the range 1 to n inclusive, compute poly(a, i)
 	      (see below), the result is the i'th share.</t>
 	  </list>
@@ -925,9 +928,9 @@ b431d76ac97e4e6d de7fcd80cba7ed31 1cf7bf400ad122b8 9999999999999999
     </section>
 
     <section anchor="Acknowledgements" title="Acknowledgements"> 
-      <t>Thanks to Wan-Teh Chang and Adam Langley (and others who
-      should remind me who they are) for feedback on earlier
-      versions.</t>
+      <t>Thanks to Wan-Teh Chang, Adam Langley and Ian Goldberg (and
+      others who should remind me who they are) for feedback on
+      earlier versions.</t>
     </section> 
  
     <!-- Possibly a 'Contributors' section ... --> 
