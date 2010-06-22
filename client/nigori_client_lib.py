@@ -4,10 +4,11 @@ from Crypto.Cipher import DES
 from Crypto.Hash import HMAC
 from Crypto.Hash import SHA256
 from Crypto.Util import randpool
-from nigori import SchnorrSigner, concat, int2bin
+from nigori import SchnorrSigner, concat, int2bin, hexdump
 from pbkdf2 import PBKDF2
 
 import codecs
+import gcd
 import httplib
 import random
 import simplejson
@@ -164,3 +165,22 @@ class ShamirSplit:
           c = (c * j * inv) % self.p
       secret = (secret + c * shares[i]) % self.p
     return secret
+
+# self test
+def main():
+  tests = [
+    "fffefdfcfbfaf9f8f7f6f5f4f3f2f0",
+    "000102030405060708",
+    ]
+
+  splitter = ShamirSplit()
+  for test in tests:
+    secret = int(test, 16)
+    s = splitter.share(secret, 2, 3)
+    r = splitter.recover({1: s[0], 2: s[1]})
+    recovered = hexdump(int2bin(r))
+    print "test =", test, "recovered =", recovered
+    assert recovered == test
+
+if __name__ == "__main__":
+  main()

@@ -1,4 +1,3 @@
-import gcd
 import hashlib
 import random
 
