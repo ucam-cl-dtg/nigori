@@ -1,9 +1,20 @@
-DIST = nigori-overview.pdf nigori-protocol.html nigori-protocol.txt
+V = 01
+PV = 00
+DIFF = nigori-protocol-$(PV)-$V-diff.html
+DIST = nigori-overview.pdf nigori-protocol-$V.html nigori-protocol-$V.txt $(DIFF)
 
-all: nigori-overview.dvi nigori-protocol.html
+all: nigori-overview.dvi nigori-protocol-$V.html
 
 publish: $(DIST)
 	rsync -v $(DIST) sump2.links.org:files
+
+diff:: $(DIFF)
+
+nigori-protocol-$V.xml: nigori-protocol.xml
+	cp nigori-protocol.xml nigori-protocol-$V.xml
+
+$(DIFF): nigori-protocol-$(PV).txt nigori-protocol-$V.txt
+	rfcdiff --stdout nigori-protocol-$(PV).txt nigori-protocol-$V.txt > $(DIFF)
 
 .SUFFIXES: .dvi .tex .pdf .bib .html .xml .txt
 
