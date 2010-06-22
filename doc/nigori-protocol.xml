@@ -476,6 +476,14 @@ Examples
 	parameter is the same for all implementations and is the 4096
 	bit verified prime:</t>
 
+	<t>Because the secret we want to split is in fact an arbitrary
+	sequence of bytes, we need to first encode it into a
+	number. We do this by prefixing the byte sequence with a
+	single byte with the value 01 and then interpreting the byte
+	sequence as a bigendian number. Obviously when recovering the
+	secret from the split this 01 byte should be checked and
+	stripped.</t>
+
 	<figure>
 	  <artwork>
 p =
