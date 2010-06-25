@@ -136,7 +136,7 @@ def splitAdd(user, password, name, value):
   assert int(n) == n
   assert k <= n
   splitter = ShamirSplit()
-  shares = splitter.share(bin2int(value), k, n)
+  shares = splitter.share(value, k, n)
   for s in range(n):
     global host, port
     host = splits[2*s + 1]
@@ -167,7 +167,7 @@ def splitGet(user, password, name):
 
   splitter = ShamirSplit()
   secret = splitter.recover(shares)
-  print "value =", int2bin(secret)
+  print "value =", secret
 
 def main():
   global server, port

@@ -4,7 +4,7 @@ from Crypto.Cipher import DES
 from Crypto.Hash import HMAC
 from Crypto.Hash import SHA256
 from Crypto.Util import randpool
-from nigori import SchnorrSigner, concat, int2bin, hexdump
+from nigori import SchnorrSigner, concat, int2bin, hexdump, bin2int
 from pbkdf2 import PBKDF2
 
 import codecs
@@ -143,12 +143,20 @@ class ShamirSplit:
       t = (t + (a[i] * pow(x, i, self.p))) % self.p
     return t
 
-  def share(self, secret, k, n):
+  def share(self, secret_bytes, k, n):
+    # Prepend a 1 byte to prevent dropping of leading zeroes.
+    secret_bytes = ("%c" % 1) + secret_bytes
+    secret = bin2int(secret_bytes)
+    
     assert self.p > secret
     assert self.p > n
+
+    # generate random coefficients
     a = [secret]
     for i in range(1, k):
       a.append(random.SystemRandom().randrange(self.p))
+
+    # and compute shares
     s = []
     for i in range(1, n+1):
       s.append(self.compute(a, i))
@@ -164,22 +172,35 @@ class ShamirSplit:
           inv = gcd.mod_inverse((j - i) % self.p, self.p)
           c = (c * j * inv) % self.p
       secret = (secret + c * shares[i]) % self.p
-    return secret
+
+    # convert to string, dropping leading 01 added by share()
+    secret_bytes = int2bin(secret)
+    assert secret_bytes[0] == "%c" % 1
+    secret_bytes = secret_bytes[1:]
+    
+    return secret_bytes
+
+def hex2array(hex):
+  t = ""
+  for i in range(0, len(hex), 2):
+    t = t + "%c" % int(hex[i:i+2], 16)
+  return t
 
 # self test
 def main():
   tests = [
+    # Hex representation of string of arbitrary bytes
     "fffefdfcfbfaf9f8f7f6f5f4f3f2f0",
     "000102030405060708",
     ]
 
   splitter = ShamirSplit()
   for test in tests:
-    secret = int(test, 16)
+    secret = hex2array(test)
     s = splitter.share(secret, 2, 3)
     r = splitter.recover({1: s[0], 2: s[1]})
-    recovered = hexdump(int2bin(r))
-    print "test =", test, "recovered =", recovered
+    recovered = hexdump(r)
+    print "test =", hexdump(secret), "recovered =", recovered
     assert recovered == test
 
 if __name__ == "__main__":
