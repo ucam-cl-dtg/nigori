@@ -104,7 +104,7 @@ class NigoriClient:
     self.server = server
     self.port = port
     self.user = user
-    self.keys = KeyDeriver(password, use_des = 1)
+    self.keys = KeyDeriver(user, server, password, use_des = 1)
 
   def authParams(self):
     # FIXME: include server name, user name in t
