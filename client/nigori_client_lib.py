@@ -180,28 +180,36 @@ class ShamirSplit:
     
     return secret_bytes
 
+import unittest
+
 def hex2array(hex):
   t = ""
   for i in range(0, len(hex), 2):
     t = t + "%c" % int(hex[i:i+2], 16)
   return t
 
+class TestShamirSplit(unittest.TestCase):
+  def setUp(self):
+    self.splitter = ShamirSplit()
+
+  def test_splt(self):
+    tests = [
+      # Hex representation of string of arbitrary bytes
+      "fffefdfcfbfaf9f8f7f6f5f4f3f2f0",
+      "000102030405060708",
+      ]
+
+    for test in tests:
+      secret = hex2array(test)
+      s = self.splitter.share(secret, 2, 3)
+      r = self.splitter.recover({1: s[0], 2: s[1]})
+      recovered = hexdump(r)
+      print "test =", hexdump(secret), "recovered =", recovered
+      self.assertEqual(recovered, test)
+
 # self test
 def main():
-  tests = [
-    # Hex representation of string of arbitrary bytes
-    "fffefdfcfbfaf9f8f7f6f5f4f3f2f0",
-    "000102030405060708",
-    ]
-
-  splitter = ShamirSplit()
-  for test in tests:
-    secret = hex2array(test)
-    s = splitter.share(secret, 2, 3)
-    r = splitter.recover({1: s[0], 2: s[1]})
-    recovered = hexdump(r)
-    print "test =", hexdump(secret), "recovered =", recovered
-    assert recovered == test
+  unittest.main()
 
 if __name__ == "__main__":
   main()
