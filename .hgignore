@@ -2,3 +2,9 @@
 server/index\.yaml
 .*\.pyc
 server2/.*
+doc/.*\.aux
+doc/.*\.dvi
+doc/.*\.log
+doc/.*\.pdf
+doc/.*\.html
+doc/.*\.txt

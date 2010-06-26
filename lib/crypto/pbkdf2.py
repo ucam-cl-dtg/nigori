@@ -1,4 +1,4 @@
-from nigori import hexdump, pad_int2bin, bin2int, int2bin
+from nigori.util import hexdump, pad_int2bin, bin2int, int2bin
 
 import hashlib
 import hmac

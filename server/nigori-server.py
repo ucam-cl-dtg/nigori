@@ -3,7 +3,8 @@ from django.utils import simplejson
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
-from nigori import bin2int, SchnorrVerifier
+from crypto.schnorr.verifier import SchnorrVerifier
+from nigori.util import bin2int
 
 import codecs
 import time

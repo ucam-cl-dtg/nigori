@@ -4,11 +4,13 @@ from Crypto.Cipher import DES
 from Crypto.Hash import HMAC
 from Crypto.Hash import SHA256
 from Crypto.Util import randpool
-from nigori import SchnorrSigner, concat, int2bin, hexdump, bin2int
+
+from crypto import gcd
 from crypto.pbkdf2 import PBKDF2
+from crypto.schnorr.signer import SchnorrSigner
+from nigori.util import concat, int2bin, hexdump, bin2int
 
 import codecs
-import gcd
 import httplib
 import random
 import simplejson
