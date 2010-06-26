@@ -5,7 +5,7 @@ from Crypto.Hash import HMAC
 from Crypto.Hash import SHA256
 from Crypto.Util import randpool
 from nigori import SchnorrSigner, concat, int2bin, hexdump, bin2int
-from pbkdf2 import PBKDF2
+from crypto.pbkdf2 import PBKDF2
 
 import codecs
 import gcd
