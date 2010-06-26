@@ -480,9 +480,8 @@ Examples
 	sequence of bytes, we need to first encode it into a
 	number. We do this by prefixing the byte sequence with a
 	single byte with the value 01 and then interpreting the byte
-	sequence as a bigendian number. Obviously when recovering the
-	secret from the split this 01 byte should be checked and
-	stripped.</t>
+	sequence as a bigendian number. When recovering the secret
+	from the split this 01 byte MUST be checked and stripped.</t>
 
 	<figure>
 	  <artwork>
