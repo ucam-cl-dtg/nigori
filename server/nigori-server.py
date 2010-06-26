@@ -7,6 +7,7 @@ from crypto.schnorr.verifier import SchnorrVerifier
 from nigori.util import bin2int
 
 import codecs
+import logging
 import time
 
 PROTOCOL_VERSION = 0
@@ -205,12 +206,14 @@ class Register(webapp.RequestHandler):
     userName = self.request.get('user')
     users = db.GqlQuery("SELECT * FROM User WHERE user ='" + userName +"'")
     if users.count(1) != 0:
+      logging.info("User " + userName + " already registered")
       self.response.set_status(400, "user " + userName + " already registered")
       return
     user = User()
     user.user = userName
     user.publicKey = self.request.get('publicKey')
     user.put()
+    logging.info("Added user " + userName)
 
 class Token(db.Model):
   token = db.StringProperty()
