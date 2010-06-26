@@ -11,7 +11,8 @@ publish: $(DIST)
 diff:: $(DIFF)
 
 nigori-protocol-$V.xml: nigori-protocol.xml
-	cp nigori-protocol.xml nigori-protocol-$V.xml
+	cp -f nigori-protocol.xml nigori-protocol-$V.xml
+	chmod -w nigori-protocol-$V.xml
 
 $(DIFF): nigori-protocol-$(PV).txt nigori-protocol-$V.txt
 	rfcdiff --stdout nigori-protocol-$(PV).txt nigori-protocol-$V.txt > $(DIFF)
