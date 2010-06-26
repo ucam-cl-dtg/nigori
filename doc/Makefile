@@ -6,7 +6,7 @@ DIST = nigori-overview.pdf nigori-protocol-$V.html nigori-protocol-$V.txt $(DIFF
 all: nigori-overview.dvi nigori-protocol-$V.html
 
 publish: $(DIST)
-	rsync -v $(DIST) sump2.links.org:files
+	rsync -v $(DIST) sump2.links.org:files/nigori
 
 diff:: $(DIFF)
 
