@@ -1,0 +1,999 @@
+<?xml version='1.0'?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!-- One method to get references from the online citation libraries.
+     There has to be one entity for each item to be referenced. 
+     An alternate method (rfc include) is described in the references. --> 
+ 
+<!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml"> 
+]>
+<?rfc strict="no" ?>
+<?rfc private="Draft" ?>
+<?rfc toc="yes"?>
+<?rfc symrefs="yes"?>
+<?rfc comments="yes"?>
+<rfc category="info" docName="draft-laurie-nigori-01">
+  <!-- category values: std, bcp, info, exp, and historic
+     ipr values: full3667, noModification3667, noDerivatives3667
+     you can add the attributes updates="NNNN" and obsoletes="NNNN" 
+     they will automatically be output with "(if approved)" --> 
+ 
+  <!-- ***** FRONT MATTER ***** --> 
+ 
+  <front> 
+    <!-- The abbreviated title is used in the page header - it is only necessary if the 
+         full title is longer than 39 characters --> 
+ 
+    <title abbrev="Nigori">Nigori: Storing Secrets in the Cloud</title> 
+ 
+    <!-- add 'role="editor"' below for the editors if appropriate --> 
+ 
+    <!-- Another author who claims to be an editor --> 
+ 
+    <author fullname="Ben Laurie" initials="B.L." surname="Laurie"> 
+      <organization>Google Ltd.</organization> 
+ 
+      <address> 
+        <postal> 
+          <street></street> 
+ 
+          <!-- Reorder these if your country does things differently --> 
+ 
+          <city>London</city> 
+ 
+          <region></region> 
+ 
+          <code></code> 
+ 
+          <country>UK</country> 
+        </postal> 
+ 
+        <email>benl@google.com</email> 
+ 
+        <!-- uri and facsimile elements may also be added --> 
+      </address> 
+    </author> 
+ 
+    <date year="2010" /> 
+ 
+    <!-- Meta-data Declarations --> 
+ 
+    <area>General</area> 
+ 
+    <workgroup>Internet Engineering Task Force</workgroup> 
+ 
+    <!-- WG name at the upperleft corner of the doc,
+         IETF is fine for individual submissions.  
+	 If this element is not present, the default is "Network Working Group",
+         which is used by the RFC Editor as a nod to the history of the IETF. --> 
+ 
+    <keyword>nigori</keyword> 
+ 
+    <!-- Keywords will be incorporated into HTML output
+         files in a meta tag but they have no effect on text or nroff
+         output. If you submit your draft to the RFC Editor, the
+         keywords will be used for the search engine. --> 
+ 
+    <abstract> 
+      <t>Nigori is a protocol for storing secrets in the cloud such
+      that the storage need not be trusted and only a single password
+      is required to access secrets.</t> 
+    </abstract> 
+  </front> 
+ 
+  <middle> 
+    <section title="Introduction"> 
+
+      <section title="Requirements Language"> 
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+        "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+        document are to be interpreted as described in <xref
+        target="RFC2119">RFC 2119</xref>.</t> 
+      </section> 
+
+      <section title="Notation">
+	<t>"abc" means the octet string representing the quoted
+	characters, in ASCII, without termination. So, "abc" is the
+	octets (in hex) 61 62 63.</t>
+
+	<t>PBKDF2 is as defined in RFC 2898, with
+	PRF=HMAC-SHA1. <cref>(Security note: although we'd prefer SHA-256,
+	SHA-1 is not actually broken for this use case, and PBKDF2
+	does not currently allow any other hash) [PBKDF2 test vectors,
+	courtesy of wtc:
+	http://www.ietf.org/id/draft-josefsson-pbkdf2-test-vectors-00.txt
+	http://www.rfc-editor.org/rfc/rfc3962.txt
+	http://www.cryptosys.net/manapi/api_PBE_Kdf2.html]</cref></t>
+
+	<t>A || B means the concatenation of the octets of A and B
+	each preceded by its own length represented as 4 bytes,
+	bigendian, so "abc" || "defgh" would be 00 00 00 03 61 62 63
+	00 00 00 05 64 65 66 67 68.</t>
+
+	<t>HMAC(K, T) means the HMAC of T with key K and hash function
+	SHA-256, as defined in RFC 2104.</t>
+
+	<t>Enc[k1, k2](P) means the encryption of plaintext P using
+	AES-256 in CBC mode with a random IV, standard padding (i.e. n
+	bytes of value n s.t. the plaintext is extended to a multiple
+	of 16 bytes, n > 0) and key k1, giving ciphertext C, followed
+	by HMAC(k2, C).</t>
+
+	<t>Permute[k1, k2](P) means the encryption of plaintext P
+	using AES-256 in CBC mode with an all-zero IV, standard
+	padding (i.e. n bytes of value n s.t. the plaintext is
+	extended to a multiple of 16 bytes, n > 0) and key k1, giving
+	ciphertext C, followed by HMAC(k2, C).</t>
+      </section>
+
+      <section title="Constants">
+
+	<texttable title="Constants">
+
+	  <ttcol>Name</ttcol>
+	  <ttcol>Value</ttcol>
+	  <ttcol>Notes</ttcol>
+	  <c>Nsalt</c>	<c>1000</c>	<c>[1]</c>
+	  <c>Nuser</c>	<c>Nsalt + 1</c><c>[1]</c>
+	  <c>Nenc</c>	<c>Nsalt + 2</c><c>[1]</c>
+	  <c>Nmac</c>	<c>Nsalt + 3</c><c>[1]</c>
+	  <c>Buser</c>  <c>16</c>       <c>size in bytes for Suser, must be
+	                                   at least 10 for FIPS-198
+	                                   compliance with
+	                                   HMAC-SHA1</c>
+	  <c>Bdsa</c>	<c>?</c>	<c>size in bytes for Kuser</c>
+	  <c>Benc</c>	<c>16</c>	<c>symmetric encryption key size
+                                           (currently AES-128) (Kenc)</c>
+	  <c>Bmac</c>	<c>16</c>	<c>encryption MAC key size (Kmac)</c>
+	  <c>Bmaster</c><c>16</c>	<c>size in bytes of Kmaster</c>
+
+	  <postamble>[1] should be at least 1000 and different from
+	  other N values - the properties of PBKDF2 then ensure that
+	  no key can be derived from any other key.</postamble>
+	</texttable>
+
+      </section>
+    
+    </section>
+
+    <section title="Key and Salt Derivation">
+
+      <t>Three keys are required for the Nigori protocol
+	<list>
+	  <t>Kuser: User Authentication Key - this is used to
+	    authenticate the user to the Nigori server(s). Note that
+	    this is used in a way which does not give an eavesdropper
+	    a dictionary attack against the master password from which
+	    it is derived.</t>
+	  <t>Kenc: Secret Encryption Key - this is used to encrypt the
+	    user's secrets at the Nigori server(s) [note: may become a
+	    per-secret key to enable OAuth, see below]</t>
+	  <t>Kmac: Secret Authentication Key - this is used as a MAC
+	    to authenticate the encrypted secrets.</t>
+	</list>
+      </t>
+
+      <t>Depending on user choice, these can be derived in different
+	ways, some allow easier recovery in exchange for more exposure
+	to evil servers.</t>
+
+      <t>We also need a per-user, per-server salt value, which is
+	always derived in the same way:
+
+	<list>
+	  <t>Suser = PBKDF2(Username || Servername, "user salt",
+	    Nsalt, Buser)</t>
+	</list>
+      </t>
+
+      <t><cref>(Security note: there's no particular point using a
+	random salt per key or per encryption, though there is a point
+	in having a different salt for each user and each
+	server).</cref></t>
+
+      <section title="Unassisted Password-based Key Derivation">
+
+	<t>In unassisted password-based key derivation, the only input
+	  is the user's master password, P. Keys are derived as
+	  follows:
+
+	  <list>
+	    <t>Kuser = PBKDF2(P, Suser, Nuser, Bdsa)</t>
+	    <t>Kenc = PBKDF2(P, Suser, Nenc, Benc)</t>
+	    <t>Kmac = PBKDF2(P, Suser, Nmac, Bmac)</t>
+	  </list>
+	</t>
+
+	<t>If the user forgets the password, there is no way to
+	  recover the various keys, unless either the password or the
+	  derived keys are escrowed in some way. Such escrow is
+	  outside the scope of this protocol.</t>
+
+      </section>
+
+      <section title="Assisted Password-based Key Derivation">
+
+	<t>In this mode, the user has an account at some server which
+	will supply a master encryption key, Kmaster, if the user
+	successfully authenticates. How this is done is up to the
+	server, but we recommend that the server derive it from a hash
+	of the user's password at the server, Pserver, such as the one
+	used to check the password when the user logs in, as follows:
+
+	  <list>
+	    <t>Kmaster = PBKDF2(H(Pserver), Sserver, Nmaster,
+	    Bmaster)</t>
+	  </list>
+	</t>
+
+	<t>where Sserver is a secret known only to the server. This
+	  prevents dictionary attacks to try to derive Pserver from
+	  Kmaster. If the user forgets his password, the server can
+	  still derive Kmaster from the old password hash once the
+	  user has recovered his account. However, obviously, the
+	  server can also derive Kmaster without the assistance of the
+	  user. Therefore the user might choose to have a second
+	  password, Pnigori, which is different from Pserver. If the
+	  user chooses not to have this second password, then Pnigori
+	  = Pserver. Note that in this case an honest server still
+	  cannot derive Pnigori from H(Pserver).</t>
+
+	<t>Keys are derived as follows:
+	  <list>
+	    <t>Kuser = PBKDF2(Pnigori, Suser, Nuser, Buser)</t>
+	    <t>Kenc = PBKDF2(Kmaster, Suser, Nenc, Benc)</t>
+	    <t>Kmac = PBKDF2(Kmaster, Suser, Nmac, Bmac)</t>
+	  </list>
+	</t>
+
+	<t>If the user forgets Pnigori or Pserver there is now the
+	possibility of account recovery using traditional recovery
+	mechanisms. [Note: the client should be able to cache Kmaster
+	so it doesn't always have to contact the auth server]</t>
+
+      </section>
+
+    </section> 
+
+    <section title="Authentication">
+
+      <t>When the user registers at a server, he presents his username
+      (an arbitrary octet string [TBD: max length?]) websafe base64
+      encoded, and g ^ Kuser mod p. Then to authenticate to the server
+      he presents his username (u), the server name (ns), the time in
+      seconds since Jan 1 1970 (nt) and random string (nr) and a
+      DSA signature using Kuser over u || ns || nt || nr. At least
+      one of these must be different every time they are used, in
+      order to defeat replay attacks.</t>
+
+      <t>The server checks that nt is recent (so it can drop old
+      entries from its replay database), checks that it has not seen u
+      || ns || nt || nr before, looks up g ^ Kuser for the user u, and
+      verifies the DSA signature. If all these checks pass, the
+      user is authenticated.</t>
+
+    </section>
+
+    <section title="Storage of Secrets">
+
+      <t>Secrets are identified by a type and a name. The value of the
+      name depends on the type, as does the value of the stored
+      secret. Currently defined types are:
+
+	<list>
+	  <t>Type 1: a password. The name is the URL at which the
+	    password is to be presented [Note: simplistic, what should
+	    we really do?], the value is the password. [Switch this to
+	    JSON]</t>
+	  <t>Type 2: a list of servers for split storage. The name is
+	    the fixed string "server list". The value is the
+	    concatenation (as defined by ||) of k followed by the list
+	    of server URLs. [Should this instead be a JSON value?]</t>
+	  <t>Type 3: an RSA key. The name is an arbitrary name, the
+	    value is a JSON encoding of the RSA private key [TBD].</t>
+	</list>
+      </t>
+
+      <t>In any case, the lookup name (N) sent to the server to be
+      associated with the value (V) is Permute[Kenc,Kmac](T || name),
+      where T is the 4 byte bigendian representation of the type [Note
+      that this redundantly includes the prefix 00 00 00 04 in the
+      encryption, but that seems fine]. The value sent to the server
+      is Enc[Kenc,Kmac](V).</t>
+
+      <t>Note: if instead of Kenc we use Kv which is (for example:
+      anything that depends on both P and N will do):
+	<list>
+	  <t>Kv = PBKDF2(Kenc || N, Suser, Nv, Benc)</t>
+	</list>
+      </t>
+
+      <t>then we could also allow third parties access to single
+      secrets via protocols such as OAuth. The most general form of
+      this would give an the service provider (SP) the per-secret key
+      and an OAuth token to retrieve the current value of that
+      secret. A general purpose crypto service could be used which
+      performed encryption, signing etc. on behalf of less trusted
+      services - in this case, the final SP would have OAuth access to
+      the crypto SP, which in turn would have OAuth access to the
+      appropriate secret in Nigori.</t>
+
+    </section>
+
+    <section title="Secret Storage at a Single Server">
+
+      <section title="Storage">
+
+	<t>The client sends authentication information as specified
+	  above, plus the key and value.</t>
+
+      </section>
+
+      <section title="Retrieval">
+
+	<t>The client sends authentication information and the
+	  key. The server returns the value.</t>
+
+      </section>
+
+    </section>
+
+    <section title="Secret Storage at Multiple Servers">
+
+      <t>This looks exactly the same to each server as storage at a
+      single server would. However, the client takes the value, V, it
+      would store at a single server and splits it using a Shamir
+      split, with the k value as determined by the user (n is
+      obviously equal to the number of servers). Each split is then
+      stored at one of the servers as Enc[Kenc,Kmac](i ||
+      Si). <cref>(Security note: the servers can probably guess they're part
+      of a split because the value will be longer than a non-split
+      value)</cref></t>
+
+    </section>
+
+    <section title="Protocol Details">
+
+      <t>All octet strings are transmitted as websafe base64.</t>
+
+      <t>[server] is the base URL for the server. All request MUST be
+      performed over HTTPS. The client MUST check the certificate
+      (note: "check" may mean "is the same certificate as seen when
+      the user registered at or first visited the server").</t>
+
+      <section title="Storage">
+
+	<t>Storage is a POST request to [server]/store, with body
+	containing the following:</t>
+
+	<texttable>
+	  <ttcol>Parameter</ttcol>
+	  <ttcol>Value</ttcol>
+	  <c>u</c>	<c>user name</c>
+	  <c>ns</c>	<c>server name</c>
+	  <c>nt</c>	<c>time</c>
+	  <c>nr</c>	<c>random</c>
+	  <c>s</c>	<c>DSA signature</c>
+	  <c>k</c>	<c>key</c>
+	  <c>v</c>	<c>value</c>
+	</texttable>
+
+	<t>The server adds the value to the list of values stored for
+	that key.</t>
+
+      </section>
+
+      <section title="Retrieval">
+
+	<t>Retrieval is a GET request to [server]/get Suggest just
+	using "/store" here -- why multiply endpoints without
+	necessity -- assuming "store" could be a noun in this
+	context. -John Panzer 3/1/10 1:03 PM  with an empty body and
+	parameters as follows</t>
+
+	<texttable>
+	  <ttcol>Parameter</ttcol>
+	  <ttcol>Value</ttcol>
+	  <c>u</c>	<c>user name</c>
+	  <c>ns</c>	<c>server name</c>
+	  <c>nt</c>	<c>time</c>
+	  <c>nr</c>	<c>random</c>
+	  <c>s</c>	<c>DSA signature</c>
+	  <c>k</c>	<c>key</c>
+	</texttable>
+
+	<t>If successful, the body is a JSON value containing an array
+	of</t>
+
+	<texttable>
+	  <ttcol>Parameter</ttcol>
+	  <ttcol>Value</ttcol>
+	  <c>version</c>	<c>the version of the secret</c>
+	  <c>creationTime</c>	<c>the time at which the secret was created</c>
+	  <c>value</c>		<c>the value associated with the
+                                   key</c>
+	</texttable>
+
+      </section>
+
+      <section title="Responses">
+
+	<t>200 OK</t>
+	<t>401 Signature does not verify</t>
+	<t>401 This is a replay</t>
+	<t>403 Signature verifies but ACL doesn't</t>
+
+      </section>
+
+    </section>
+
+    <section title="Algorithms">
+
+      <t>I'll describe the algorithms in psuedocode here. There are
+	also Python implementations available at
+	http://code.google.com/p/nigori/</t>
+
+
+      <!--
+Schnorr Signature
+
+A Schnorr signature is a signature over a message that both authenticates the message and proves posession of a secret without giving the verifier an equivalent to that secret. The secret in our case is Kuser. All implementations must use the same public parameters,
+
+p = fd7f53811d75122952df4a9c2eece4e7f611b7523cef4400c31e3f80b6512669455d402251fb593d8d58fabfc5f5ba30f6cb9b556cd7813b801d346ff26660b76b9950a5a49f9fe8047b1022c24fbba9d7feb7c61bf83b57e7c6a8a6150f04fb83f6d3c51ec3023554135a169132f675f3ae2b61d72aeff22203199dd14801c7
+q = 9760508f15230bccb292b982a2eb840bf0581cf5
+g = f7e1a085d69b3ddecbbcab5c36b857b97994afbbfa3aea82f9574c0b3d0782675159578ebad4594fe67107108180b449167123e84c281613b7cf09328cc8a6e13c167a8b547c8d28e0a3ae1e2bb3a675916ea37f0bfa213562f1fb627a01243bcca4f1bea8519089a883dfe15ae59f06928b665e807b552564014c3bfecf492a
+
+[Note: we should generate new parameters, so q is big enough to handle SHA-256 - seems to be sized for SHA-1 here]
+
+At registration time, the client gives the server g^Kuser mod p.
+
+To authenticate, the client
+
+constructs message M = u || ns || nt || nr.
+chooses a random k s.t. 0 < k < q. 
+calculates r = g^k mod p
+calculates e = SHA-256(M || r), taking the hash as a bigendian 32 byte unsigned integer
+calculates s = (k - Kuser * e) mod q
+sends the server M, s and e
+
+To verify, the server:
+
+calculates r = (g^s (g^Kuser)^e) mod p. (note that g^Kuser was supplied by the client at registration time)
+calculates e' = SHA-256(M || r)
+verifies that e' = e.
+
+Examples
+
+[I will provide worked examples, showing each step in the calculations --
+  --as well as final results]
+
+  -->
+
+      <section title="Shamir Secret Split">
+
+	<t>A Shamir secret split takes some secret (a number less than
+	the public parameter, p) and splits it into n components such
+	that any k components can be used to retrieve it. The public
+	parameter is the same for all implementations and is the 4096
+	bit verified prime:</t>
+
+	<t>Because the secret we want to split is in fact an arbitrary
+	sequence of bytes, we need to first encode it into a
+	number. We do this by prefixing the byte sequence with a
+	single byte with the value 01 and then interpreting the byte
+	sequence as a bigendian number. When recovering the secret
+	from the split this 01 byte MUST be checked and stripped.</t>
+
+	<figure>
+	  <artwork>
+p =
+FFFFFFFFFFFFFFFF C90FDAA22168C234 C4C6628B80DC1CD1 29024E088A67CC74
+020BBEA63B139B22 514A08798E3404DD EF9519B3CD3A431B 302B0A6DF25F1437
+4FE1356D6D51C245 E485B576625E7EC6 F44C42E9A637ED6B 0BFF5CB6F406B7ED
+EE386BFB5A899FA5 AE9F24117C4B1FE6 49286651ECE45B3D C2007CB8A163BF05
+98DA48361C55D39A 69163FA8FD24CF5F 83655D23DCA3AD96 1C62F356208552BB
+9ED529077096966D 670C354E4ABC9804 F1746C08CA18217C 32905E462E36CE3B
+E39E772C180E8603 9B2783A2EC07A28F B5C55DF06F4C52C9 DE2BCBF695581718
+3995497CEA956AE5 15D2261898FA0510 15728E5A8AAAC42D AD33170D04507A33
+A85521ABDF1CBA64 ECFB850458DBEF0A 8AEA71575D060C7D B3970F85A6E1E4C7
+ABF5AE8CDB0933D7 1E8C94E04A25619D CEE3D2261AD2EE6B F12FFA06D98A0864
+D87602733EC86A64 521F2B18177B200C BBE117577A615D6C 770988C0BAD946E2
+08E24FA074E5AB31 43DB5BFCE0FD108E 4B82D120A9210801 1A723C12A787E6D7
+88719A10BDBA5B26 99C327186AF4E23C 1A946834B6150BDA 2583E9CA2AD44CE8
+DBBBC2DB04DE8EF9 2E8EFC141FBECAA6 287C59474E6BC05D 99B2964FA090C3A2
+233BA186515BE7ED 1F612970CEE2D7AF B81BDD762170481C D0069127D5B05AA9
+93B4EA988D8FDDC1 86FFB7DC90A6C08F 4DF435C934063199 FFFFFFFFFFFFFFFF
+	  </artwork>
+	</figure>
+
+	<t>To split:
+	  <list style="numbers">
+	    <t>Create an array, a, of length k.</t>
+	    <t>Set a[0] = secret.</t>
+	    <t>Set a[1] to a[k-1] to random integers in the range
+	      [0,p) (i.e. 0 &le; a[i] &lt; p). Use a cryptographic random
+	      number generator.<cref>Ian Goldberg points out that 0
+	      has to be allowed or a small amount of data is leaked:
+	      e.g. if k=2 and some share is s, then the secret cannot
+	      be s (proof left as an exercise for the reader)</cref></t>
+	    <t>For i in the range 1 to n inclusive, compute poly(a, i)
+	      (see below), the result is the i'th share.</t>
+	  </list>
+	</t>
+
+	<t>poly(a, i):
+	  <list style="numbers">
+	    <t>Set t = 0.</t>
+	    <t>for j in the range 0 to k-1 inclusive, compute t = (t +
+	      a[j] * i^j) mod p</t>
+	    <t>return t</t>
+	  </list>
+	</t>
+
+	<t>To recover the secret:
+	  <list style="numbers">
+	    <t>Retrieve k of the shares.</t>
+	    <t>Set secret = 0.</t>
+	    <t>For each retrieved share, set i to the share number (1
+	      &le; i &le; n).
+	      <list style="numbers">
+		<t>Set c = 1.</t>
+		<t>For each retrieved share, set j to the share number
+		  (1 &le; j &le; n)
+		  <list style="numbers">
+		    <t>if i is not equal to j, c = (c * j *
+		      mod_inverse(j - i, p)) mod p</t>
+		  </list>
+		</t>
+		<t>secret = (secret + c * share[i]) mod p</t>
+	      </list>
+	    </t>
+	  </list>
+	  That's it.
+	</t>
+
+	<t>mod_inverse(x, p) is the inverse of x in Zp - that is, x *
+	  mod_inverse(x, p) mod p = 1. Note that many implementations
+	  require x to be in the range [1,p) so it may be necessary to
+	  calculate mod_inverse((j-i) mod p, p) to avoid an error
+	  (note that j-i mod p = j-i if j-i &ge; 0 and = j-i+p if j-i &lt;
+	  0). Also note that since i and j are small and p is fixed,
+	  mod_inverse(j-i, p) could be pre-calculated or cached (see
+	  below for pre-calculated values).</t>
+
+	<t><cref>[Daniel Bleichenbacher points out:
+
+	    to compute expressions of the form a*b^{-1} mod p, where b
+	    is a small integer.  An efficient method to do this is to
+	    compute
+
+	    k = -a*p^{-1} mod b.
+
+	    Then the integer a + kp is divisible by b and hence
+	    a*b^{-1} == (a+kp)/b (mod p).
+
+	    I.e. this method takes O(log(p)log(b)), rather than
+	    O(log(p)^2) for the current method.
+
+	    (I have my doubts because of the cache, but I should test it)
+	    ]</cref></t>
+      </section>
+    </section>
+
+    <section title="Examples">
+
+    </section>
+
+    <section title="Pre-calculated values for mod_inverse(x, p)">
+
+	<figure>
+	  <artwork>
+mod_inverse(-10, p) =
+4ccccccccccccccc bc518e63d6d2a0a9 6e3b83f6a6a86f0b 8c4d7dcf5cb8bd56
+009d1f9844ec4823 e52fcf57aaa934a8 fb13214f8a5e4754 f4d9b6542f1c8610
+97f6c33a6d988714 f7c1b67050b5f2d5 494a1412e510c739 b6cc9bd07c686a60
+faaa86cb67f6164b 4dfc8ad20bb0232b 7c58eb7efa4481c5 ba33589dca0452e8
+14417c103bb35914 b920464c4bf17169 743802578efde746 a21daf66a35b326b
+7c7325e8a1c6c6ba 6bb6dccab00560ce 486fba02a3073d3e dbf81c4841107111
+f77c56f3a0d12834 4825744a7a024a5e 50219c2e87ca18d6 290d2396c6673a20
+de132fa5799339ab 202571d42de49b1e 6cd5911b2999a140 e728ed50b47e8b0f
+7f4cbd4d29556b1e 471841814ddb9483 29acbb9a3581d08c 1c46eb0e7edd5e3b
+e6c9b45d74e92926 ef909310163e6a15 be112571d4d8e120 61f4cb020e0fcf51
+7423672292d5b984 7f0959ba6d71bcd0 9ec38700a4b6cf3a 23b60f6d04dac877
+02aa4b16897819c1 fac1cecbdd18b82a b040d85699238266 bb224538cbdbf873
+dc22149e9f5181be c7ba8bba867caa45 3b2c85a969d31d27 d80df956400c7d79
+0eb8540e8175f7b1 27914b9fa31fa331 d8f21ac89786b9b5 ae1bf9e4b02b6de3
+d75eb07518685f2d 8969f2d50adda71b 1da1f5a3706e7c08 a4cec5258ce81b32
+df83132dc4118f53 a87fea5bc4fed35e 30fc768929350ee1 6666666666666666
+
+mod_inverse(-9, p) =
+38e38e38e38e38e3 820385eb23de640b b9f33257e3bf22d9 258ebc01e5de2d6f
+1ce62a5dd43d3eeb 2e823ac5add2abbf 8a92e944667eb994 4397c96dc41520ef
+d8dcb68a184b0eba 32c86136c086c6d6 e0f480a5b328df6d 1f1c4d7dfd56d38a
+34f017fef7acce24 d178b2ae8d660716 baec8883fbc0f7d4 d5c73829076b7fc8
+5adb2c7dcd6867e9 6caf9c5e71249fdc 56168679bf40d13d cd6b5284eac84b46
+234bd03a8acc216d a51f284a497f3e39 fcc489c9107723e2 b5e73164edd34a46
+3294fe09cc750156 227a8f07c2ac5d03 7dba14e018bba09e a3262d533da1cc3e
+45af65a9fb3da5fa 04d95dcc93c5c83c 768b3c141ed09d5f 7bd276e672bc8cef
+08f67942a35bb7a4 a670c839dadb8a74 1edec3da86731f38 60cc3c5696dcdd81
+b46f7c1f4d1e7d4c 3fad766abb24c05b f5162eb32267c334 6e7c70734cc95732
+dac4e4199c2c896b a078b43e3e1b5c74 9b875a8537a3dbdf 36e5ac9c9b4cba6b
+1e6b2e23a8330999 2b861471158d91e6 bb72675c975cac72 05e07f209701c185
+3ac3e9590db7a27a 5b0eec3e50a83246 3ecba5610c04ad4c ebe46cd797bd666c
+a29b80a272dc1fc5 98918d59ce2a65ec 08ff3048bc17f1db e9442167073c9d40
+799b793a4af7faa6 78c042191187be27 0c77f85323e01006 671de75e2f7c85ec
+cb7d89773be714d5 ac38d38659089c91 9f8b9a2cb63a43e9 5555555555555555
+
+mod_inverse(-8, p) =
+dfffffffffffffff cfeddf4ddd3ba9ee 2c2d963a10c09937 03e20447791ad2e5
+81ca46d173b127be 0720c76a5c6d8442 31a2767d5392fab7 ca25a920341331b0
+65e50ebfbfa789fd 27f4fec79612aeee 15c2ba8c7170efbd aa7f71201585e0f0
+30715e7bef386bb0 f8cb3f8f4cc1bbe9 80035987af47cfd6 09c06d218d374724
+e5beff2f58cb1927 1bf377b3dd803573 92f8b17f610f37e3 58d694eb5c74a864
+2afa83e68283c39f ba2aaea481650504 5345de87b0d51d4c ac3e527d686ff474
+672aa846950cb543 27c2932e8e86ae3d bf0cb2326162c870 a2665277c2ad1435
+3262a04d4d42bd88 7317e15585dac46e 12c43c8f39556ba7 f78cb42b63c66aed
+334a7d7663392318 4f5c1463cdc07129 398d232c71654aed fd242d94f205a82e
+b676f8bb3fa80d5c 3abb024440e0b56a 150757e15778909e 7309fac5fe58c758
+3d674224d6ef5d17 c7db45b5148bbc0b 2464f46c8b1531be e82857a8a37e1e05
+c7c605ac6648f5cb 1b5ff07d44dd6e7c 821276fc93fce700 f723f4905296e9fc
+976366cea6030fc1 c68ac2355d9645f4 9741db2e1f526a5e e0d36c90e579c34b
+c0444a7fa442bd1a 08bd1c919bc6f151 636cce1e649e4851 e67c4385ac7eab2d
+ded42d5587306aef 7b750442b5067cb9 c11861c75d423f19 3605bf02dafa4f54
+613e4d457bdde209 561fc0e0fe91e87d 6435af100d856b66 bfffffffffffffff
+
+mod_inverse(-7, p) =
+6db6db6db6db6db6 c3e23920e9bf2ea8 e69e2a3bc982e7c7 5ab7d84ccd9a330d
+2572bf6bd02cf957 d9b203a1cf3add83 afd22f9633621cc2 825b96c167df9af3
+223bf25377fe77d4 cfa704a0734d11c2 fafc1cad473c8a52 72db27bc1f7097f8
+4185e52294841fd9 4ad67d2c10b27b62 b1a39990d33d4bac c0dba32a8e4f51dd
+d3cb4384e7927f42 2d0988ff47eb344d 817495a1a7b3dcae 0c2a68497ba6da50
+68a47f4c54d2d2c1 2c29cdb3d6e31c94 677b09ba9fc132ec 15ab961e13ce5862
+cf43e9ee5373f04a b035818ef770fc86 bb9dba8b9d69da56 83c9a08e40012e78
+18adb1c7d240093d 9ba334e5f86b26bd c00c8626cdb6e65c b7f1530594227d83
+da6da0b75f9e9906 aeb4efdd4aa76672 3b890c00deb97311 4cf798f022f318e7
+dbfb93f3394d1637 9f60d216fb34978c c661a334e6ecaf52 d5148fb9caf20398
+ef0e010cd1c39b4f 90e8c95377c70dbc 50850a00eb4e4c9c 3304160974a642f3
+2860fd8de8f4b715 1d14de47ce23503c fbca59a0487bdedb e6c33e51233a3e5c
+5f0c1d74e399027e 41e5ec2f094460f5 2ff675cd729b4e38 eb81ad56a4a420f6
+150753826fcd18b3 ef61d9bf7b51c490 5a7e6f67b3e5094c af95ae22203e0ab3
+33abd782b5276365 9fbbed3058aa5c6f e130837bc5301ee7 c6de3e35a4b94b6d
+3f4d891ccef4839c 154905a7abb52df4 45faf27acd2739d4 4924924924924924
+
+mod_inverse(-6, p) =
+d555555555555555 278d3631c681f72b f94ffcc9960cc2ae 4cd741071e012a60
+ac5f1edfdbe5abf1 ee685c654bd6040e 47a6eac0805b37eb fd79335b9f4f3b83
+6d3bac85db19773a 3e6f6c8d51f969a5 cb94e26d5fd945d9 34aa229876059946
+468459fc20c8050a 11849e0e923e9a95 3cf6ffeef013a15e 21ab1299dbd31f2f
+54b5e6d7c24785ab 57928a622849577a 42d478488d3310a7 c2527572706f1a47
+045c4cdb887d7d5b 2b34d716939d2959 73e104b1fdbec692 2a22f93a7bd85687
+3daeb8a4beb6c503 014b985d1a065ccd 1779ce485cbf9a52 e3cf29f8271ebde9
+8551bd3d6e272e69 922f1fbf2a25aee2 bc8a214b738e4e26 10553de02e431080
+619c46b9e497f0a9 7026eed8f4b74733 73c35e73782fb513 6afde244b5bc3ea6
+64a21175613255dd eeca7c103dc9d158 d7132f1fc1051c04 9e52a5b05ff306fe
+b462576009a70353 99c4a3e968e69ab5 473b937390a67885 0ddd474b465fbb11
+b211ed05b6bf63fe 6336cca810d2e321 3eed039b379b86ab 9609dcba364695b3
+9c5eab0df370a14a d577f5e9ae76bc87 6b7bac2bed1189e0 7498982879064017
+61c722612eb97724 fc21d210c51efe35 21bcf510c159caf8 aabf7d425b234db1
+c807069a9921ebf0 44d0f7de01bd0912 6ec1e337c6883c18 02b023a13212f637
+fb16c37f20a28e21 45d51937cde04b22 164b8227ab5a7eaa ffffffffffffffff
+
+mod_inverse(-5, p) =
+9999999999999999 78a31cc7ada54152 dc7707ed4d50de17 189afb9eb9717aac
+013a3f3089d89047 ca5f9eaf55526951 f626429f14bc8ea9 e9b36ca85e390c21
+2fed8674db310e29 ef836ce0a16be5aa 92942825ca218e73 6d9937a0f8d0d4c1
+f5550d96cfec2c96 9bf915a417604656 f8b1d6fdf489038b 7466b13b9408a5d0
+2882f8207766b229 72408c9897e2e2d2 e87004af1dfbce8d 443b5ecd46b664d6
+f8e64bd1438d8d74 d76db995600ac19c 90df7405460e7a7d b7f038908220e223
+eef8ade741a25068 904ae894f40494bc a043385d0f9431ac 521a472d8cce7441
+bc265f4af3267356 404ae3a85bc9363c d9ab223653334281 ce51daa168fd161e
+fe997a9a52aad63c 8e3083029bb72906 535977346b03a118 388dd61cfdbabc77
+cd9368bae9d2524d df2126202c7cd42b 7c224ae3a9b1c240 c3e996041c1f9ea2
+e846ce4525ab7308 fe12b374dae379a1 3d870e01496d9e74 476c1eda09b590ee
+0554962d12f03383 f5839d97ba317055 6081b0ad324704cd 76448a7197b7f0e7
+b844293d3ea3037d 8f7517750cf9548a 76590b52d3a63a4f b01bf2ac8018faf2
+1d70a81d02ebef62 4f22973f463f4663 b1e435912f0d736b 5c37f3c96056dbc7
+aebd60ea30d0be5b 12d3e5aa15bb4e36 3b43eb46e0dcf811 499d8a4b19d03665
+bf06265b88231ea7 50ffd4b789fda6bc 61f8ed12526a1dc2 cccccccccccccccc
+
+mod_inverse(-4, p) =
+bfffffffffffffff d6cbe3f9990e91a7 9394c9e8a0a5159c dec1ba8667cdd957
+0188cefcac4eb459 bcf7865b2aa703a6 73afd346d9ebb254 642047d275c74f29
+7be8e81211fd51b4 6b644818c9c6df15 3739322f3ca9f210 48ff8589370509f2
+72aa50fc83e737bc 42f75b0d1d3857ec b6de4cbd71ab446e 51805d8a790acf44
+32a3b62895405eb3 ced0afbebddb9b87 a28c05dae57ac230 954a36809863fe0c
+b71fdec59470f0d2 0d4927fab80d7203 b51751069792191d 25ec46b4a2a91aac
+eab6d961120ae482 b45da2ba3105b9eb c854067453793e17 66a0d8f8f0021152
+2b2ff71daff0102b d05d9c9272bb83cc 1015eac3e8001322 41e65149c33c5ba6
+be3fd940e7558bcb b1bca3c342a4f347 e82fd50185c4895e 46b14ba43d296b95
+c0f842e9a446e6e1 56e96fa8379c0936 5b2add9c941e32d0 f4e3fb852327864b
+a25881d66f164fcb 3d976052119c5809 8ce8d1819bc90611 594726908c22f529
+86a9bbb857ac4064 f2e484fda8bdcc6a b8a21cd87ed8c600 d3d5ad0dfda5ed21
+a655338c8e4bc45c f3525d525037a9ad 13ef4e27888fc8e3 9c22ef57a01f39ae
+a4ccd22443a6eb3a e2eb3d0f17cf17fc 9e5d42f57ad0d046 3345f0bbb86c92b9
+9a6cb924bd04edf1 d788df149b2a21c3 ca14e61899143615 9c04ecdde04443ff
+2ec7aff26a2be651 253fc9e56c7d106b 7a772856e704a533 7fffffffffffffff
+
+mod_inverse(-3, p) =
+aaaaaaaaaaaaaaaa 860a91c16b9b2c23 2dd99707ab3d688b 70ac3405b19a884d
+56b27f197cb7bcc1 8b86b0510978033e 9fb8bbcd337c2cbc cac75c494c3f62cf
+8a96239e48e12c2e 985923a441945484 a2dd81f1197a9e47 5d54e879f8047a9e
+9ed047fce7066a6e 746a180ba8321544 30c5998bf342e77e 8155a87b16427f59
+10918579683937bc 460ed51b536ddf95 0243936d3dc273b9 6841f78ec058e1d2
+69e370afa0646448 ef5d78dedc7dbaad f64d9d5b31656ba8 21b5942ec979ded2
+97befa1d655f0402 676fad174805170a 792e3ea04a32e1db e97287f9b8e564ba
+d10e30fdf1b8f1ee 0e8c1965bb5158b5 63a1b43c5c71d81e 737764b35835a6cd
+1ae36bc7ea1326ed f35258ad90929f5c 5c9c4b8f93595da9 2264b503c4969885
+1d4e745de75b77e4 bf086340316e4113 df428c196737499d 4b755159e65c0598
+904eac4cd4859c42 e16a1cbaba52155d d2960f8fa6eb939d a4b105d5d1e62f41
+5b418a6af8991ccb 82923d5340a8b5b4 32573615c6160556 11a17d61c505448f
+b04bbc0b2926e76f 112cc4baf1f896d2 bc62f023240e07e6 c3ad4686c7383345
+e7d281e758945f50 c9b4a80d6a7f31c4 1afd90da3447d593 bbcc643515b5d7c1
+6cd26baee0e7eff3 6a40c64b34973a75 2567e8f96ba03013 3559b61a8e7591c6
+62789c65b3b53e81 04aa7a930b19d5b4 dea2ce8622aecbbb ffffffffffffffff
+
+mod_inverse(-2, p) =
+7fffffffffffffff e487ed5110b4611a 62633145c06e0e68 948127044533e63a
+0105df531d89cd91 28a5043cc71a026e f7ca8cd9e69d218d 98158536f92f8a1b
+a7f09ab6b6a8e122 f242dabb312f3f63 7a262174d31bf6b5 85ffae5b7a035bf6
+f71c35fdad44cfd2 d74f9208be258ff3 24943328f6722d9e e1003e5c50b1df82
+cc6d241b0e2ae9cd 348b1fd47e9267af c1b2ae91ee51d6cb 0e3179ab1042a95d
+cf6a9483b84b4b36 b3861aa7255e4c02 78ba3604650c10be 19482f23171b671d
+f1cf3b960c074301 cd93c1d17603d147 dae2aef837a62964 ef15e5fb4aac0b8c
+1ccaa4be754ab572 8ae9130c4c7d0288 0ab9472d45556216 d6998b8682283d19
+d42a90d5ef8e5d32 767dc2822c6df785 457538abae83063e d9cb87c2d370f263
+d5fad7466d8499eb 8f464a702512b0ce e771e9130d697735 f897fd036cc50432
+6c3b01399f643532 290f958c0bbd9006 5df08babbd30aeb6 3b84c4605d6ca371
+047127d03a72d598 a1edadfe707e8847 25c1689054908400 8d391e0953c3f36b
+c438cd085edd2d93 4ce1938c357a711e 0d4a341a5b0a85ed 12c1f4e5156a2674
+6ddde16d826f477c 97477e0a0fdf6553 143e2ca3a735e02e ccd94b27d04861d1
+119dd0c328adf3f6 8fb094b867716bd7 dc0deebb10b8240e 68034893ead82d54
+c9da754c46c7eee0 c37fdbee48536047 a6fa1ae49a0318cc ffffffffffffffff
+
+mod_inverse(-1, p) =
+ffffffffffffffff c90fdaa22168c234 c4c6628b80dc1cd1 29024e088a67cc74
+020bbea63b139b22 514a08798e3404dd ef9519b3cd3a431b 302b0a6df25f1437
+4fe1356d6d51c245 e485b576625e7ec6 f44c42e9a637ed6b 0bff5cb6f406b7ed
+ee386bfb5a899fa5 ae9f24117c4b1fe6 49286651ece45b3d c2007cb8a163bf05
+98da48361c55d39a 69163fa8fd24cf5f 83655d23dca3ad96 1c62f356208552bb
+9ed529077096966d 670c354e4abc9804 f1746c08ca18217c 32905e462e36ce3b
+e39e772c180e8603 9b2783a2ec07a28f b5c55df06f4c52c9 de2bcbf695581718
+3995497cea956ae5 15d2261898fa0510 15728e5a8aaac42d ad33170d04507a33
+a85521abdf1cba64 ecfb850458dbef0a 8aea71575d060c7d b3970f85a6e1e4c7
+abf5ae8cdb0933d7 1e8c94e04a25619d cee3d2261ad2ee6b f12ffa06d98a0864
+d87602733ec86a64 521f2b18177b200c bbe117577a615d6c 770988c0bad946e2
+08e24fa074e5ab31 43db5bfce0fd108e 4b82d120a9210801 1a723c12a787e6d7
+88719a10bdba5b26 99c327186af4e23c 1a946834b6150bda 2583e9ca2ad44ce8
+dbbbc2db04de8ef9 2e8efc141fbecaa6 287c59474e6bc05d 99b2964fa090c3a2
+233ba186515be7ed 1f612970cee2d7af b81bdd762170481c d0069127d5b05aa9
+93b4ea988d8fddc1 86ffb7dc90a6c08f 4df435c934063199 fffffffffffffffe
+
+mod_inverse(1, p) = 1
+
+mod_inverse(2, p) =
+7fffffffffffffff e487ed5110b4611a 62633145c06e0e68 948127044533e63a
+0105df531d89cd91 28a5043cc71a026e f7ca8cd9e69d218d 98158536f92f8a1b
+a7f09ab6b6a8e122 f242dabb312f3f63 7a262174d31bf6b5 85ffae5b7a035bf6
+f71c35fdad44cfd2 d74f9208be258ff3 24943328f6722d9e e1003e5c50b1df82
+cc6d241b0e2ae9cd 348b1fd47e9267af c1b2ae91ee51d6cb 0e3179ab1042a95d
+cf6a9483b84b4b36 b3861aa7255e4c02 78ba3604650c10be 19482f23171b671d
+f1cf3b960c074301 cd93c1d17603d147 dae2aef837a62964 ef15e5fb4aac0b8c
+1ccaa4be754ab572 8ae9130c4c7d0288 0ab9472d45556216 d6998b8682283d19
+d42a90d5ef8e5d32 767dc2822c6df785 457538abae83063e d9cb87c2d370f263
+d5fad7466d8499eb 8f464a702512b0ce e771e9130d697735 f897fd036cc50432
+6c3b01399f643532 290f958c0bbd9006 5df08babbd30aeb6 3b84c4605d6ca371
+047127d03a72d598 a1edadfe707e8847 25c1689054908400 8d391e0953c3f36b
+c438cd085edd2d93 4ce1938c357a711e 0d4a341a5b0a85ed 12c1f4e5156a2674
+6ddde16d826f477c 97477e0a0fdf6553 143e2ca3a735e02e ccd94b27d04861d1
+119dd0c328adf3f6 8fb094b867716bd7 dc0deebb10b8240e 68034893ead82d54
+c9da754c46c7eee0 c37fdbee48536047 a6fa1ae49a0318cd 0000000000000000
+
+mod_inverse(3, p) =
+5555555555555555 430548e0b5cd9611 96eccb83d59eb445 b8561a02d8cd4426
+ab593f8cbe5bde60 c5c3582884bc019f 4fdc5de699be165e 6563ae24a61fb167
+c54b11cf24709617 4c2c91d220ca2a42 516ec0f88cbd4f23 aeaa743cfc023d4f
+4f6823fe73833537 3a350c05d4190aa2 1862ccc5f9a173bf 40aad43d8b213fac
+8848c2bcb41c9bde 23076a8da9b6efca 8121c9b69ee139dc b420fbc7602c70e9
+34f1b857d0323224 77aebc6f6e3edd56 fb26cead98b2b5d4 10daca1764bcef69
+4bdf7d0eb2af8201 33b7d68ba4028b85 3c971f50251970ed f4b943fcdc72b25d
+6887187ef8dc78f7 07460cb2dda8ac5a b1d0da1e2e38ec0f 39bbb259ac1ad366
+8d71b5e3f5099376 f9a92c56c8494fae 2e4e25c7c9acaed4 91325a81e24b4c42
+8ea73a2ef3adbbf2 5f8431a018b72089 efa1460cb39ba4ce a5baa8acf32e02cc
+482756266a42ce21 70b50e5d5d290aae e94b07c7d375c9ce d25882eae8f317a0
+ada0c5357c4c8e65 c1491ea9a0545ada 192b9b0ae30b02ab 08d0beb0e282a247
+d825de05949373b7 8896625d78fc4b69 5e317811920703f3 61d6a343639c19a2
+f3e940f3ac4a2fa8 64da5406b53f98e2 0d7ec86d1a23eac9 dde6321a8adaebe0
+b66935d77073f7f9 b52063259a4b9d3a 92b3f47cb5d01809 9aacdb0d473ac8e3
+313c4e32d9da9f40 82553d49858ceada 6f516743115765de 0000000000000000
+
+mod_inverse(4, p) =
+3fffffffffffffff f243f6a8885a308d 313198a2e0370734 4a4093822299f31d
+0082efa98ec4e6c8 9452821e638d0137 7be5466cf34e90c6 cc0ac29b7c97c50d
+d3f84d5b5b547091 79216d5d98979fb1 bd1310ba698dfb5a c2ffd72dbd01adfb
+7b8e1afed6a267e9 6ba7c9045f12c7f9 924a19947b3916cf 70801f2e2858efc1
+6636920d871574e6 9a458fea3f4933d7 e0d95748f728eb65 8718bcd5882154ae
+e7b54a41dc25a59b 59c30d5392af2601 3c5d1b023286085f 0ca417918b8db38e
+f8e79dcb0603a180 e6c9e0e8bb01e8a3 ed71577c1bd314b2 778af2fda55605c6
+0e65525f3aa55ab9 45748986263e8144 055ca396a2aab10b 6b4cc5c341141e8c
+ea15486af7c72e99 3b3ee1411636fbc2 a2ba9c55d741831f 6ce5c3e169b87931
+eafd6ba336c24cf5 c7a3253812895867 73b8f48986b4bb9a fc4bfe81b6628219
+361d809ccfb21a99 1487cac605dec803 2ef845d5de98575b 1dc262302eb651b8
+823893e81d396acc 50f6d6ff383f4423 92e0b4482a484200 469c8f04a9e1f9b5
+e21c66842f6e96c9 a670c9c61abd388f 06a51a0d2d8542f6 8960fa728ab5133a
+36eef0b6c137a3be 4ba3bf0507efb2a9 8a1f1651d39af017 666ca593e82430e8
+88cee8619456f9fb 47d84a5c33b8b5eb ee06f75d885c1207 3401a449f56c16aa
+64ed3aa62363f770 61bfedf72429b023 d37d0d724d018c66 8000000000000000
+
+mod_inverse(5, p) =
+6666666666666666 506cbdda73c380e1 e84f5a9e338b3eba 10675269d0f651c8
+00d17f75b13b0ada 86ea69ca38e19b8b f96ed714b87db471 46779dc594260816
+1ff3aef89220b41b f5024895c0f2991c 61b81ac3dc165ef7 9e662515fb35e32b
+f8e35e648a9d730f 12a60e6d64ead98f 50768f53f85b57b2 4d99cb7d0d5b1935
+70575015a4ef2170 f6d5b3106541ec8c 9af55874bea7df08 d8279488d9ceede4
+a5eedd362d0908f8 8f9e7bb8eab1d668 6094f8038409a6fe 7aa025b5ac15ec17
+f4a5c944d66c359b 0adc9b0df8030dd3 158225935fb8211d 8c1184c90889a2d6
+7d6eea31f76ef78e d58742703d30ced3 3bc76c24377781ab dee13c6b9b536414
+a9bba7118c71e428 5ecb0201bd24c604 3790fa22f2026b65 7b093968a927284f
+de6245d1f136e189 3f6b6ec01da88d72 52c1874271212c2b 2d466402bd6a69c1
+f02f342e191cf75b 540c77a33c97a66b 7e5a095630f3bef8 2f9d69e6b123b5f4
+038db97361f577ad 4e57be6526cba038 eb01207376da0333 a42db1a10fcff5ef
+d02d70d37f1757a9 0a4e0fa35dfb8db1 a43b5ce1e26ed18a 7567f71daabb51f6
+be4b1abe01f29f96 df6c64d4d97f8442 769823b61f5e4cf2 3d7aa2864039e7da
+747e409c208b2992 0c8d43c6b9278979 7cd7f22f4093500b 866906dcbbe02443
+d4aec43d056cbf1a 35ffe32506a919d2 ebfb48b6e19c13d7 3333333333333333
+
+mod_inverse(6, p) =
+2aaaaaaaaaaaaaaa a182a4705ae6cb08 cb7665c1eacf5a22 dc2b0d016c66a213
+55ac9fc65f2def30 62e1ac14425e00cf a7ee2ef34cdf0b2f 32b1d712530fd8b3
+e2a588e792384b0b a61648e910651521 28b7607c465ea791 d7553a1e7e011ea7
+a7b411ff39c19a9b 9d1a8602ea0c8551 0c316662fcd0b9df a0556a1ec5909fd6
+4424615e5a0e4def 1183b546d4db77e5 4090e4db4f709cee 5a107de3b0163874
+9a78dc2be8191912 3bd75e37b71f6eab 7d936756cc595aea 086d650bb25e77b4
+a5efbe875957c100 99dbeb45d20145c2 9e4b8fa8128cb876 fa5ca1fe6e39592e
+b4438c3f7c6e3c7b 83a306596ed4562d 58e86d0f171c7607 9cddd92cd60d69b3
+46b8daf1fa84c9bb 7cd4962b6424a7d7 172712e3e4d6576a 48992d40f125a621
+47539d1779d6ddf9 2fc218d00c5b9044 f7d0a30659cdd267 52dd545679970166
+2413ab1335216710 b85a872eae948557 74a583e3e9bae4e7 692c417574798bd0
+56d0629abe264732 e0a48f54d02a2d6d 0c95cd8571858155 84685f5871415123
+ec12ef02ca49b9db c44b312ebc7e25b4 af18bc08c90381f9 b0eb51a1b1ce0cd1
+79f4a079d62517d4 326d2a035a9fcc71 06bf64368d11f564 eef3190d456d75f0
+5b349aebb839fbfc da903192cd25ce9d 4959fa3e5ae80c04 cd566d86a39d6471
+989e27196ced4fa0 412a9ea4c2c6756d 37a8b3a188abb2ef 0000000000000000
+
+mod_inverse(7, p) =
+9249249249249249 052da18137a9938b de28384fb7593509 ce4a75bbbccd9966
+dc98ff3a6ae6a1ca 779804d7bef9275a 3fc2ea1d99d82658 adcf73ac8a7f7944
+2da54319f5534a71 14deb0d5ef116d03 f950263c5efb6318 992434fad4961ff5
+acb286d8c6057fcc 63c8a6e56b98a483 9784ccc119a70f91 0124d98e13146d27
+c50f04b134c35458 3c0cb6a9b5399b12 01f0c78234efd0e8 10388b0ca4de786b
+3630a9bb1bc3c3ac 3ae2679a73d97b70 89f9624e2a56ee90 1ce4c8281a6875d9
+145a8d3dc49a95b8 eaf20213f496a608 fa27a364d1e27873 5a622b685556e8a0
+20e797b5185561a7 7a2ef132a08ede52 55660833bcf3ddd0 f541c407702dfcaf
+cde780f47f7e215e 3e4695270e348898 4f6165567e4c996c 669f769583eecbdf
+cffa1a99a1bc1d9f 7f2bc2c94ef0ca11 08822ef133e63f19 1c1b6a4d0e9804cb
+e96801666d04cf14 c13661c49fb41250 6b5c0d568f1310d0 440572b7463303ee
+e08152128bf0f41c 26c67db512d9c051 4fb8778060a52925 33aefdc1844da87b
+29657c9bda2158a8 57dd3ae961b08146 ea9df2674379bda1 3a023c7386302bf2
+c6b46f5895117645 3f2d2254a46d0615 cdfde9df9a86b710 ea1ce82d8052b8ee
+ef8fca039c348487 7fa53c4076387b3f d6eb59fa5c402935 092852f230f70f3c
+5467617bbe9b5a25 71b6b234e4f1929b 07f9434e66def7c5 b6db6db6db6db6db
+
+mod_inverse(8, p) =
+1fffffffffffffff f921fb54442d1846 9898cc51701b839a 252049c1114cf98e
+804177d4c7627364 4a29410f31c6809b bdf2a33679a74863 6605614dbe4be286
+e9fc26adadaa3848 bc90b6aecc4bcfd8 de89885d34c6fdad 617feb96de80d6fd
+bdc70d7f6b5133f4 b5d3e4822f8963fc c9250cca3d9c8b67 b8400f97142c77e0
+b31b4906c38aba73 4d22c7f51fa499eb f06caba47b9475b2 c38c5e6ac410aa57
+73daa520ee12d2cd ace186a9c9579300 9e2e8d811943042f 86520bc8c5c6d9c7
+7c73cee58301d0c0 7364f0745d80f451 f6b8abbe0de98a59 3bc5797ed2ab02e3
+0732a92f9d52ad5c a2ba44c3131f40a2 02ae51cb51555885 b5a662e1a08a0f46
+750aa4357be3974c 9d9f70a08b1b7de1 515d4e2aeba0c18f b672e1f0b4dc3c98
+f57eb5d19b61267a e3d1929c0944ac33 b9dc7a44c35a5dcd 7e25ff40db31410c
+9b0ec04e67d90d4c 8a43e56302ef6401 977c22eaef4c2bad 8ee13118175b28dc
+411c49f40e9cb566 287b6b7f9c1fa211 c9705a2415242100 234e478254f0fcda
+f10e334217b74b64 d33864e30d5e9c47 83528d0696c2a17b 44b07d39455a899d
+1b77785b609bd1df 25d1df8283f7d954 c50f8b28e9cd780b b33652c9f4121874
+44677430ca2b7cfd a3ec252e19dc5af5 f7037baec42e0903 9a00d224fab60b55
+32769d5311b1fbb8 30dff6fb9214d811 e9be86b92680c633 4000000000000000
+
+mod_inverse(9, p) =
+c71c71c71c71c71c 470c54b6fd8a5e29 0ad330339d1cf9f8 03739206a4899f04
+e525944866d65c37 22c7cdb3e061591e 6502306f66bb8986 ec9341002e49f347
+77047ee35506b38b b1bd543fa1d7b7f0 1357c243f30f0dfd ece30f38f6afe463
+b94853fc62dcd180 dd267162eee518cf 8e3bddcdf1236368 ec39448f99f83f3d
+3dff1bb84eed6bb0 fc66a34a8c002f83 2d4ed6aa1d62dc58 4ef7a0d135bd0775
+7b8958cce5ca74ff c1ed0d04013d59ca f4afe23fb9a0fd99 7ca92ce1406383f5
+b10979224b9984ad 78acf49b295b458c 380b49105690b22b 3b059ea357b64ad9
+f3e5e3d2ef57c4eb 10f8c84c05343cd3 9ee752466bda26ce 3160a0269193ed44
+9f5ea8693bc102c0 468abcca7e006496 6c0bad7cd692ed45 52cad32f10050745
+f786326d8deab68a dedf1e758f00a141 d9cda372f86b2b37 82b389938cc0b131
+fdb11e59a29be0f8 b1a676d9d95fc398 2059bcd242bd818d 4023dc241f8c8c76
+ea77217cccb2a198 1855478bcb6f7ea7 901069c411c45b8f 1491bcf210862552
+4dadb0b7b002b8ac 3eb43ada1a4caff5 dbc8c2d3aa105e8d 399f7cf29316e67c
+3920423892026f33 95fd6eba519464ba 1f7d28fe9253ce81 b06e74e899542661
+a9a0284c0663ed46 a6a0e757bd5b1988 aba3e522fd903816 68e8a9c9a633d4bc
+c837612151a8c8eb dac6e456379e23fd ae689b9c7dcbedb0 aaaaaaaaaaaaaaaa
+
+mod_inverse(10, p) =
+b333333333333333 0cbe4c3e4a96218b 568ade94da33adc5 9cb4d0392daf0f1e
+016e9f0df62752fe 6c1a3921e38ad034 f481f86442dbfbc6 3b515419c3428e26
+b7ea7232ffb93b30 ecc3ff0611a88bf1 ab022ed6c1272631 5532c0e6779e4d8c
+f38de52ff293895a 60a2993f709afcba cccf7ad2f29fd978 07cd241ad75f6c1d
+8498cc25e0a27a85 aff5f95cb1335df6 0f2d5acc4da5c64f 7a4543ef7d2a2050
+2262031ececfcfb2 fb5558839ab73736 a904b2062710e43d 569841fded265d29
+ec222038773d5dcf 53020f5872055831 65a3c1c1e78239f3 b51ea85fcef0dcf7
+5b8219d771023139 f5acb4446b1569f1 a89cfd3f611122ec c60a29bc4fd1ef24
+2908645eb5c74f46 a5e343830b005a87 613db5bd27843bf1 975024772804868b
+c52bfa2f66200ab0 2efc01d033e6f788 10d2acb445fa0d4b 8f3b2f04cb7a3913
+64529b50abf2b0df d315d15daa09633c 1d1d9056d5aa8e32 53537953b5fe7e6b
+06380489eb6d916f 49198d3103e45863 9b41f8ca0ffd859a 5f4ff6d9dbabee63
+ac4f85721e68d967 d2089b5de47837f6 df67e28b4c41eeb2 4d75f073eac7cf6f
+cd036ecc83689748 06fdb0747c9f2774 4f8a3e7eb6e506a7 eb969c6af06555be
+4bdcf11138f388bf 95f7369bc4053094 9a79e7d2b101cc14 2b37cc0248c83f76
+b431d76ac97e4e6d de7fcd80cba7ed31 1cf7bf400ad122b8 9999999999999999
+	  </artwork>
+	</figure>
+    </section>
+
+    <section anchor="Acknowledgements" title="Acknowledgements"> 
+      <t>Thanks to Wan-Teh Chang, Adam Langley and Ian Goldberg (and
+      others who should remind me who they are) for feedback on
+      earlier versions.</t>
+    </section> 
+ 
+    <!-- Possibly a 'Contributors' section ... --> 
+ 
+    <section anchor="IANA" title="IANA Considerations"> 
+
+      <t>This memo includes no request to IANA.</t> 
+
+    </section> 
+ 
+    <section anchor="Security" title="Security Considerations"> 
+
+      <t>The role of the user's password is critical and must
+      therefore be strongly protected. Obvious risks to the password
+      are phishing and malware.</t>
+
+      <t>If Nigori can achieve its aim of providing storage for all a
+      user's credentials, it is hoped that users can be protected from
+      phishing, since they should only ever have to use a single
+      password in a single context.</t>
+
+      <t>Although Nigori only specifies password-based security for
+      the stored secrets, this is anticipated to be the base level of
+      security. Some users and stores may choose to layer other
+      mechanisms on top of, or instead of, passwords, such as one-time
+      passwords or keying material on a hardware devices and so
+      forth.</t>
+
+      <t>Protection against malware is beyond Nigori's scope, but it
+      is worth noting that a user with malware on his machine is
+      already completely exposed anyway.</t>
+
+    </section> 
+  </middle> 
+ 
+  <!--  *****BACK MATTER ***** --> 
+ 
+  <back> 
+    <!-- References split into informative and normative --> 
+ 
+    <!-- There are 2 ways to insert reference entries from the citation libraries:
+     1. define an ENTITY at the top, and use "ampersand character"RFC2629; here (as shown)
+     2. simply use a PI "less than character"?rfc include="reference.RFC.2119.xml"?> here
+        (for I-Ds: include="reference.I-D.narten-iana-considerations-rfc2434bis.xml")
+ 
+     Both are cited textually in the same manner: by using xref elements.
+     If you use the PI option, xml2rfc will, by default, try to find included files in the same
+     directory as the including file. You can also define the XML_LIBRARY environment variable
+     with a value containing a set of directories to search.  These can be either in the local
+     filing system or remote ones accessed by http (http://domain/dir/... ).--> 
+
+    <references title="Normative References"> 
+      &RFC2119;
+    </references> 
+ 
+    <references title="Informative References"> 
+    </references> 
+   </back> 
+</rfc>

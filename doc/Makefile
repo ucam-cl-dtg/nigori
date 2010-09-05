@@ -1,5 +1,5 @@
-V = 01
-PV = 00
+V = 02
+PV = 01
 DIFF = nigori-protocol-$(PV)-$V-diff.html
 DIST = nigori-overview.pdf nigori-protocol-$V.html nigori-protocol-$V.txt $(DIFF)
 
@@ -12,6 +12,7 @@ diff:: $(DIFF)
 
 nigori-protocol-$V.xml: nigori-protocol.xml
 	cp -f nigori-protocol.xml nigori-protocol-$V.xml
+	hg add nigori-protocol-$V.xml
 	chmod -w nigori-protocol-$V.xml
 
 $(DIFF): nigori-protocol-$(PV).txt nigori-protocol-$V.txt
