@@ -230,7 +230,6 @@ application = webapp.WSGIApplication(
                                       ('/get-resource', GetResource),
                                       ('/register', Register),
                                       ('/authenticate', Authenticate)],
-                                     
                                      debug=True)
 
 def main():
