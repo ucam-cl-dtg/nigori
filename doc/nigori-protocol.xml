@@ -935,9 +935,9 @@ b431d76ac97e4e6d de7fcd80cba7ed31 1cf7bf400ad122b8 9999999999999999
     </section>
 
     <section anchor="Acknowledgements" title="Acknowledgements"> 
-      <t>Thanks to Wan-Teh Chang, Adam Langley and Ian Goldberg (and
-      others who should remind me who they are) for feedback on
-      earlier versions.</t>
+      <t>Thanks to Wan-Teh Chang, Adam Langley, Ian Goldberg and
+      Daniel Bleichanbacher (and others who should remind me who they
+      are) for feedback on earlier versions.</t>
     </section> 
  
     <!-- Possibly a 'Contributors' section ... --> 
