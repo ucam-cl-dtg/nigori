@@ -10,7 +10,10 @@ from pbkdf2 import PBKDF2
 import codecs
 import httplib
 import random
-import simplejson
+try:
+  import json  #available as standard on >= python2.6
+except ImportError:
+  import simplejson as json  #need 3rd-party lib for python2.5
 import time
 import urllib
 
@@ -128,5 +131,5 @@ class NigoriClient:
     if response.status != 200:
       # FIXME: define a ProtocolError, perhaps?
       raise LookupError("HTTP error: %d %s" % (response.status, response.reason))
-    json = response.read()
-    return simplejson.loads(json)
+    res = response.read()
+    return json.loads(res)
