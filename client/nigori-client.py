@@ -14,7 +14,10 @@ from nigori.client import ShamirSplit, KeyDeriver
 
 import httplib
 import random
-import simplejson
+try:
+  import json  #available as standard on >= python2.6
+except ImportError:
+  import simplejson as json  #need 3rd-party lib for python2.5
 import sys
 import time
 import urllib
@@ -76,8 +79,8 @@ def baseGetList(user, password, type, name, use_des = 0):
   if response.status != 200:
     # FIXME: define a ProtocolError, perhaps?
     raise LookupError("HTTP error: %d %s" % (response.status, response.reason))
-  json = response.read()
-  return simplejson.loads(json)
+  res = response.read()
+  return json.loads(res)
   
 def getList(user, password, name):
   records = baseGetList(user, password, 1, name)
@@ -110,7 +113,7 @@ def getRandomBytes(bytes):
 def addNewRSA(user, password, name):
   rsa = RSA.generate(1024, getRandomBytes)
   key = {'n': rsa.n, 'e': rsa.e, 'd': rsa.d, 'p': rsa.p, 'q': rsa.q, 'u': rsa.u }
-  value = simplejson.dumps(key)
+  value = json.dumps(key)
   add(user, password, 3, name, value, use_des = 1)
   print "added", value
 
@@ -118,7 +121,7 @@ def getRSA(user, password, name):
   rsas = baseGetList(user, password, 3, name, use_des = 1)
   keys = KeyDeriver(password, 1)
   for rsa in rsas:
-    key = simplejson.loads(keys.decrypt(rsa['value']))
+    key = json.loads(keys.decrypt(rsa['value']))
     print key
 
 def initSplit(user, password, splits):
