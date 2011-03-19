@@ -8,9 +8,10 @@ from Crypto.Util import randpool
 from Crypto.PublicKey import RSA
 #from nigori import SchnorrSigner, concat, int2bin, unconcat, bin2int
 from crypto.schnorr.signer import SchnorrSigner
+from crypto.shamir.split import ShamirSplit
 from nigori.util import concat, int2bin, unconcat, bin2int
 # FIXME: use this library properly!
-from nigori.client import ShamirSplit, KeyDeriver
+from nigori.client import KeyDeriver
 
 import httplib
 import random
