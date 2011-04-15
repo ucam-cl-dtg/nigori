@@ -39,7 +39,7 @@ class KeyDeriver:
   # be demoed. Yes, I am using it incorrectly (I am pretending it has
   # 16 byte blocks for padding)
   def __init__(self, username, servername, password, use_des = 0):
-    s_user = PBKDF2(concat([username, servername]), "user salt", Nsalt, 8)
+    s_user = PBKDF2(concat([username, servername]), "user salt", Nsalt, 16)
     self.user = PBKDF2(password, s_user, Nuser, 16)
     self.enc = PBKDF2(password, s_user, Nenc, 16)
     self.mac = PBKDF2(password, s_user, Nmac, 16)
