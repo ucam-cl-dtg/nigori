@@ -141,10 +141,10 @@ public class KeyManager {
   private byte[] generateHMAC(byte[] message) throws NigoriCryptographyException {
 
     try {
-      //TODO(beresford): The spec says SHA256, but using MD5 as this is available on AppEngine.
-      String hmacAlgorithm = "HmacMD5";
+      //TODO(drt24): The spec says SHA256, but this is not available on AppEngine - need to bundle library.
+      String hmacAlgorithm = "HmacSHA256";
       Mac mac = Mac.getInstance(hmacAlgorithm);
-      SecretKey key = new SecretKeySpec(macSecretKey, "MD5");
+      SecretKey key = new SecretKeySpec(macSecretKey, "SHA-256");
       mac.init(key);
       return mac.doFinal(message);
     } catch(Exception e) {
@@ -179,7 +179,7 @@ public class KeyManager {
   public byte[] decrypt(byte[] encryptionKey, byte[] ciphertext) throws NigoriCryptographyException {
 
     byte[] iv = new byte[16]; 
-    byte[] mac = new byte[16];
+    byte[] mac = new byte[32];
     Cipher cipher;
     try {
       cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
@@ -202,7 +202,7 @@ public class KeyManager {
     byte[] macCheck = generateHMAC(data);
     if (mac.length != macCheck.length) {
       throw new NigoriCryptographyException(
-          "Length mismatch between provided and received HMACs.");
+          String.format("Length mismatch between provided (%d) and received (%d) HMACs.", mac.length, macCheck.length));
     }
     
     for (int i = 0; i < macCheck.length; i++) {
