@@ -293,8 +293,4 @@ public class KeyManager {
     random.nextBytes(key);
     return key;
   }
-  
-  //TODO(beresford): unit tests.
-  public static void main(String[] args) throws Exception {
-  }
 }
