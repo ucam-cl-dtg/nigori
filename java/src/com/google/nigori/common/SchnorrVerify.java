@@ -31,7 +31,7 @@ public class SchnorrVerify {
   static final BigInteger Q = new BigInteger("9760508f15230bccb292b982a2eb840bf0581cf5", 16);
   static final BigInteger G = new BigInteger("f7e1a085d69b3ddecbbcab5c36b857b97994afbbfa3aea82f9574c0b3d0782675159578ebad4594fe67107108180b449167123e84c281613b7cf09328cc8a6e13c167a8b547c8d28e0a3ae1e2bb3a675916ea37f0bfa213562f1fb627a01243bcca4f1bea8519089a883dfe15ae59f06928b665e807b552564014c3bfecf492a", 16);
 
-  static final String DIGEST_ALGORITHM = "SHA-256";
+  static final String DIGEST_ALGORITHM = NigoriConstants.A_KMAC;
 
   private final BigInteger publicKey;
 

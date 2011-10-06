@@ -36,6 +36,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
 
+import com.google.nigori.common.NigoriConstants;
 import com.google.nigori.common.SchnorrSign;
 
 /**
@@ -44,15 +45,6 @@ import com.google.nigori.common.SchnorrSign;
  * @author Alastair Beresford
  */
 public class KeyManager {
-
-  //This is the constant "user salt" (in non-terminated ascii) written here as bytes
-  private final static byte[] USER_SALT = {117, 115, 101, 114, 32, 115, 97, 108, 116};
-
-  //Number of rounds for PBKDF for each key generation
-  private final static int NSALT = 1000;
-  private final static int NUSER = NSALT + 1;
-  private final static int NENC = NSALT + 2;
-  private final static int NMAC = NSALT + 3;
 
   private byte[] userSecretKey;
   private byte[] encryptionSecretKey;
@@ -106,11 +98,11 @@ public class KeyManager {
   	byte[] userAndServer = new byte[username.length + servername.length];
   	System.arraycopy(username, 0, userAndServer, 0, username.length);
   	System.arraycopy(servername, 0, userAndServer, username.length, servername.length);
-    byte[] salt = pbkdf2(userAndServer, USER_SALT, NSALT, 16);
+    byte[] salt = pbkdf2(userAndServer, NigoriConstants.USER_SALT, NigoriConstants.N_SALT, NigoriConstants.B_SUSER);
 
-    this.userSecretKey = pbkdf2(password, salt, NUSER, 16);
-    this.encryptionSecretKey = pbkdf2(password, salt, NENC, 16);
-    this.macSecretKey = pbkdf2(password, salt, NMAC, 16);
+    this.userSecretKey = pbkdf2(password, salt, NigoriConstants.N_USER, NigoriConstants.B_DSA);
+    this.encryptionSecretKey = pbkdf2(password, salt, NigoriConstants.N_ENC, NigoriConstants.B_KENC);
+    this.macSecretKey = pbkdf2(password, salt, NigoriConstants.N_MAC, NigoriConstants.B_KMAC);
   }
   
   private static byte[] pbkdf2(byte[] password, byte[] salt, int rounds, int outputByteCount) 
@@ -142,9 +134,9 @@ public class KeyManager {
 
     try {
       //TODO(drt24): The spec says SHA256, but this is not available on AppEngine - need to bundle library.
-      String hmacAlgorithm = "HmacSHA256";
+      String hmacAlgorithm = NigoriConstants.A_HMAC;
       Mac mac = Mac.getInstance(hmacAlgorithm);
-      SecretKey key = new SecretKeySpec(macSecretKey, "SHA-256");
+      SecretKey key = new SecretKeySpec(macSecretKey, NigoriConstants.A_KMAC);
       mac.init(key);
       return mac.doFinal(message);
     } catch(Exception e) {
@@ -167,8 +159,8 @@ public class KeyManager {
   /**
    * Use this object's keys to decrypt {@code ciphertext} and return plaintext.
    * 
-   * This method expects the IV to be stored in the first 16 bytes and a MAC to be stored in the
-   * final 16 bytes.
+   * This method expects the IV to be stored in the first {@link NigoriConstants#B_AES} bytes and a MAC to be stored in the
+   * final {@link NigoriConstants#B_MAC} bytes.
    * 
    * @param ciphertext the message to decrypt.
    * 
@@ -178,11 +170,11 @@ public class KeyManager {
    */
   public byte[] decrypt(byte[] encryptionKey, byte[] ciphertext) throws NigoriCryptographyException {
 
-    byte[] iv = new byte[16]; 
-    byte[] mac = new byte[32];
+    byte[] iv = new byte[NigoriConstants.B_SYMENC];
+    byte[] mac = new byte[NigoriConstants.B_MAC];
     Cipher cipher;
     try {
-      cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+      cipher = Cipher.getInstance(NigoriConstants.A_SYMENC_CIPHER);
     } catch(NoSuchPaddingException e) {
       throw new NigoriCryptographyException(e);
     } catch(NoSuchAlgorithmException e) {
@@ -213,7 +205,7 @@ public class KeyManager {
     }
 
     try {
-      SecretKey key = new SecretKeySpec(encryptionKey,"AES");
+      SecretKey key = new SecretKeySpec(encryptionKey,NigoriConstants.A_SYMENC);
       cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
       return cipher.doFinal(data);
     } catch(InvalidAlgorithmParameterException e) {
@@ -255,9 +247,9 @@ public class KeyManager {
   throws NigoriCryptographyException {
 
     try {
-      Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-      SecretKey secret = new SecretKeySpec(key, "AES");
-      byte[] iv = new byte[16];
+      Cipher cipher = Cipher.getInstance(NigoriConstants.A_SYMENC_CIPHER);
+      SecretKey secret = new SecretKeySpec(key, NigoriConstants.A_SYMENC);
+      byte[] iv = new byte[NigoriConstants.B_SYMENC];
       if (randomPadding) {
         random.nextBytes(iv); 
       }
@@ -296,9 +288,10 @@ public class KeyManager {
   }
 
   public byte[] generateSessionKey() {
-  	byte[] key = new byte[16];
-  	random.nextBytes(key);
-  	return key;
+    byte[] key = new byte[16];// TODO(drt24) which kind of key is this and what is it for - not
+                              // currently used.
+    random.nextBytes(key);
+    return key;
   }
   
   //TODO(beresford): unit tests.
