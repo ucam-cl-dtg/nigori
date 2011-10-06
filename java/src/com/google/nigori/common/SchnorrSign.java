@@ -51,7 +51,7 @@ public class SchnorrSign extends SchnorrVerify {
     return sign(message, new BigInteger(Q.bitLength() - 1, random));
   }
 
-  private SchnorrSignature sign(byte[] message, BigInteger randomValue) 
+  protected SchnorrSignature sign(byte[] message, BigInteger randomValue) 
   throws NoSuchAlgorithmException {
 
     MessageDigest  m = MessageDigest.getInstance(DIGEST_ALGORITHM);
@@ -71,45 +71,4 @@ public class SchnorrSign extends SchnorrVerify {
     return new SchnorrSignature(twosComplimentToPositiveInt(s.toByteArray()), e, message);
   }
 
-  private static class SchnorrSignTestCase{
-    String password;
-    String message;
-    BigInteger random;
-    BigInteger e;
-    BigInteger s;
-
-    SchnorrSignTestCase(String password, String message, String random, String e, String s) {
-      this.password = password;
-      this.message = message;
-      this.random = new BigInteger(random, 16);
-      this.e = new BigInteger(e, 16);
-      this.s = new BigInteger(s, 16);
-    }
-
-    @Override
-    public String toString() {
-      return "{\n " + password + ",\n " + message + ",\n " 
-      + random + ",\n " + e + ",\n " + s + "\n}";
-    }
-  }
-
-  //TODO(beresford): Add some more test cases.
-  private static SchnorrSignTestCase[] test = {
-    new SchnorrSignTestCase("password", "message", "1",
-        "dd8291f5bbef43c83d35acd6d2592648f0fed44ed655f5b2b346cb1b35c7fac4",
-        "72d740a9bba48c30e6bd56a58affd5361e787c0c"
-    )};
-
-  public static void main(String[] args) throws Exception {
-
-    for (SchnorrSignTestCase t : test) {
-      SchnorrSign signer = new SchnorrSign(t.password.getBytes());
-      SchnorrSignature sign = signer.sign(t.message.getBytes(), t.random);
-      BigInteger e = new BigInteger(positiveIntToTwosCompliment(sign.getE()));
-      BigInteger s = new BigInteger(positiveIntToTwosCompliment(sign.getS()));
-      if (!t.e.equals(e) || !t.s.equals(s)) {
-        System.out.println("Error when testing, t:\n"+t+"\nsign.e: "+e+"\nsign.s: "+s);
-      }
-    }			
-  }
 }
