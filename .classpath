@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="java/src"/>
+	<classpathentry kind="src" path="java/test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="/usr/share/java/protobuf.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/servlet-api-2.5.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/usr/share/doc/libservlet2.5-java-doc/api"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/home/drt24/bin/gson-1.7.1.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/commons-codec.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jdo2-api.jar"/>
+	<classpathentry kind="lib" path="/home/drt24/bin/eclipse-folder/plugins/com.google.appengine.eclipse.sdkbundle_1.5.4.r37v201109211906/appengine-sdk-plugin.jar"/>
+	<classpathentry kind="lib" path="/auto/homes/drt24/bin/eclipse-folder/plugins/com.google.appengine.eclipse.sdkbundle_1.5.4.r37v201109211906/appengine-java-sdk-1.5.4/lib/appengine-remote-api.jar"/>
+	<classpathentry kind="lib" path="/auto/homes/drt24/bin/eclipse-folder/plugins/com.google.appengine.eclipse.sdkbundle_1.5.4.r37v201109211906/appengine-java-sdk-1.5.4/lib/impl/appengine-api.jar"/>
+	<classpathentry kind="lib" path="/auto/homes/drt24/bin/easymock.jar" sourcepath="/auto/homes/drt24/bin/easymock-3.0/easymock-3.0-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/auto/homes/drt24/bin/easymock-3.0/easymock-3.0-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/usr/share/java/cglib.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/objenesis.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/asm3.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

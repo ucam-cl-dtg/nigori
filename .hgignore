@@ -8,3 +8,4 @@ doc/.*\.log
 doc/.*\.pdf
 doc/.*\.html
 doc/.*\.txt
+bin
