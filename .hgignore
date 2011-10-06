@@ -10,3 +10,4 @@ doc/.*\.html
 doc/.*\.txt
 war/WEB-INF/classes
 war/WEB-INF/lib
+.git

@@ -1,0 +1,13 @@
+*~
+server/index.yaml
+*.pyc
+server2/*
+doc/*.aux
+doc/*.dvi
+doc/*.log
+doc/*.pdf
+doc/*.html
+doc/*.txt
+war/WEB-INF/classes
+war/WEB-INF/lib
+.hg
