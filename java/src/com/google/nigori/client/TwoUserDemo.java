@@ -25,6 +25,9 @@ import java.io.IOException;
  */
 public class TwoUserDemo {
 
+  protected static final int PORT = 8888;
+  protected static final String HOST = "localhost";
+  private static final int ITERATIONS = 60;
 	private static class SeparateUserAccessesSharedStore extends Thread {
 		
 		private String username;
@@ -41,9 +44,9 @@ public class TwoUserDemo {
 		public void run() {
 			byte count = 0;
 			try {
-				NigoriDatastore sharedStore = new NigoriDatastore("localhost", 8123, "nigori", username,
+				NigoriDatastore sharedStore = new NigoriDatastore(HOST, PORT, "nigori", username,
 						password);
-				while(true) {
+				for(int i = 0; i < ITERATIONS; ++i) {
 					sharedStore.put(sharedIndex, new byte[]{count++});
 					sleep(2000);
 				}
@@ -62,7 +65,7 @@ public class TwoUserDemo {
 
 		//This auto-generates a unique username and password used in the store.
 		//The username and password is the data which should be shared between two devices.
-		final NigoriDatastore sharedStore = new NigoriDatastore("localhost", 8123, "nigori");
+		final NigoriDatastore sharedStore = new NigoriDatastore(HOST, PORT, "nigori");
 		final String username = sharedStore.getUsername();
 		final String password = sharedStore.getPassword();
 		System.out.println("Shared store: Username='" + username + "' Password='" + password + "'");
@@ -80,7 +83,7 @@ public class TwoUserDemo {
 		secondUser.start();
 		
 		//First user, possibly on a different device
-		while(true) {
+		for(int i = 0; i < ITERATIONS; ++i) {
 			byte[] result = sharedStore.get(sharedIndex);
 			if (result == null) {
 				System.out.println("No valid data held");
