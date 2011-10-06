@@ -8,4 +8,5 @@ doc/.*\.log
 doc/.*\.pdf
 doc/.*\.html
 doc/.*\.txt
-bin
+war/WEB-INF/classes
+war/WEB-INF/lib
