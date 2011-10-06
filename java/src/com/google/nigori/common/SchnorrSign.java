@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.nigori.client;
+package com.google.nigori.common;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -59,9 +59,11 @@ public class SchnorrSign extends SchnorrVerify {
     BigInteger k = randomValue;
     BigInteger r = G.modPow(k, P);
 
-    byte[][] msg = new byte[][]{message, twosComplimentToPositiveInt(r.toByteArray())};
-    byte[] marshallMsg = Util.concatAndPrefix(msg);
-    m.update(marshallMsg);
+    byte[] rAsBytes = twosComplimentToPositiveInt(r.toByteArray());
+    byte[] messageAndR = new byte[message.length + rAsBytes.length];
+    System.arraycopy(message, 0, messageAndR, 0, message.length);
+    System.arraycopy(rAsBytes, 0, messageAndR, message.length, rAsBytes.length);
+    m.update(messageAndR);
     byte[] e = m.digest();
 
     BigInteger positiveE = new BigInteger(positiveIntToTwosCompliment(e));

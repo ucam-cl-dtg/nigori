@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.nigori.client;
+package com.google.nigori.common;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -35,11 +35,11 @@ public class SchnorrVerify {
 
   private final BigInteger publicKey;
 
-  SchnorrVerify(byte[] publicKey) {
+  public SchnorrVerify(byte[] publicKey) {
     this.publicKey = new BigInteger(positiveIntToTwosCompliment(publicKey));
   }
 
-  SchnorrVerify(BigInteger publicKey) {
+  public SchnorrVerify(BigInteger publicKey) {
     this.publicKey = publicKey;
   }
 
@@ -84,11 +84,16 @@ public class SchnorrVerify {
     BigInteger s = new BigInteger(positiveIntToTwosCompliment(sig.getS()));
     BigInteger r = (G.modPow(s, P).multiply(publicKey.modPow(e, P))).mod(P);
 
-    byte[][] valid = new byte[][]{sig.getMessage(), twosComplimentToPositiveInt(r.toByteArray())};
-    byte[] marshallMsg = Util.concatAndPrefix(valid);
-    m.update(marshallMsg);
+    byte[] message = sig.getMessage();
+    byte[] rAsBytes = twosComplimentToPositiveInt(r.toByteArray());
+    byte[] messageAndR = new byte[message.length + rAsBytes.length];
+    System.arraycopy(message, 0, messageAndR, 0, message.length);
+    System.arraycopy(rAsBytes, 0, messageAndR, message.length, rAsBytes.length);
+    m.update(messageAndR);
     byte[] newE = m.digest();
 
+    //TODO(beresford): when validating the signature on the server for authentication, need
+    //to check that the contents of the message is the one which is received.
     return e.equals(new BigInteger(positiveIntToTwosCompliment(newE)));
   }
 }

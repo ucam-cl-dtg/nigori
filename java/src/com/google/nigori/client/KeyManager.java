@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2011 Google Inc.
+ * Copyright (C) 2011 Alastair R. Beresford
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +34,10 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.commons.codec.binary.Base64;
+
+import com.google.nigori.common.SchnorrSign;
+
 /**
  * Manages the set of keys derived from a given (servername, username and password) triple.
  *
@@ -53,6 +58,9 @@ public class KeyManager {
   private byte[] encryptionSecretKey;
   private byte[] macSecretKey;
 
+  private byte[] username;
+  private byte[] password;
+  
   private SecureRandom random = new SecureRandom();
 
   /**
@@ -61,21 +69,52 @@ public class KeyManager {
    * @param servername the domain name of the server used to store data.
    * @param username the registered username of the user at {@code servername}.
    * @param password the password of {@code username} at {@code servername}.
-   * @throws KeyManagerCryptographyException
+   * @throws NigoriCryptographyException
    */
   public KeyManager(byte[] servername, byte[] username, byte[] password) 
-  throws KeyManagerCryptographyException {
+  throws NigoriCryptographyException {
 
-    byte[] userAndServer = Util.concatAndPrefix(new byte[][]{username,servername});
-    byte[] salt = pbkdf2(userAndServer, USER_SALT, NSALT, 16);
-
-    userSecretKey = pbkdf2(password, salt, NUSER, 16);
-    encryptionSecretKey = pbkdf2(password, salt, NENC, 16);
-    macSecretKey = pbkdf2(password, salt, NMAC, 16);
+  	initialiseKeys(servername, username, password);
   }
 
+  /**
+   * Given a {@code servername}, auto-generate a username and password, then generate Nigori keys.
+   * 
+   * @param servername the domain name of the server used to store data.
+   * @throws NigoriCryptographyException
+   */
+  public KeyManager(byte[] servername) throws NigoriCryptographyException {
+
+  	byte[] username = new byte[24];
+  	byte[] password = new byte[24];
+  	random.nextBytes(username);
+  	random.nextBytes(password);
+  	
+  	//Ensure the username and password are printable strings without further encoding
+  	byte[] encodedUsername = Base64.encodeBase64(username);
+  	byte[] encodedPassword = Base64.encodeBase64(password);
+  	
+  	initialiseKeys(servername, encodedUsername, encodedPassword);
+  }
+  
+  private void initialiseKeys(byte[] servername, byte[] username, byte[] password) throws
+  NigoriCryptographyException {
+  	
+  	this.username = username;
+  	this.password = password;
+
+  	byte[] userAndServer = new byte[username.length + servername.length];
+  	System.arraycopy(username, 0, userAndServer, 0, username.length);
+  	System.arraycopy(servername, 0, userAndServer, username.length, servername.length);
+    byte[] salt = pbkdf2(userAndServer, USER_SALT, NSALT, 16);
+
+    this.userSecretKey = pbkdf2(password, salt, NUSER, 16);
+    this.encryptionSecretKey = pbkdf2(password, salt, NENC, 16);
+    this.macSecretKey = pbkdf2(password, salt, NMAC, 16);
+  }
+  
   private static byte[] pbkdf2(byte[] password, byte[] salt, int rounds, int outputByteCount) 
-  throws KeyManagerCryptographyException {
+  throws NigoriCryptographyException {
 
     //Standard Java PBKDF2 takes the lower 8 bits of each element of a char array as input.
     //Therefore, rewrite byte array into char array, preserving lower 8-bit pattern
@@ -92,14 +131,14 @@ public class KeyManager {
       KeySpec spec = new PBEKeySpec(charPassword, salt, rounds, 8*outputByteCount);
       return factory.generateSecret(spec).getEncoded();     
     } catch (NoSuchAlgorithmException e) {
-      throw new KeyManagerCryptographyException(e);
+      throw new NigoriCryptographyException(e);
     } catch (InvalidKeySpecException e) {
-      throw new KeyManagerCryptographyException(e);
+      throw new NigoriCryptographyException(e);
     }
   }
 
   
-  private byte[] generateHMAC(byte[] message) throws KeyManagerCryptographyException {
+  private byte[] generateHMAC(byte[] message) throws NigoriCryptographyException {
 
     try {
       //TODO(beresford): The spec says SHA256, but using MD5 as this is available on AppEngine.
@@ -109,10 +148,22 @@ public class KeyManager {
       mac.init(key);
       return mac.doFinal(message);
     } catch(Exception e) {
-      throw new KeyManagerCryptographyException(e);
+      throw new NigoriCryptographyException(e);
     }
   }
 
+  public byte[] getUsername() {
+  	return username.clone();
+  }
+  
+  public byte[] getPassword() {
+  	return password.clone();
+  }
+  
+  public byte[] decrypt(byte[] ciphertext) throws NigoriCryptographyException {
+  	return decrypt(encryptionSecretKey, ciphertext);
+  }
+  
   /**
    * Use this object's keys to decrypt {@code ciphertext} and return plaintext.
    * 
@@ -121,11 +172,11 @@ public class KeyManager {
    * 
    * @param ciphertext the message to decrypt.
    * 
-   * @throws KeyManagerCryptographyException if total length of message <48 bytes, if the MAC does 
+   * @throws NigoriCryptographyException if total length of message <48 bytes, if the MAC does 
    * not match the decoded data, or if something goes wrong with AES/CBC/PKCS5Padding inside the 
    * JCE library.
    */
-  public byte[] decrypt(byte[] ciphertext) throws KeyManagerCryptographyException {
+  public byte[] decrypt(byte[] encryptionKey, byte[] ciphertext) throws NigoriCryptographyException {
 
     byte[] iv = new byte[16]; 
     byte[] mac = new byte[16];
@@ -133,13 +184,13 @@ public class KeyManager {
     try {
       cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
     } catch(NoSuchPaddingException e) {
-      throw new KeyManagerCryptographyException(e);
+      throw new NigoriCryptographyException(e);
     } catch(NoSuchAlgorithmException e) {
-      throw new KeyManagerCryptographyException(e);
+      throw new NigoriCryptographyException(e);
     }
     
     if (ciphertext.length < iv.length + mac.length + cipher.getBlockSize()) {
-      throw new KeyManagerCryptographyException(
+      throw new NigoriCryptographyException(
           "Ciphertext is too short to be a valid encrypted message.");
     }
       
@@ -150,59 +201,30 @@ public class KeyManager {
 
     byte[] macCheck = generateHMAC(data);
     if (mac.length != macCheck.length) {
-      throw new KeyManagerCryptographyException(
+      throw new NigoriCryptographyException(
           "Length mismatch between provided and received HMACs.");
     }
     
     for (int i = 0; i < macCheck.length; i++) {
       if (mac[i] != macCheck[i]) {
-        throw new KeyManagerCryptographyException(
+        throw new NigoriCryptographyException(
             "HMAC of ciphertext does not match expected value");
       }
     }
 
     try {
-      SecretKey key = new SecretKeySpec(encryptionSecretKey,"AES");
+      SecretKey key = new SecretKeySpec(encryptionKey,"AES");
       cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
       return cipher.doFinal(data);
     } catch(InvalidAlgorithmParameterException e) {
-      throw new KeyManagerCryptographyException(e);
+      throw new NigoriCryptographyException(e);
     } catch(InvalidKeyException e) {
-      throw new KeyManagerCryptographyException(e);
+      throw new NigoriCryptographyException(e);
     } catch(BadPaddingException e) {
-      throw new KeyManagerCryptographyException(e);
+      throw new NigoriCryptographyException(e);
     } catch(IllegalBlockSizeException e) {
-      throw new KeyManagerCryptographyException(e);
+      throw new NigoriCryptographyException(e);
     }
-  }
-
-  /**
-   * Encrypt {@code plaintext} using AES with a fixed IV of all zero bytes.
-   * 
-   * @param plaintext The message to encrypt.
-   * @return
-   * @throws KeyManagerCryptographyException
-   */
-  //TODO(beresford): The IV needs to be removed and there is no HMAC. Normalise with decrypt()?
-  public byte[] permute(byte[] plaintext) throws KeyManagerCryptographyException {
-    byte[] crypt = encrypt(plaintext, false);
-    byte[] cryptNoIV = new byte[crypt.length - 16];
-    System.arraycopy(crypt, 16, cryptNoIV, 0, cryptNoIV.length);
-    return cryptNoIV;
-  }
-
-  /**
-   * Decrypt {@code ciphertext} using AES with a fixed IV of all zero bytes.
-   * 
-   * @param ciphertext The message to decrypt.
-   * 
-   * @throws KeyManagerCryptographyException
-   */
-  //TODO(beresford): This method can be removed (and decrypt() used) if normalised.
-  public byte[] dePermute(byte[] ciphertext) throws KeyManagerCryptographyException {
-    byte[] ciphertextWithIV = new byte[ciphertext.length + 16];
-    System.arraycopy(ciphertext, 0, ciphertextWithIV, 16, ciphertext.length);
-    return decrypt(ciphertextWithIV);
   }
 
   /**
@@ -210,18 +232,31 @@ public class KeyManager {
    * 
    * @param plaintext The message to encrypt.
    * 
-   * @throws KeyManagerCryptographyException
+   * @throws NigoriCryptographyException
    */
-  public byte[] encrypt(byte[] plaintext) throws KeyManagerCryptographyException {
-    return encrypt(plaintext, true);
+  public byte[] encrypt(byte[] plaintext) throws NigoriCryptographyException {
+  	return encrypt(encryptionSecretKey, plaintext, true);
+  }
+  
+  public byte[] encrypt(byte[] key, byte[] plaintext) throws NigoriCryptographyException {
+    return encrypt(key, plaintext, true);
   }
 
-  private byte[] encrypt(byte[] plaintext, boolean randomPadding) 
-  throws KeyManagerCryptographyException {
+  public byte[] encryptWithZeroIv(byte[] plaintext) throws NigoriCryptographyException {
+  	return encrypt(encryptionSecretKey, plaintext, false);
+  }
+  
+  public byte[] encryptWithZeroIv(byte[] key, byte[] plaintext) throws 
+  NigoriCryptographyException {
+    return encrypt(key, plaintext, false);
+  }  
+  
+  private byte[] encrypt(byte[] key, byte[] plaintext, boolean randomPadding) 
+  throws NigoriCryptographyException {
 
     try {
       Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-      SecretKey secret = new SecretKeySpec(encryptionSecretKey, "AES");
+      SecretKey secret = new SecretKeySpec(key, "AES");
       byte[] iv = new byte[16];
       if (randomPadding) {
         random.nextBytes(iv); 
@@ -238,17 +273,17 @@ public class KeyManager {
 
       return ciphertext;
     } catch(NoSuchPaddingException e) {
-      throw new KeyManagerCryptographyException(e);
+      throw new NigoriCryptographyException(e);
     } catch(NoSuchAlgorithmException e) {
-      throw new KeyManagerCryptographyException(e);
+      throw new NigoriCryptographyException(e);
     } catch(InvalidAlgorithmParameterException e) {
-      throw new KeyManagerCryptographyException(e);
+      throw new NigoriCryptographyException(e);
     } catch(InvalidKeyException e) {
-      throw new KeyManagerCryptographyException(e);
+      throw new NigoriCryptographyException(e);
     } catch(BadPaddingException e) {
-      throw new KeyManagerCryptographyException(e);
+      throw new NigoriCryptographyException(e);
     } catch(IllegalBlockSizeException e) {
-      throw new KeyManagerCryptographyException(e);
+      throw new NigoriCryptographyException(e);
     }
   }
 
@@ -260,6 +295,12 @@ public class KeyManager {
     return new SchnorrSign(userSecretKey);
   }
 
+  public byte[] generateSessionKey() {
+  	byte[] key = new byte[16];
+  	random.nextBytes(key);
+  	return key;
+  }
+  
   //TODO(beresford): unit tests.
   public static void main(String[] args) throws Exception {
   }
