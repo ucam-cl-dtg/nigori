@@ -53,7 +53,7 @@
       </address> 
     </author> 
  
-    <date year="2010" /> 
+    <date year="2011" />
  
     <!-- Meta-data Declarations --> 
  
@@ -136,15 +136,15 @@
 	  <c>Nuser</c>	<c>Nsalt + 1</c><c>[1]</c>
 	  <c>Nenc</c>	<c>Nsalt + 2</c><c>[1]</c>
 	  <c>Nmac</c>	<c>Nsalt + 3</c><c>[1]</c>
-	  <c>Buser</c>  <c>16</c>       <c>size in bytes for Suser, must be
+	  <c>Bsuser</c>  <c>16</c>       <c>size in bytes for Suser, must be
 	                                   at least 10 for FIPS-198
 	                                   compliance with
 	                                   HMAC-SHA1</c>
 	  <c>Bdsa</c>	<c>?</c>	<c>size in bytes for Kuser</c>
-	  <c>Benc</c>	<c>16</c>	<c>symmetric encryption key size
+	  <c>Bkenc</c>	<c>16</c>	<c>symmetric encryption key size
                                            (currently AES-128) (Kenc)</c>
-	  <c>Bmac</c>	<c>16</c>	<c>encryption MAC key size (Kmac)</c>
-	  <c>Bmaster</c><c>16</c>	<c>size in bytes of Kmaster</c>
+	  <c>Bkmac</c>	<c>16</c>	<c>encryption MAC key size (Kmac)</c>
+	  <c>Bkmaster</c><c>16</c>	<c>size in bytes of Kmaster</c>
 
 	  <postamble>[1] should be at least 1000 and different from
 	  other N values - the properties of PBKDF2 then ensure that
@@ -181,7 +181,7 @@
 
 	<list>
 	  <t>Suser = PBKDF2(Username || Servername, "user salt",
-	    Nsalt, Buser)</t>
+	    Nsalt, Bsuser)</t>
 	</list>
       </t>
 
@@ -198,8 +198,8 @@
 
 	  <list>
 	    <t>Kuser = PBKDF2(P, Suser, Nuser, Bdsa)</t>
-	    <t>Kenc = PBKDF2(P, Suser, Nenc, Benc)</t>
-	    <t>Kmac = PBKDF2(P, Suser, Nmac, Bmac)</t>
+	    <t>Kenc = PBKDF2(P, Suser, Nenc, Bkenc)</t>
+	    <t>Kmac = PBKDF2(P, Suser, Nmac, Bkmac)</t>
 	  </list>
 	</t>
 
@@ -221,7 +221,7 @@
 
 	  <list>
 	    <t>Kmaster = PBKDF2(H(Pserver), Sserver, Nmaster,
-	    Bmaster)</t>
+	    Bkmaster)</t>
 	  </list>
 	</t>
 
@@ -239,9 +239,9 @@
 
 	<t>Keys are derived as follows:
 	  <list>
-	    <t>Kuser = PBKDF2(Pnigori, Suser, Nuser, Buser)</t>
-	    <t>Kenc = PBKDF2(Kmaster, Suser, Nenc, Benc)</t>
-	    <t>Kmac = PBKDF2(Kmaster, Suser, Nmac, Bmac)</t>
+	    <t>Kuser = PBKDF2(Pnigori, Suser, Nuser, Bsuser)</t>
+	    <t>Kenc = PBKDF2(Kmaster, Suser, Nenc, Bkenc)</t>
+	    <t>Kmac = PBKDF2(Kmaster, Suser, Nmac, Bkmac)</t>
 	  </list>
 	</t>
 
@@ -303,7 +303,7 @@
       <t>Note: if instead of Kenc we use Kv which is (for example:
       anything that depends on both P and N will do):
 	<list>
-	  <t>Kv = PBKDF2(Kenc || N, Suser, Nv, Benc)</t>
+	  <t>Kv = PBKDF2(Kenc || N, Suser, Nv, Bkenc)</t>
 	</list>
       </t>
 
