@@ -49,8 +49,7 @@ public class TestDatabase implements Database {
 	@Override
 	public boolean deleteUser(byte[] authority, byte[] existingUser) {
 		//TODO(beresford): check authority to carry out action
-		//TODO(beresford): provide appropriate implementation
-		return false;
+	  return users.remove(ByteString.copyFrom(existingUser));
 	}
 	
 	@Override
