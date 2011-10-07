@@ -145,6 +145,7 @@
                                            (currently AES-128) (Kenc)</c>
 	  <c>Bkmac</c>	<c>16</c>	<c>encryption MAC key size (Kmac)</c>
 	  <c>Bkmaster</c><c>16</c>	<c>size in bytes of Kmaster</c>
+	  <c>BMusername</c><c>32?</c>	<c>maximum size of username</c>
 
 	  <postamble>[1] should be at least 1000 and different from
 	  other N values - the properties of PBKDF2 then ensure that
@@ -257,13 +258,13 @@
     <section title="Authentication">
 
       <t>When the user registers at a server, he presents his username
-      (an arbitrary octet string [TBD: max length?]) websafe base64
-      encoded, and g ^ Kuser mod p. Then to authenticate to the server
-      he presents his username (u), the server name (ns), the time in
-      seconds since Jan 1 1970 (nt) and random string (nr) and a
-      DSA signature using Kuser over u || ns || nt || nr. At least
-      one of these must be different every time they are used, in
-      order to defeat replay attacks.</t>
+      (an arbitrary octet string with a maximum lenth of BMusername)
+      websafe base64 encoded, and g ^ Kuser mod p. Then to
+      authenticate to the server he presents his username (u), the
+      server name (ns), the time in seconds since Jan 1 1970 (nt) and
+      random string (nr) and a DSA signature using Kuser over u || ns
+      || nt || nr. At least one of these must be different every time
+      they are used, in order to defeat replay attacks.</t>
 
       <t>The server checks that nt is recent (so it can drop old
       entries from its replay database), checks that it has not seen u
