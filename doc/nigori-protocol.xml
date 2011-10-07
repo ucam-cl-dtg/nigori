@@ -343,9 +343,9 @@
       <t>This looks exactly the same to each server as storage at a
       single server would. However, the client takes the value, V, it
       would store at a single server and splits it using a Shamir
-      split, with the k value as determined by the user (n is
-      obviously equal to the number of servers). Each split is then
-      stored at one of the servers as Enc[Kenc,Kmac](i ||
+      split, with the k value (number of splits required for reconstruction)
+      as determined by the user (n is equal to the number of servers).
+      Each split is then stored at one of the servers as Enc[Kenc,Kmac](i ||
       Si). <cref>(Security note: the servers can probably guess they're part
       of a split because the value will be longer than a non-split
       value)</cref></t>
