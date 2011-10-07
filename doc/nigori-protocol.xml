@@ -140,7 +140,7 @@
 	                                   at least 10 for FIPS-198
 	                                   compliance with
 	                                   HMAC-SHA1</c>
-	  <c>Bdsa</c>	<c>?</c>	<c>size in bytes for Kuser</c>
+	  <c>Bkdsa</c>	<c>16?</c>	<c>size in bytes for Kuser</c>
 	  <c>Bkenc</c>	<c>16</c>	<c>symmetric encryption key size
                                            (currently AES-128) (Kenc)</c>
 	  <c>Bkmac</c>	<c>16</c>	<c>encryption MAC key size (Kmac)</c>
@@ -198,7 +198,7 @@
 	  follows:
 
 	  <list>
-	    <t>Kuser = PBKDF2(P, Suser, Nuser, Bdsa)</t>
+	    <t>Kuser = PBKDF2(P, Suser, Nuser, Bkdsa)</t>
 	    <t>Kenc = PBKDF2(P, Suser, Nenc, Bkenc)</t>
 	    <t>Kmac = PBKDF2(P, Suser, Nmac, Bkmac)</t>
 	  </list>
