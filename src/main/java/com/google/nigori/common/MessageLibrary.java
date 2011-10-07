@@ -124,8 +124,7 @@ public class MessageLibrary {
 		}
 	}
 
-	public static PutRequest putRequestAsProtobuf(SchnorrSign signer, byte[] key, byte[] value,
-			byte[][] readAuthorities, byte[][] writeAuthorities) throws NoSuchAlgorithmException {
+	public static PutRequest putRequestAsProtobuf(SchnorrSign signer, byte[] key, byte[] value) throws NoSuchAlgorithmException {
 
 		SchnorrSignature signedNonce = signer.sign(new Nonce().toToken());
 
@@ -136,21 +135,14 @@ public class MessageLibrary {
 		.setNonce(ByteString.copyFrom(signedNonce.getMessage()))
 		.setKey(ByteString.copyFrom(key))
 		.setValue(ByteString.copyFrom(value));
-		for(byte[] reader : readAuthorities) {
-			reqBuilder.addReaders(ByteString.copyFrom(reader));
-		}
-		for(byte[] writer : writeAuthorities) {
-			reqBuilder.addWriters(ByteString.copyFrom(writer));
-		}
 		
 		PutRequest req = reqBuilder.build();
 
 		return req;
 	}
 
-	public static String putRequestAsJson(SchnorrSign signer, byte[] key, byte[] value, 
-			byte[][] readAuthorities, byte[][] writeAuthorities) throws	NoSuchAlgorithmException {
-		return gson.toJson(putRequestAsProtobuf(signer, key, value, readAuthorities, writeAuthorities));
+	public static String putRequestAsJson(SchnorrSign signer, byte[] key, byte[] value) throws	NoSuchAlgorithmException {
+		return gson.toJson(putRequestAsProtobuf(signer, key, value));
 	}
 
 	public static PutRequest putRequestFromJson(String json) throws JsonConversionException {

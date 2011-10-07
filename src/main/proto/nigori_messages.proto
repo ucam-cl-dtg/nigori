@@ -35,8 +35,6 @@ message PutRequest {
   required bytes schnorr_s = 2;
   required bytes schnorr_e = 3;
   required bytes nonce = 4;
-  repeated bytes readers = 5;
-  repeated bytes writers = 6;
   required bytes key = 7;
   required bytes value = 8;  
 }

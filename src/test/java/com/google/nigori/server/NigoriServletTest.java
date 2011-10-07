@@ -152,11 +152,8 @@ public class NigoriServletTest {
 		final byte[] key = "a key".getBytes(MessageLibrary.CHARSET);
 		final byte[] value = "a value".getBytes(MessageLibrary.CHARSET);
 		final byte[] authority = keyManager.signer().getPublicKey();
-		final byte[][] readers = new byte[][]{keyManager.signer().getPublicKey()};
-		final byte[][] writers = new byte[][]{keyManager.signer().getPublicKey()};
 		
-		final String jsonPut = MessageLibrary.putRequestAsJson(keyManager.signer(), key, value, 
-				readers, writers);		
+		final String jsonPut = MessageLibrary.putRequestAsJson(keyManager.signer(), key, value);		
 		expectedCallsForJsonRequest(jsonPut, MessageLibrary.REQUEST_PUT);
 		expect(database.haveUser(aryEq(authority))).andReturn(true);
 		expect(database.putRecord(aryEq(authority), aryEq(key), aryEq(value))).andReturn(true);

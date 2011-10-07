@@ -247,7 +247,7 @@ public class NigoriDatastore {
 	 * @throws NigoriCryptographyException 
 	 */
 	public boolean put(byte[] index, byte[] value)  throws IOException, NigoriCryptographyException {
-		return put(null, index, value, getPublicKey());
+		return put(null, index, value);
 	}
 
 	/**
@@ -259,7 +259,7 @@ public class NigoriDatastore {
 	 * @param writeAuthorities list of public keys of people permitted to read this key-value pair.
 	 * @return true if the data was successfully inserted; false otherwise.
 	 */
-	private boolean put(byte[] encKey, byte[] index, byte[] value, byte[] reader) throws IOException, 
+	private boolean put(byte[] encKey, byte[] index, byte[] value) throws IOException, 
 	NigoriCryptographyException {
 
 		byte[] encIndex;
@@ -272,12 +272,8 @@ public class NigoriDatastore {
 			encValue = keyManager.encrypt(encKey, value);
 		}
 
-		byte[][] readers = new byte[][]{reader};
-		byte[][] writers = new byte[0][];
-
 		try {
-			String json = MessageLibrary.putRequestAsJson(keyManager.signer(), encIndex, encValue, readers,
-					writers);
+			String json = MessageLibrary.putRequestAsJson(keyManager.signer(), encIndex, encValue);
 			HttpResponse resp = post(MessageLibrary.REQUEST_PUT, json.getBytes(MessageLibrary.CHARSET));
 			return resp.getResponseCode() == 200;
 		} catch (NoSuchAlgorithmException e) {
