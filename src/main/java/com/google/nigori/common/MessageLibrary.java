@@ -186,19 +186,20 @@ public class MessageLibrary {
 		}
 	}
 
-	public static RegisterRequest registerRequestAsProtobuf(SchnorrSign signer) throws
+	public static RegisterRequest registerRequestAsProtobuf(byte[] user, SchnorrSign signer) throws
 	NoSuchAlgorithmException {
 
 		RegisterRequest req = RegisterRequest.newBuilder()
-		.setNewUser(ByteString.copyFrom(signer.getPublicKey()))
-		.build();
+		    .setUser(ByteString.copyFrom(user))
+		    .setPublicKey(ByteString.copyFrom(signer.getPublicKey()))
+		    .build();
 
 		return req;
 	}
 
-	public static String registerRequestAsJson(SchnorrSign signer) throws
+	public static String registerRequestAsJson(byte[] user, SchnorrSign signer) throws
 	NoSuchAlgorithmException {
-		return gson.toJson(registerRequestAsProtobuf(signer));
+		return gson.toJson(registerRequestAsProtobuf(user, signer));
 	}
 
 	public static RegisterRequest registerRequestFromJson(String json) throws 

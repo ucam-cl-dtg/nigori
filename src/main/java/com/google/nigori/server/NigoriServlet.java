@@ -172,6 +172,11 @@ public class NigoriServlet extends HttpServlet {
 		"The signature is invalid");
 	}
 
+	/**
+	 * Send an SC_OK and and empty body
+	 * @param resp
+	 * @throws ServletException
+	 */
 	private void emptyBody(HttpServletResponse resp) throws 
 	ServletException {
 		try {
@@ -292,11 +297,10 @@ public class NigoriServlet extends HttpServlet {
 				String json = getJsonAsString(req, maxJsonQueryLength);
 				RegisterRequest request = MessageLibrary.registerRequestFromJson(json);
 
-				//TODO(beresford): server configuration required to select whether a null authority is okay.
-				boolean success = database.addUser(null, request.getNewUser().toByteArray());
+				boolean success = database.addUser(request.getPublicKey().toByteArray(), request.getUser().toByteArray());
 				if(!success) {
 					throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-							"Adding user " + request.getNewUser().toStringUtf8() + " failed");
+							"Adding user " + request.getUser().toStringUtf8() + " failed");
 				}
 				emptyBody(resp);
 

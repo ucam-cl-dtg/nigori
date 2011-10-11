@@ -2283,9 +2283,13 @@ public final class NigoriMessages {
   public interface RegisterRequestOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
     
-    // required bytes new_user = 1;
-    boolean hasNewUser();
-    com.google.protobuf.ByteString getNewUser();
+    // required bytes user = 1;
+    boolean hasUser();
+    com.google.protobuf.ByteString getUser();
+    
+    // required bytes public_key = 2;
+    boolean hasPublicKey();
+    com.google.protobuf.ByteString getPublicKey();
   }
   public static final class RegisterRequest extends
       com.google.protobuf.GeneratedMessage
@@ -2316,25 +2320,40 @@ public final class NigoriMessages {
     }
     
     private int bitField0_;
-    // required bytes new_user = 1;
-    public static final int NEW_USER_FIELD_NUMBER = 1;
-    private com.google.protobuf.ByteString newUser_;
-    public boolean hasNewUser() {
+    // required bytes user = 1;
+    public static final int USER_FIELD_NUMBER = 1;
+    private com.google.protobuf.ByteString user_;
+    public boolean hasUser() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
-    public com.google.protobuf.ByteString getNewUser() {
-      return newUser_;
+    public com.google.protobuf.ByteString getUser() {
+      return user_;
+    }
+    
+    // required bytes public_key = 2;
+    public static final int PUBLIC_KEY_FIELD_NUMBER = 2;
+    private com.google.protobuf.ByteString publicKey_;
+    public boolean hasPublicKey() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    public com.google.protobuf.ByteString getPublicKey() {
+      return publicKey_;
     }
     
     private void initFields() {
-      newUser_ = com.google.protobuf.ByteString.EMPTY;
+      user_ = com.google.protobuf.ByteString.EMPTY;
+      publicKey_ = com.google.protobuf.ByteString.EMPTY;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
       
-      if (!hasNewUser()) {
+      if (!hasUser()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasPublicKey()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -2346,7 +2365,10 @@ public final class NigoriMessages {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, newUser_);
+        output.writeBytes(1, user_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeBytes(2, publicKey_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -2359,7 +2381,11 @@ public final class NigoriMessages {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, newUser_);
+          .computeBytesSize(1, user_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, publicKey_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -2483,8 +2509,10 @@ public final class NigoriMessages {
       
       public Builder clear() {
         super.clear();
-        newUser_ = com.google.protobuf.ByteString.EMPTY;
+        user_ = com.google.protobuf.ByteString.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000001);
+        publicKey_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000002);
         return this;
       }
       
@@ -2526,7 +2554,11 @@ public final class NigoriMessages {
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
           to_bitField0_ |= 0x00000001;
         }
-        result.newUser_ = newUser_;
+        result.user_ = user_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.publicKey_ = publicKey_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -2543,15 +2575,22 @@ public final class NigoriMessages {
       
       public Builder mergeFrom(com.google.nigori.common.NigoriMessages.RegisterRequest other) {
         if (other == com.google.nigori.common.NigoriMessages.RegisterRequest.getDefaultInstance()) return this;
-        if (other.hasNewUser()) {
-          setNewUser(other.getNewUser());
+        if (other.hasUser()) {
+          setUser(other.getUser());
+        }
+        if (other.hasPublicKey()) {
+          setPublicKey(other.getPublicKey());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
       
       public final boolean isInitialized() {
-        if (!hasNewUser()) {
+        if (!hasUser()) {
+          
+          return false;
+        }
+        if (!hasPublicKey()) {
           
           return false;
         }
@@ -2583,7 +2622,12 @@ public final class NigoriMessages {
             }
             case 10: {
               bitField0_ |= 0x00000001;
-              newUser_ = input.readBytes();
+              user_ = input.readBytes();
+              break;
+            }
+            case 18: {
+              bitField0_ |= 0x00000002;
+              publicKey_ = input.readBytes();
               break;
             }
           }
@@ -2592,26 +2636,50 @@ public final class NigoriMessages {
       
       private int bitField0_;
       
-      // required bytes new_user = 1;
-      private com.google.protobuf.ByteString newUser_ = com.google.protobuf.ByteString.EMPTY;
-      public boolean hasNewUser() {
+      // required bytes user = 1;
+      private com.google.protobuf.ByteString user_ = com.google.protobuf.ByteString.EMPTY;
+      public boolean hasUser() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
-      public com.google.protobuf.ByteString getNewUser() {
-        return newUser_;
+      public com.google.protobuf.ByteString getUser() {
+        return user_;
       }
-      public Builder setNewUser(com.google.protobuf.ByteString value) {
+      public Builder setUser(com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
   bitField0_ |= 0x00000001;
-        newUser_ = value;
+        user_ = value;
         onChanged();
         return this;
       }
-      public Builder clearNewUser() {
+      public Builder clearUser() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        newUser_ = getDefaultInstance().getNewUser();
+        user_ = getDefaultInstance().getUser();
+        onChanged();
+        return this;
+      }
+      
+      // required bytes public_key = 2;
+      private com.google.protobuf.ByteString publicKey_ = com.google.protobuf.ByteString.EMPTY;
+      public boolean hasPublicKey() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      public com.google.protobuf.ByteString getPublicKey() {
+        return publicKey_;
+      }
+      public Builder setPublicKey(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        publicKey_ = value;
+        onChanged();
+        return this;
+      }
+      public Builder clearPublicKey() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        publicKey_ = getDefaultInstance().getPublicKey();
         onChanged();
         return this;
       }
@@ -3226,12 +3294,12 @@ public final class NigoriMessages {
       "\030\003 \002(\014\022\r\n\005nonce\030\004 \002(\014\022\013\n\003key\030\007 \002(\014\022\r\n\005va" +
       "lue\030\010 \002(\014\"d\n\rDeleteRequest\022\021\n\tauthority\030" +
       "\001 \002(\014\022\021\n\tschnorr_s\030\002 \002(\014\022\021\n\tschnorr_e\030\003 " +
-      "\002(\014\022\r\n\005nonce\030\004 \002(\014\022\013\n\003key\030\005 \002(\014\"#\n\017Regis",
-      "terRequest\022\020\n\010new_user\030\001 \002(\014\"]\n\023Authenti" +
-      "cateRequest\022\021\n\tauthority\030\001 \002(\014\022\021\n\tschnor" +
-      "r_s\030\002 \002(\014\022\021\n\tschnorr_e\030\003 \002(\014\022\r\n\005nonce\030\004 " +
-      "\002(\014B*\n\030com.google.nigori.commonB\016NigoriM" +
-      "essages"
+      "\002(\014\022\r\n\005nonce\030\004 \002(\014\022\013\n\003key\030\005 \002(\014\"3\n\017Regis",
+      "terRequest\022\014\n\004user\030\001 \002(\014\022\022\n\npublic_key\030\002" +
+      " \002(\014\"]\n\023AuthenticateRequest\022\021\n\tauthority" +
+      "\030\001 \002(\014\022\021\n\tschnorr_s\030\002 \002(\014\022\021\n\tschnorr_e\030\003" +
+      " \002(\014\022\r\n\005nonce\030\004 \002(\014B*\n\030com.google.nigori" +
+      ".commonB\016NigoriMessages"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -3275,7 +3343,7 @@ public final class NigoriMessages {
           internal_static_nigori_RegisterRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_nigori_RegisterRequest_descriptor,
-              new java.lang.String[] { "NewUser", },
+              new java.lang.String[] { "User", "PublicKey", },
               com.google.nigori.common.NigoriMessages.RegisterRequest.class,
               com.google.nigori.common.NigoriMessages.RegisterRequest.Builder.class);
           internal_static_nigori_AuthenticateRequest_descriptor =

@@ -210,7 +210,7 @@ public class NigoriDatastore {
 	public boolean register() throws IOException, NigoriCryptographyException {
 
 		try{
-			String json = MessageLibrary.registerRequestAsJson(keyManager.signer());
+			String json = MessageLibrary.registerRequestAsJson(keyManager.getUsername(),keyManager.signer());
 			HttpResponse resp = post(MessageLibrary.REQUEST_REGISTER,
 					json.getBytes(MessageLibrary.CHARSET));
 			return resp.getResponseCode() == 200;
