@@ -19,52 +19,53 @@ import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManagerFactory;
 
 public final class AppEngineDatabase implements Database {
-	
-    @SuppressWarnings("unused")
-		private static final PersistenceManagerFactory pmfInstance =
-        JDOHelper.getPersistenceManagerFactory("transactions-optional");
 
-		@Override
-		public boolean addUser(byte[] authority, byte[] newUser) {
-			// TODO Auto-generated method stub
-			return false;
-		}
+  @SuppressWarnings("unused")
+  private static final PersistenceManagerFactory pmfInstance = JDOHelper
+      .getPersistenceManagerFactory("transactions-optional");
 
-		@Override
-		public boolean haveUser(byte[] existingUser) {
-			// TODO Auto-generated method stub
-			return false;
-		}
+  @Override
+  public boolean addUser(byte[] authority, byte[] newUser) {
 
-		@Override
-		public boolean deleteUser(byte[] authority, byte[] existingUser) {
-			// TODO Auto-generated method stub
-			return false;
-		}
+    // TODO Auto-generated method stub
+    return false;
+  }
 
-		@Override
-		public byte[] getRecord(byte[] authority, byte[] key) {
-			// TODO Auto-generated method stub
-			return null;
-		}
+  @Override
+  public boolean haveUser(byte[] existingUser) {
+    // TODO Auto-generated method stub
+    return false;
+  }
 
-		@Override
-		public boolean putRecord(byte[] authority, byte[] key, byte[] data) {
-			// TODO Auto-generated method stub
-			return false;
-		}
+  @Override
+  public boolean deleteUser(byte[] authority, byte[] existingUser) {
+    // TODO Auto-generated method stub
+    return false;
+  }
 
-		@Override
-		public boolean updateRecord(byte[] authority, byte[] key, byte[] data) {
-			// TODO Auto-generated method stub
-			return false;
-		}
+  @Override
+  public byte[] getRecord(byte[] authority, byte[] key) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
-		@Override
-		public boolean deleteRecord(byte[] authority, byte[] key) {
-			// TODO Auto-generated method stub
-			return false;
-		}
+  @Override
+  public boolean putRecord(byte[] authority, byte[] key, byte[] data) {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+  @Override
+  public boolean updateRecord(byte[] authority, byte[] key, byte[] data) {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+  @Override
+  public boolean deleteRecord(byte[] authority, byte[] key) {
+    // TODO Auto-generated method stub
+    return false;
+  }
 
   	/**
   	 * Given a NewRequest object, insert data into the datastore and report status back to client
