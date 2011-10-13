@@ -22,6 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Map;
 
 import javax.servlet.ServletInputStream;
@@ -46,6 +47,7 @@ public class NigoriServletTest {
 	HttpServletRequest request;
 	HttpServletResponse response;
 	KeyManager keyManager;
+	User user;
 	
 	@Before
 	public void setUp() throws Exception {
@@ -57,6 +59,8 @@ public class NigoriServletTest {
 		keyManager = new KeyManager("localhost:8888".getBytes(MessageLibrary.CHARSET),
 				"username".getBytes(MessageLibrary.CHARSET),
 				"password".getBytes(MessageLibrary.CHARSET));
+		//TODO need to correctly create user
+		user = new User(keyManager.getUsername(), keyManager.signer().getPublicKey(), new Date());
 	}
 	
 	class TestInputStream extends ServletInputStream {
@@ -140,7 +144,7 @@ public class NigoriServletTest {
 		final String json = MessageLibrary.getRequestAsJson(keyManager.signer(), key);		
 		expectedCallsForJsonRequest(json, MessageLibrary.REQUEST_GET);
 		expect(database.haveUser(aryEq(authority))).andReturn(true);
-		expect(database.getRecord(aryEq(authority), aryEq(key))).andReturn(null);
+		expect(database.getRecord(eq(user), aryEq(key))).andReturn(null);
 		ServletOutputStream out = expectedCallsForErrorResponse(HttpServletResponse.SC_NOT_FOUND);
 
 		runReplayVerifyWithDoPost(out);
@@ -156,7 +160,7 @@ public class NigoriServletTest {
 		final String jsonPut = MessageLibrary.putRequestAsJson(keyManager.signer(), key, value);		
 		expectedCallsForJsonRequest(jsonPut, MessageLibrary.REQUEST_PUT);
 		expect(database.haveUser(aryEq(authority))).andReturn(true);
-		expect(database.putRecord(aryEq(authority), aryEq(key), aryEq(value))).andReturn(true);
+		expect(database.putRecord(eq(user), aryEq(key), aryEq(value))).andReturn(true);
 		expectedCallsToOutputOkay();
 		
 		runReplayVerifyWithDoPost(null);
@@ -172,7 +176,7 @@ public class NigoriServletTest {
 		final String jsonGet = MessageLibrary.getRequestAsJson(keyManager.signer(), key);		
 		expectedCallsForJsonRequest(jsonGet, MessageLibrary.REQUEST_GET);
 		expect(database.haveUser(aryEq(authority))).andReturn(true);
-		expect(database.getRecord(aryEq(authority), aryEq(key))).andReturn(value);
+		expect(database.getRecord(eq(user), aryEq(key))).andReturn(value);
 		ServletOutputStream out = expectedCallsForJsonResponse();
 		Capture<byte[]> result = new Capture<byte[]>();
 		Capture<Integer> size = new Capture<Integer>();

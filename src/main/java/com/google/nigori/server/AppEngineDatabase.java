@@ -15,54 +15,118 @@
  */
 package com.google.nigori.server;
 
+import java.util.Date;
+
 import javax.jdo.JDOHelper;
+import javax.jdo.JDOObjectNotFoundException;
+import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
+
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 
 public final class AppEngineDatabase implements Database {
 
-  @SuppressWarnings("unused")
+  // private static final String USERSKEY = "users";
+  protected static final Key USERSKEY = KeyFactory.createKey("users", "users");
+  private static final String STORE = "store";
+
   private static final PersistenceManagerFactory pmfInstance = JDOHelper
       .getPersistenceManagerFactory("transactions-optional");
 
-  @Override
-  public boolean addUser(byte[] authority, byte[] newUser) {
-
-    // TODO Auto-generated method stub
-    return false;
+  private boolean haveUser(byte[] existingUser, PersistenceManager pm) {
+    assert pm != null;
+    assert existingUser != null;
+    try {
+      User existing = pm.getObjectById(User.class, User.keyForUser(existingUser));
+      if (existing != null) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (JDOObjectNotFoundException e) {
+      return false;
+    }
   }
 
   @Override
   public boolean haveUser(byte[] existingUser) {
-    // TODO Auto-generated method stub
-    return false;
+    if (existingUser == null){
+      throw new IllegalArgumentException("Null existingUser");
+    }
+    PersistenceManager pm = null;
+    try {
+      pm = pmfInstance.getPersistenceManager();
+      return haveUser(existingUser, pm);
+    } finally {
+      if (pm != null) {
+        pm.close();
+      }
+    }
   }
 
   @Override
-  public boolean deleteUser(byte[] authority, byte[] existingUser) {
-    // TODO Auto-generated method stub
-    return false;
+  public boolean addUser(byte[] publicKey, byte[] newUser) throws IllegalArgumentException {
+    if (newUser == null){
+      throw new IllegalArgumentException("Null newUser");
+    }
+    User user = new User(newUser, publicKey, new Date());
+    PersistenceManager pm = null;
+    try {
+      pm = pmfInstance.getPersistenceManager();
+      if (haveUser(newUser, pm)) {
+        return false;
+      }
+      pm.makePersistent(user);
+      return true;
+    } finally {
+      if (pm != null) {
+        pm.close();
+      }
+    }
   }
 
   @Override
-  public byte[] getRecord(byte[] authority, byte[] key) {
+  public boolean deleteUser(byte[] existingUser) {
+    PersistenceManager pm = null;
+    try {
+      pm = pmfInstance.getPersistenceManager();
+      User existing = pm.getObjectById(User.class, User.keyForUser(existingUser));
+      if (existing != null) {
+        pm.deletePersistent(existing);
+        return true;
+      } else {
+        return true;
+      }
+    } catch (JDOObjectNotFoundException e) {
+      return false;
+    } finally {
+      if (pm != null) {
+        pm.close();
+      }
+    }
+  }
+
+  @Override
+  public byte[] getRecord(User user, byte[] key) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public boolean putRecord(byte[] authority, byte[] key, byte[] data) {
+  public boolean putRecord(User user, byte[] key, byte[] data) {
     // TODO Auto-generated method stub
     return false;
   }
 
   @Override
-  public boolean updateRecord(byte[] authority, byte[] key, byte[] data) {
+  public boolean updateRecord(User user, byte[] key, byte[] data) {
     // TODO Auto-generated method stub
     return false;
   }
 
   @Override
-  public boolean deleteRecord(byte[] authority, byte[] key) {
+  public boolean deleteRecord(User user, byte[] key) {
     // TODO Auto-generated method stub
     return false;
   }

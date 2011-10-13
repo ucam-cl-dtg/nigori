@@ -146,7 +146,7 @@ public class NigoriServlet extends HttpServlet {
 	 * @param message
 	 * @throws ServletException
 	 */
-	private void authenticateUser(byte[] publicKey, byte[] schnorrS, byte[] schnorrE, 
+	private User authenticateUser(byte[] publicKey, byte[] schnorrS, byte[] schnorrE, 
 			byte[] nonce) throws ServletException {
 
 		SchnorrSignature sig = new SchnorrSignature(schnorrE, schnorrS, nonce);
@@ -162,7 +162,7 @@ public class NigoriServlet extends HttpServlet {
 
 		try {
 			if (v.verify(sig) && timestampRecent && nonceUnique && publicKeyRegistered) {
-				return;
+				return null;
 			}
 		} catch(NoSuchAlgorithmException nsae) {
 			throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
@@ -208,9 +208,9 @@ public class NigoriServlet extends HttpServlet {
 				byte[] schnorrE = request.getSchnorrE().toByteArray();
 				byte[] schnorrS = request.getSchnorrS().toByteArray();
 				byte[] nonce = request.getNonce().toByteArray();
-				authenticateUser(authority, schnorrE, schnorrS, nonce);
+				User user = authenticateUser(authority, schnorrE, schnorrS, nonce);
 
-				value = database.getRecord(authority, key);
+				value = database.getRecord(user, key);
 
 				if (value == null) {
 					throw new ServletException(HttpServletResponse.SC_NOT_FOUND, "Cannot find requested key");
@@ -247,9 +247,9 @@ public class NigoriServlet extends HttpServlet {
 				byte[] schnorrS = request.getSchnorrS().toByteArray();
 				byte[] nonce = request.getNonce().toByteArray();
 				
-				authenticateUser(authority, schnorrE, schnorrS, nonce);
+				User user = authenticateUser(authority, schnorrE, schnorrS, nonce);
 
-				boolean success = database.putRecord(authority, request.getKey().toByteArray(), 
+				boolean success = database.putRecord(user, request.getKey().toByteArray(), 
 						request.getValue().toByteArray());
 
 				if (!success) {

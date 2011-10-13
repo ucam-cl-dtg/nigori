@@ -23,12 +23,12 @@ package com.google.nigori.server;
  */
 interface Database {
 	
-	public boolean addUser(byte[] authority, byte[] newUser);
+	public boolean addUser(byte[] publicKey, byte[] newUserName);
 	public boolean haveUser(byte[] existingUser);
-	public boolean deleteUser(byte[] authority, byte[] existingUser);
+	public boolean deleteUser(byte[] existingUser);
 	
-	public byte[] getRecord(byte[] authority, byte[] key);
-	public boolean putRecord(byte[] authority, byte[] key, byte[] data);
-	public boolean updateRecord(byte[] authority, byte[] key, byte[] data);
-	public boolean deleteRecord(byte[] authority, byte[] key);
+	public byte[] getRecord(User user, byte[] key);
+	public boolean putRecord(User user, byte[] key, byte[] data);
+	public boolean updateRecord(User user, byte[] key, byte[] data);
+	public boolean deleteRecord(User user, byte[] key);
 }

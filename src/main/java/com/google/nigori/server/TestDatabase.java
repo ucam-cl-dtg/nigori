@@ -47,13 +47,13 @@ public class TestDatabase implements Database {
 	}
 
 	@Override
-	public boolean deleteUser(byte[] authority, byte[] existingUser) {
+	public boolean deleteUser(byte[] existingUser) {
 		//TODO(beresford): check authority to carry out action
 	  return users.remove(ByteString.copyFrom(existingUser));
 	}
 	
 	@Override
-	public byte[] getRecord(byte[] authority, byte[] key) {
+	public byte[] getRecord(User user, byte[] key) {
 
 		//TODO(beresford): check authority to carry out action
 		if (key == null) {
@@ -71,7 +71,7 @@ public class TestDatabase implements Database {
 	}
 
 	@Override
-	public boolean putRecord(byte[] authority, byte[] key, byte[] value) {
+	public boolean putRecord(User user, byte[] key, byte[] value) {
 		//TODO(beresford): check authority to carry out action
 		if (key == null || value == null) {
 			return false;
@@ -82,14 +82,14 @@ public class TestDatabase implements Database {
 	}
 
 	@Override
-	public boolean updateRecord(byte[] authority, byte[] key, byte[] value) {
+	public boolean updateRecord(User user, byte[] key, byte[] value) {
 		//TODO(beresford): check authority to carry out action
 		//TODO(beresford): provide appropriate implementation
 		return false;
 	}
 	
 	@Override
-	public boolean deleteRecord(byte[] authority, byte[] key) {
+	public boolean deleteRecord(User user, byte[] key) {
 		//TODO(beresford): check authority to carry out action
 		map.remove(ByteString.copyFrom(key));
 		return true;
