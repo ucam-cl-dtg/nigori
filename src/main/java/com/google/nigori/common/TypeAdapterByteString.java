@@ -40,7 +40,7 @@ JsonDeserializer<ByteString> {
   public ByteString deserialize(JsonElement json, Type typeOfT,
       JsonDeserializationContext context) throws JsonParseException {
   		byte[] jsonBytes = json.getAsString().getBytes();
-  		if (Base64.isArrayByteBase64(jsonBytes)) {
+  		if (Base64.isBase64(jsonBytes)) {
   			return ByteString.copyFrom(Base64.decodeBase64(json.getAsString()));
   		} else {
   			throw new JsonParseException("JSON element is not correctly base64 encoded.");
