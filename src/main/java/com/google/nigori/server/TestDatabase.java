@@ -15,8 +15,10 @@
  */
 package com.google.nigori.server;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import com.google.protobuf.ByteString;
 
@@ -31,25 +33,28 @@ import com.google.protobuf.ByteString;
  */
 public class TestDatabase implements Database {
 
-	private HashMap<ByteString, ByteString> map = new HashMap<ByteString, ByteString>();
-	private HashSet<ByteString> users = new HashSet<ByteString>();
+	private HashMap<User,Map<ByteString, ByteString>> stores = new HashMap<User,Map<ByteString, ByteString>>();
+	private HashMap<ByteString,User> users = new HashMap<ByteString,User>();
 
 	@Override
-	public boolean addUser(byte[] authority, byte[] user) {
+	public boolean addUser(byte[] authority, byte[] userName) {
 		//TODO(beresford): check authority to carry out action
-		users.add(ByteString.copyFrom(user));
+	  User user = new User(userName, authority, new Date());
+		users.put(ByteString.copyFrom(userName),user);
+		stores.put(user, new HashMap<ByteString, ByteString>());
 		return true;
 	}
 	
 	@Override
 	public boolean haveUser(byte[] user) {
-		return users.contains(ByteString.copyFrom(user));
+		return users.containsKey(ByteString.copyFrom(user));
 	}
 
 	@Override
 	public boolean deleteUser(byte[] existingUser) {
 		//TODO(beresford): check authority to carry out action
-	  return users.remove(ByteString.copyFrom(existingUser));
+	  User user = users.remove(ByteString.copyFrom(existingUser));
+	  return user != null && stores.remove(user) != null;
 	}
 	
 	@Override
@@ -60,7 +65,7 @@ public class TestDatabase implements Database {
 			return null;
 		}
 
-		ByteString value = map.get(ByteString.copyFrom(key));
+		ByteString value = stores.get(user).get(ByteString.copyFrom(key));
 
 		if (value == null) {
 			return null;
@@ -77,12 +82,12 @@ public class TestDatabase implements Database {
 			return false;
 		}
 		
-		map.put(ByteString.copyFrom(key), ByteString.copyFrom(value));
+		stores.get(user).put(ByteString.copyFrom(key), ByteString.copyFrom(value));
 		return true;
 	}
 
 	@Override
-	public boolean updateRecord(User user, byte[] key, byte[] value) {
+	public boolean updateRecord(User user, byte[] key, byte[] value, Revision expected, Revision dataRevision) {
 		//TODO(beresford): check authority to carry out action
 		//TODO(beresford): provide appropriate implementation
 		return false;
@@ -91,7 +96,7 @@ public class TestDatabase implements Database {
 	@Override
 	public boolean deleteRecord(User user, byte[] key) {
 		//TODO(beresford): check authority to carry out action
-		map.remove(ByteString.copyFrom(key));
+	  stores.get(user).remove(ByteString.copyFrom(key));
 		return true;
 	}
 }
