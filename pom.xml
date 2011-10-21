@@ -79,6 +79,11 @@
       <artifactId>appengine-api-labs</artifactId>
       <version>${appengine.version}</version>
     </dependency>
+    <dependency>
+    	<groupId>com.google.appengine</groupId>
+    	<artifactId>appengine-jsr107cache</artifactId>
+    	<version>${appengine.version}</version>
+    </dependency>
   </dependencies>
   <build>
     <outputDirectory>war/WEB-INF/classes</outputDirectory>
