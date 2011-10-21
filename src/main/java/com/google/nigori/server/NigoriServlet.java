@@ -204,10 +204,11 @@ public class NigoriServlet extends HttpServlet {
 			try {
 				GetRequest request = MessageLibrary.getRequestFromJson(json);
 				byte[] key = request.getKey().toByteArray();
-				byte[] authority = request.getAuthority().toByteArray();
-				byte[] schnorrE = request.getSchnorrE().toByteArray();
-				byte[] schnorrS = request.getSchnorrS().toByteArray();
-				byte[] nonce = request.getNonce().toByteArray();
+				AuthenticateRequest auth = request.getAuth();
+				byte[] authority = auth.getAuthority().toByteArray();
+				byte[] schnorrE = auth.getSchnorrE().toByteArray();
+				byte[] schnorrS = auth.getSchnorrS().toByteArray();
+				byte[] nonce = auth.getNonce().toByteArray();
 				User user = authenticateUser(authority, schnorrE, schnorrS, nonce);
 
 				value = database.getRecord(user, key);
@@ -242,10 +243,11 @@ public class NigoriServlet extends HttpServlet {
 				
 				System.out.println(json);
 				PutRequest request = MessageLibrary.putRequestFromJson(json);
-				byte[] authority = request.getAuthority().toByteArray();
-				byte[] schnorrE = request.getSchnorrE().toByteArray();
-				byte[] schnorrS = request.getSchnorrS().toByteArray();
-				byte[] nonce = request.getNonce().toByteArray();
+				AuthenticateRequest auth = request.getAuth();
+				byte[] authority = auth.getAuthority().toByteArray();
+				byte[] schnorrE = auth.getSchnorrE().toByteArray();
+				byte[] schnorrS = auth.getSchnorrS().toByteArray();
+				byte[] nonce = auth.getNonce().toByteArray();
 				
 				User user = authenticateUser(authority, schnorrE, schnorrS, nonce);
 

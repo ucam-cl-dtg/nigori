@@ -219,6 +219,23 @@ public class NigoriDatastore {
 					e.getMessage());
 		}
 	}
+	/**
+   * Unregister the username and password details with the server.
+   * 
+   * @return true if the unregistration was successful; false otherwise.
+   */
+  public boolean unregister() throws IOException, NigoriCryptographyException {
+
+    try{
+      String json = MessageLibrary.unregisterRequestAsJson(keyManager.getUsername(),keyManager.signer());
+      HttpResponse resp = post(MessageLibrary.REQUEST_UNREGISTER,
+          json.getBytes(MessageLibrary.CHARSET));
+      return resp.getResponseCode() == 200;
+    } catch (NoSuchAlgorithmException e) {
+      throw new NigoriCryptographyException("Platform does have required crypto support:" +
+          e.getMessage());
+    }
+  }
 
 	/**
 	 * Evaluate whether the current username and password represent a valid account on the server.

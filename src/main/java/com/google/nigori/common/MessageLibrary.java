@@ -28,6 +28,7 @@ import com.google.nigori.common.NigoriMessages.GetResponse;
 import com.google.nigori.common.NigoriMessages.PutRequest;
 import com.google.nigori.common.NigoriMessages.PutRequest.Builder;
 import com.google.nigori.common.NigoriMessages.RegisterRequest;
+import com.google.nigori.common.NigoriMessages.UnregisterRequest;
 import com.google.protobuf.ByteString;
 
 public class MessageLibrary {
@@ -45,6 +46,7 @@ public class MessageLibrary {
 	public static final String REQUEST_UPDATE = "update";
 	public static final String REQUEST_AUTHENTICATE = "authenticate";
 	public static final String REQUEST_REGISTER = "register";
+	public static final String REQUEST_UNREGISTER = "unregister";
 
 	private static Gson gson = initializeGson();
 
@@ -74,11 +76,14 @@ public class MessageLibrary {
 
 		SchnorrSignature signedNonce = signer.sign(new Nonce().toToken());
 
+		AuthenticateRequest.Builder authBuilder = AuthenticateRequest.newBuilder()
+        .setAuthority(ByteString.copyFrom(signer.getPublicKey()))
+        .setSchnorrE(ByteString.copyFrom(signedNonce.getE()))
+        .setSchnorrS(ByteString.copyFrom(signedNonce.getS()))
+        .setNonce(ByteString.copyFrom(signedNonce.getMessage()));
+		
 		GetRequest req = GetRequest.newBuilder()
-		.setAuthority(ByteString.copyFrom(signer.getPublicKey()))
-		.setSchnorrE(ByteString.copyFrom(signedNonce.getE()))
-		.setSchnorrS(ByteString.copyFrom(signedNonce.getS()))
-		.setNonce(ByteString.copyFrom(signedNonce.getMessage()))
+		.setAuth(authBuilder.build())
 		.setKey(ByteString.copyFrom(key))
 		.build();
 
@@ -128,11 +133,13 @@ public class MessageLibrary {
 
 		SchnorrSignature signedNonce = signer.sign(new Nonce().toToken());
 
+		AuthenticateRequest.Builder authBuilder = AuthenticateRequest.newBuilder()
+		    .setAuthority(ByteString.copyFrom(signer.getPublicKey()))
+		    .setSchnorrE(ByteString.copyFrom(signedNonce.getE()))
+		    .setSchnorrS(ByteString.copyFrom(signedNonce.getS()))
+		    .setNonce(ByteString.copyFrom(signedNonce.getMessage()));
 		Builder reqBuilder = PutRequest.newBuilder()
-		.setAuthority(ByteString.copyFrom(signer.getPublicKey()))
-		.setSchnorrE(ByteString.copyFrom(signedNonce.getE()))
-		.setSchnorrS(ByteString.copyFrom(signedNonce.getS()))
-		.setNonce(ByteString.copyFrom(signedNonce.getMessage()))
+		.setAuth(authBuilder.build())
 		.setKey(ByteString.copyFrom(key))
 		.setValue(ByteString.copyFrom(value));
 		
@@ -201,6 +208,22 @@ public class MessageLibrary {
 	NoSuchAlgorithmException {
 		return gson.toJson(registerRequestAsProtobuf(user, signer));
 	}
+
+	public static UnregisterRequest unregisterRequestAsProtobuf(byte[] user, SchnorrSign signer) throws
+  NoSuchAlgorithmException {
+
+    UnregisterRequest req = UnregisterRequest.newBuilder()
+        .setUser(ByteString.copyFrom(user))
+        .setPublicKey(ByteString.copyFrom(signer.getPublicKey()))
+        .build();
+
+    return req;
+  }
+
+	public static String unregisterRequestAsJson(byte[] user, SchnorrSign signer) throws
+  NoSuchAlgorithmException {
+    return gson.toJson(unregisterRequestAsProtobuf(user, signer));
+  }
 
 	public static RegisterRequest registerRequestFromJson(String json) throws 
 	JsonConversionException {
