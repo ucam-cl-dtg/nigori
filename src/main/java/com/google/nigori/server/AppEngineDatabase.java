@@ -51,46 +51,39 @@ public final class AppEngineDatabase implements Database {
 
   @Override
   public boolean haveUser(byte[] existingUser) {
-    if (existingUser == null){
+    if (existingUser == null) {
       throw new IllegalArgumentException("Null existingUser");
     }
-    PersistenceManager pm = null;
+    PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {
-      pm = pmfInstance.getPersistenceManager();
       return haveUser(existingUser, pm);
     } finally {
-      if (pm != null) {
-        pm.close();
-      }
+      pm.close();
     }
   }
 
   @Override
   public boolean addUser(byte[] publicKey, byte[] newUser) throws IllegalArgumentException {
-    if (newUser == null){
+    if (newUser == null) {
       throw new IllegalArgumentException("Null newUser");
     }
     User user = new User(newUser, publicKey, new Date());
-    PersistenceManager pm = null;
+    PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {
-      pm = pmfInstance.getPersistenceManager();
       if (haveUser(newUser, pm)) {
         return false;
       }
       pm.makePersistent(user);
       return true;
     } finally {
-      if (pm != null) {
-        pm.close();
-      }
+      pm.close();
     }
   }
 
   @Override
   public boolean deleteUser(byte[] existingUser) {
-    PersistenceManager pm = null;
+    PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {
-      pm = pmfInstance.getPersistenceManager();
       User existing = pm.getObjectById(User.class, User.keyForUser(existingUser));
       if (existing != null) {
         pm.deletePersistent(existing);
@@ -101,9 +94,7 @@ public final class AppEngineDatabase implements Database {
     } catch (JDOObjectNotFoundException e) {
       return false;
     } finally {
-      if (pm != null) {
-        pm.close();
-      }
+      pm.close();
     }
   }
 
