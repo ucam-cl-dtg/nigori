@@ -21,15 +21,15 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 
 /**
  * Record represents a single key-value pair in the Datastore.
  * 
  * Instances of the record class can be stored using Java Data Objects in a datastore such as
- * Google's App Engine framework. Note that the Record class contains references to other instances
- * of the Record class (next and earlier) which permits storage of data items larger than one 
- * megabyte and keep an historical archive. Doing it in this way means that cascading deletes
- * works (TODO(beresford): check this is true)
+ * Google's App Engine framework.
+ * 
+ * 
  * 
  * @author Alastair Beresford
  *
@@ -47,26 +47,14 @@ class AppEngineRecord {
   //TODO(beresford): consider whether to make this a BLOB
 	@Persistent
 	private byte[] value;
-	
-	/**
-	 * Singly-linked list of Records whose value fields, in order, represent the data value
-	 * associated with a given key. If next is null, then there are no further items in the list.
-	 */
+
 	@Persistent
-	private Key next;
+  private Revision revision;
 	
-	/**
-	 * Singly-linked list of copies of data which were previously associated with this key. If null,
-	 * then no earlier records exist.
-	 */
-	@Persistent
-	private Key earlier;
-	
-	AppEngineRecord(byte[] value, Key next, Key earlier) {
-		//TODO(beresford): consider whether to do a deep copy here or not
+	AppEngineRecord(Key lookup, Revision revision, byte[] value) {
+	  this.key = KeyFactory.createKey(key, "value", revision.toString());
+	  this.revision = revision;
 		this.value = value;
-		this.next = next;
-		this.earlier = earlier;
 	}
 	
 	Key getKey() {
@@ -77,11 +65,7 @@ class AppEngineRecord {
 		return value;
 	}
 	
-	Key getNext() {
-		return next;
-	}
-	
-	Key getEarlier() {
-		return earlier;
+	Revision getRevision() {
+	  return revision;
 	}
 }

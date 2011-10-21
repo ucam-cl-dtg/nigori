@@ -29,7 +29,7 @@ public final class AppEngineDatabase implements Database {
 
   // private static final String USERSKEY = "users";
   protected static final Key USERSKEY = KeyFactory.createKey("users", "users");
-  private static final String STORE = "store";
+  protected static final String STORE = "store";
 
   private static final PersistenceManagerFactory pmfInstance = JDOHelper
       .getPersistenceManagerFactory("transactions-optional");
@@ -100,18 +100,35 @@ public final class AppEngineDatabase implements Database {
 
   @Override
   public byte[] getRecord(User user, byte[] key) {
-    // TODO Auto-generated method stub
-    return null;
+    PersistenceManager pm = pmfInstance.getPersistenceManager();
+    try {
+      Key lookupKey = Lookup.makeKey(user, key);
+      Lookup lookup = pm.getObjectById(Lookup.class, lookupKey);
+      Revision revision = lookup.getCurrentRevision();
+      AppEngineRecord record =
+          pm.getObjectById(AppEngineRecord.class, KeyFactory.createKey(lookup.getKey(),
+              AppEngineRecord.class.getSimpleName(), revision.toString()));
+      return record.getValue();
+    } finally {
+      pm.close();
+    }
   }
 
   @Override
   public boolean putRecord(User user, byte[] key, byte[] data) {
+    PersistenceManager pm = pmfInstance.getPersistenceManager();
+    try {
+      
+    } finally {
+      
+    }
     // TODO Auto-generated method stub
     return false;
   }
 
   @Override
-  public boolean updateRecord(User user, byte[] key, byte[] data) {
+  public boolean updateRecord(User user, byte[] key, byte[] data, Revision expected,
+      Revision dataRevision) {
     // TODO Auto-generated method stub
     return false;
   }

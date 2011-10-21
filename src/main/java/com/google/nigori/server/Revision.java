@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Alastair R. Beresford
+ * Copyright (C) 2011 Daniel Thomas (drt24)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,14 @@
  */
 package com.google.nigori.server;
 
+import java.io.Serializable;
+
 /**
- * API required by Nigori to save user data.
- * 
- * @author Alastair Beresford
+ * @author drt24
  *
  */
-interface Database {
-	
-	public boolean addUser(byte[] publicKey, byte[] newUserName);
-	public boolean haveUser(byte[] existingUser);
-	public boolean deleteUser(byte[] existingUser);
-	
-	public byte[] getRecord(User user, byte[] key);
-	public boolean putRecord(User user, byte[] key, byte[] data);
-	public boolean updateRecord(User user, byte[] key, byte[] data, Revision expected, Revision dataRevision);
-	public boolean deleteRecord(User user, byte[] key);
+public interface Revision extends Comparable<Revision>, Serializable {
+
+  @Override
+  String toString();
 }
