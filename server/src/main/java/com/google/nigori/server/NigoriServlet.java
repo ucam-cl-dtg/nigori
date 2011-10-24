@@ -146,31 +146,38 @@ public class NigoriServlet extends HttpServlet {
 	 * @param message
 	 * @throws ServletException
 	 */
-	private User authenticateUser(byte[] publicKey, byte[] schnorrS, byte[] schnorrE, 
-			byte[] nonce) throws ServletException {
+  private User authenticateUser(byte[] username, byte[] schnorrS, byte[] schnorrE, byte[] nonce)
+      throws ServletException {
 
-		SchnorrSignature sig = new SchnorrSignature(schnorrE, schnorrS, nonce);
-		SchnorrVerify v = new SchnorrVerify(publicKey);
-		Nonce n = new Nonce(sig.getMessage());
-		//TODO(beresford): Put this constant in server configuration and use this to timeout storage
-		//                 of random nonce values out of the database (when we start to store them!).
-		boolean timestampRecent = n.getSinceEpoch() - System.currentTimeMillis()/1000 < 60*60*24*2;
-		//TODO(beresford): Must check that n.getRandom() has not be used before.
-		//                 Must avoid race condition when random number is used multiple times quickly
-		boolean nonceUnique = true;
-		boolean publicKeyRegistered = database.haveUser(publicKey);
+    SchnorrSignature sig = new SchnorrSignature(schnorrE, schnorrS, nonce);
+    try {
+      User user = database.getUser(username);
+      byte[] publicKey = user.getPublicKey();
+      SchnorrVerify v = new SchnorrVerify(publicKey);
+      Nonce n = new Nonce(sig.getMessage());
+      // TODO(beresford): Put this constant in server configuration and use this to timeout storage
+      // of random nonce values out of the database (when we start to store them!).
+      boolean timestampRecent =
+          n.getSinceEpoch() - System.currentTimeMillis() / 1000 < 60 * 60 * 24 * 2;
+      // TODO(beresford): Must check that n.getRandom() has not be used before.
+      // Must avoid race condition when random number is used multiple times quickly
+      boolean nonceUnique = true;
+      boolean userExists = database.haveUser(username);
 
-		try {
-			if (v.verify(sig) && timestampRecent && nonceUnique && publicKeyRegistered) {
-				return null;
-			}
-		} catch(NoSuchAlgorithmException nsae) {
-			throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-			"Internal error attempting to verify signature");
-		}
-		throw new ServletException(HttpServletResponse.SC_UNAUTHORIZED,
-		"The signature is invalid");
-	}
+      try {
+        if (v.verify(sig) && timestampRecent && nonceUnique && userExists) {
+          return user;
+        }
+      } catch (NoSuchAlgorithmException nsae) {
+        throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+            "Internal error attempting to verify signature");
+      }
+    } catch (UserNotFoundException e) {
+      // TODO(drt24): potential security vunerability - user existance oracle.
+      throw new ServletException(HttpServletResponse.SC_NOT_FOUND, "No such user");
+    }
+    throw new ServletException(HttpServletResponse.SC_UNAUTHORIZED, "The signature is invalid");
+  }
 
 	/**
 	 * Send an SC_OK and and empty body
@@ -205,11 +212,11 @@ public class NigoriServlet extends HttpServlet {
 				GetRequest request = MessageLibrary.getRequestFromJson(json);
 				byte[] key = request.getKey().toByteArray();
 				AuthenticateRequest auth = request.getAuth();
-				byte[] authority = auth.getAuthority().toByteArray();
+				byte[] username = auth.getUsername().toByteArray();
 				byte[] schnorrE = auth.getSchnorrE().toByteArray();
 				byte[] schnorrS = auth.getSchnorrS().toByteArray();
 				byte[] nonce = auth.getNonce().toByteArray();
-				User user = authenticateUser(authority, schnorrE, schnorrS, nonce);
+				User user = authenticateUser(username, schnorrE, schnorrS, nonce);
 
 				value = database.getRecord(user, key);
 
@@ -244,12 +251,12 @@ public class NigoriServlet extends HttpServlet {
 				System.out.println(json);
 				PutRequest request = MessageLibrary.putRequestFromJson(json);
 				AuthenticateRequest auth = request.getAuth();
-				byte[] authority = auth.getAuthority().toByteArray();
+				byte[] username = auth.getUsername().toByteArray();
 				byte[] schnorrE = auth.getSchnorrE().toByteArray();
 				byte[] schnorrS = auth.getSchnorrS().toByteArray();
 				byte[] nonce = auth.getNonce().toByteArray();
 				
-				User user = authenticateUser(authority, schnorrE, schnorrS, nonce);
+				User user = authenticateUser(username, schnorrE, schnorrS, nonce);
 
 				boolean success = database.putRecord(user, request.getKey().toByteArray(), 
 						request.getValue().toByteArray());
@@ -277,7 +284,7 @@ public class NigoriServlet extends HttpServlet {
 			try {
 				String json = getJsonAsString(req, maxJsonQueryLength);
 				AuthenticateRequest request = MessageLibrary.authenticateRequestFromJson(json);
-				authenticateUser(request.getAuthority().toByteArray(),request.getSchnorrE().toByteArray(), 
+				authenticateUser(request.getUsername().toByteArray(),request.getSchnorrE().toByteArray(), 
 						request.getSchnorrS().toByteArray(), request.getNonce().toByteArray());
 
 				emptyBody(resp);

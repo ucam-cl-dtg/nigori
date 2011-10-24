@@ -55,8 +55,19 @@ public class TestDatabase implements Database {
 	  User user = users.remove(ByteString.copyFrom(existingUser));
 	  return user != null && stores.remove(user) != null;
 	}
-	
-	@Override
+
+  @Override
+  public User getUser(byte[] username) throws UserNotFoundException {
+    assert username != null;
+    assert username.length > 0;
+    User user = users.get(username);
+    if (user == null) {
+      throw new UserNotFoundException();
+    }
+    return user;
+  }
+
+  @Override
 	public byte[] getRecord(User user, byte[] key) {
 
 		//TODO(beresford): check authority to carry out action

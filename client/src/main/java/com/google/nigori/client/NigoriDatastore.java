@@ -259,7 +259,7 @@ public class NigoriDatastore {
 	public boolean authenticate() throws IOException, NigoriCryptographyException {
 
 		try {
-			String json = MessageLibrary.authenticateRequestAsJson(keyManager.signer());
+			String json = MessageLibrary.authenticateRequestAsJson(keyManager.getUsername(), keyManager.signer());
 			HttpResponse resp = post(MessageLibrary.REQUEST_AUTHENTICATE, 
 					json.getBytes(MessageLibrary.CHARSET));
 			return success(resp);
@@ -304,7 +304,7 @@ public class NigoriDatastore {
 		}
 
 		try {
-			String json = MessageLibrary.putRequestAsJson(keyManager.signer(), encIndex, encValue);
+			String json = MessageLibrary.putRequestAsJson(keyManager.getUsername(), keyManager.signer(), encIndex, encValue);
 			HttpResponse resp = post(MessageLibrary.REQUEST_PUT, json.getBytes(MessageLibrary.CHARSET));
 			return success(resp);
 		} catch (NoSuchAlgorithmException e) {
@@ -342,7 +342,7 @@ public class NigoriDatastore {
 
 		String jsonRequest;
 		try {
-			jsonRequest = MessageLibrary.getRequestAsJson(keyManager.signer(), encIndex);
+			jsonRequest = MessageLibrary.getRequestAsJson(keyManager.getUsername(), keyManager.signer(), encIndex);
 		} catch (NoSuchAlgorithmException e) {
 			throw new NigoriCryptographyException("Platform does have required crypto support:" +
 					e.getMessage());

@@ -34,11 +34,15 @@ public final class AppEngineDatabase implements Database {
   private static final PersistenceManagerFactory pmfInstance = JDOHelper
       .getPersistenceManagerFactory("transactions-optional");
 
+  private User getUser(byte[] username, PersistenceManager pm) throws JDOObjectNotFoundException {
+    return pm.getObjectById(User.class, User.keyForUser(username));
+  }
+
   private boolean haveUser(byte[] existingUser, PersistenceManager pm) {
     assert pm != null;
     assert existingUser != null;
     try {
-      User existing = pm.getObjectById(User.class, User.keyForUser(existingUser));
+      User existing = getUser(existingUser,pm);
       if (existing != null) {
         return true;
       } else {
@@ -93,6 +97,19 @@ public final class AppEngineDatabase implements Database {
       }
     } catch (JDOObjectNotFoundException e) {
       return false;
+    } finally {
+      pm.close();
+    }
+  }
+
+  @Override
+  public User getUser(byte[] username) throws UserNotFoundException {
+    PersistenceManager pm = pmfInstance.getPersistenceManager();
+    try {
+      User user = getUser(username, pm);
+      return user;
+    } catch (JDOObjectNotFoundException e) {
+      throw new UserNotFoundException();
     } finally {
       pm.close();
     }

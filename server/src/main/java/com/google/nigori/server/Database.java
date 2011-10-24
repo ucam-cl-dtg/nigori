@@ -27,6 +27,8 @@ interface Database {
 	public boolean haveUser(byte[] existingUser);
 	public boolean deleteUser(byte[] existingUser);
 	
+	public User getUser(byte[] username) throws UserNotFoundException;
+	
 	public byte[] getRecord(User user, byte[] key);
 	public boolean putRecord(User user, byte[] key, byte[] data);
 	public boolean updateRecord(User user, byte[] key, byte[] data, Revision expected, Revision dataRevision);

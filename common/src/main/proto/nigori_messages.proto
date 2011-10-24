@@ -19,7 +19,7 @@ option java_package = "com.google.nigori.common";
 option java_outer_classname = "NigoriMessages";
 
 message AuthenticateRequest {
-  required bytes authority = 1;
+  required bytes username = 1;
   required bytes schnorr_s = 2;
   required bytes schnorr_e = 3;
   required bytes nonce = 4;

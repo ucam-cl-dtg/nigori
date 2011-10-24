@@ -11,9 +11,9 @@ public final class NigoriMessages {
   public interface AuthenticateRequestOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
     
-    // required bytes authority = 1;
-    boolean hasAuthority();
-    com.google.protobuf.ByteString getAuthority();
+    // required bytes username = 1;
+    boolean hasUsername();
+    com.google.protobuf.ByteString getUsername();
     
     // required bytes schnorr_s = 2;
     boolean hasSchnorrS();
@@ -56,14 +56,14 @@ public final class NigoriMessages {
     }
     
     private int bitField0_;
-    // required bytes authority = 1;
-    public static final int AUTHORITY_FIELD_NUMBER = 1;
-    private com.google.protobuf.ByteString authority_;
-    public boolean hasAuthority() {
+    // required bytes username = 1;
+    public static final int USERNAME_FIELD_NUMBER = 1;
+    private com.google.protobuf.ByteString username_;
+    public boolean hasUsername() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
-    public com.google.protobuf.ByteString getAuthority() {
-      return authority_;
+    public com.google.protobuf.ByteString getUsername() {
+      return username_;
     }
     
     // required bytes schnorr_s = 2;
@@ -97,7 +97,7 @@ public final class NigoriMessages {
     }
     
     private void initFields() {
-      authority_ = com.google.protobuf.ByteString.EMPTY;
+      username_ = com.google.protobuf.ByteString.EMPTY;
       schnorrS_ = com.google.protobuf.ByteString.EMPTY;
       schnorrE_ = com.google.protobuf.ByteString.EMPTY;
       nonce_ = com.google.protobuf.ByteString.EMPTY;
@@ -107,7 +107,7 @@ public final class NigoriMessages {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
       
-      if (!hasAuthority()) {
+      if (!hasUsername()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -131,7 +131,7 @@ public final class NigoriMessages {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, authority_);
+        output.writeBytes(1, username_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeBytes(2, schnorrS_);
@@ -153,7 +153,7 @@ public final class NigoriMessages {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, authority_);
+          .computeBytesSize(1, username_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
@@ -289,7 +289,7 @@ public final class NigoriMessages {
       
       public Builder clear() {
         super.clear();
-        authority_ = com.google.protobuf.ByteString.EMPTY;
+        username_ = com.google.protobuf.ByteString.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000001);
         schnorrS_ = com.google.protobuf.ByteString.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -338,7 +338,7 @@ public final class NigoriMessages {
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
           to_bitField0_ |= 0x00000001;
         }
-        result.authority_ = authority_;
+        result.username_ = username_;
         if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
           to_bitField0_ |= 0x00000002;
         }
@@ -367,8 +367,8 @@ public final class NigoriMessages {
       
       public Builder mergeFrom(com.google.nigori.common.NigoriMessages.AuthenticateRequest other) {
         if (other == com.google.nigori.common.NigoriMessages.AuthenticateRequest.getDefaultInstance()) return this;
-        if (other.hasAuthority()) {
-          setAuthority(other.getAuthority());
+        if (other.hasUsername()) {
+          setUsername(other.getUsername());
         }
         if (other.hasSchnorrS()) {
           setSchnorrS(other.getSchnorrS());
@@ -384,7 +384,7 @@ public final class NigoriMessages {
       }
       
       public final boolean isInitialized() {
-        if (!hasAuthority()) {
+        if (!hasUsername()) {
           
           return false;
         }
@@ -428,7 +428,7 @@ public final class NigoriMessages {
             }
             case 10: {
               bitField0_ |= 0x00000001;
-              authority_ = input.readBytes();
+              username_ = input.readBytes();
               break;
             }
             case 18: {
@@ -452,26 +452,26 @@ public final class NigoriMessages {
       
       private int bitField0_;
       
-      // required bytes authority = 1;
-      private com.google.protobuf.ByteString authority_ = com.google.protobuf.ByteString.EMPTY;
-      public boolean hasAuthority() {
+      // required bytes username = 1;
+      private com.google.protobuf.ByteString username_ = com.google.protobuf.ByteString.EMPTY;
+      public boolean hasUsername() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
-      public com.google.protobuf.ByteString getAuthority() {
-        return authority_;
+      public com.google.protobuf.ByteString getUsername() {
+        return username_;
       }
-      public Builder setAuthority(com.google.protobuf.ByteString value) {
+      public Builder setUsername(com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
   bitField0_ |= 0x00000001;
-        authority_ = value;
+        username_ = value;
         onChanged();
         return this;
       }
-      public Builder clearAuthority() {
+      public Builder clearUsername() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        authority_ = getDefaultInstance().getAuthority();
+        username_ = getDefaultInstance().getUsername();
         onChanged();
         return this;
       }
@@ -3526,20 +3526,20 @@ public final class NigoriMessages {
   static {
     java.lang.String[] descriptorData = {
       "\n$src/main/proto/nigori_messages.proto\022\006" +
-      "nigori\"]\n\023AuthenticateRequest\022\021\n\tauthori" +
-      "ty\030\001 \002(\014\022\021\n\tschnorr_s\030\002 \002(\014\022\021\n\tschnorr_e" +
-      "\030\003 \002(\014\022\r\n\005nonce\030\004 \002(\014\"D\n\nGetRequest\022)\n\004a" +
-      "uth\030\001 \002(\0132\033.nigori.AuthenticateRequest\022\013" +
-      "\n\003key\030\002 \002(\014\"\034\n\013GetResponse\022\r\n\005value\030\001 \002(" +
-      "\014\"S\n\nPutRequest\022)\n\004auth\030\001 \002(\0132\033.nigori.A" +
-      "uthenticateRequest\022\013\n\003key\030\002 \002(\014\022\r\n\005value" +
-      "\030\003 \002(\014\"G\n\rDeleteRequest\022)\n\004auth\030\001 \002(\0132\033." +
-      "nigori.AuthenticateRequest\022\013\n\003key\030\002 \002(\014\"",
-      "3\n\017RegisterRequest\022\014\n\004user\030\001 \002(\014\022\022\n\npubl" +
-      "ic_key\030\002 \002(\014\"`\n\021UnregisterRequest\022)\n\004aut" +
-      "h\030\001 \002(\0132\033.nigori.AuthenticateRequest\022\014\n\004" +
-      "user\030\002 \002(\014\022\022\n\npublic_key\030\003 \002(\014B*\n\030com.go" +
-      "ogle.nigori.commonB\016NigoriMessages"
+      "nigori\"\\\n\023AuthenticateRequest\022\020\n\010usernam" +
+      "e\030\001 \002(\014\022\021\n\tschnorr_s\030\002 \002(\014\022\021\n\tschnorr_e\030" +
+      "\003 \002(\014\022\r\n\005nonce\030\004 \002(\014\"D\n\nGetRequest\022)\n\004au" +
+      "th\030\001 \002(\0132\033.nigori.AuthenticateRequest\022\013\n" +
+      "\003key\030\002 \002(\014\"\034\n\013GetResponse\022\r\n\005value\030\001 \002(\014" +
+      "\"S\n\nPutRequest\022)\n\004auth\030\001 \002(\0132\033.nigori.Au" +
+      "thenticateRequest\022\013\n\003key\030\002 \002(\014\022\r\n\005value\030" +
+      "\003 \002(\014\"G\n\rDeleteRequest\022)\n\004auth\030\001 \002(\0132\033.n" +
+      "igori.AuthenticateRequest\022\013\n\003key\030\002 \002(\014\"3",
+      "\n\017RegisterRequest\022\014\n\004user\030\001 \002(\014\022\022\n\npubli" +
+      "c_key\030\002 \002(\014\"`\n\021UnregisterRequest\022)\n\004auth" +
+      "\030\001 \002(\0132\033.nigori.AuthenticateRequest\022\014\n\004u" +
+      "ser\030\002 \002(\014\022\022\n\npublic_key\030\003 \002(\014B*\n\030com.goo" +
+      "gle.nigori.commonB\016NigoriMessages"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -3551,7 +3551,7 @@ public final class NigoriMessages {
           internal_static_nigori_AuthenticateRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_nigori_AuthenticateRequest_descriptor,
-              new java.lang.String[] { "Authority", "SchnorrS", "SchnorrE", "Nonce", },
+              new java.lang.String[] { "Username", "SchnorrS", "SchnorrE", "Nonce", },
               com.google.nigori.common.NigoriMessages.AuthenticateRequest.class,
               com.google.nigori.common.NigoriMessages.AuthenticateRequest.Builder.class);
           internal_static_nigori_GetRequest_descriptor =
