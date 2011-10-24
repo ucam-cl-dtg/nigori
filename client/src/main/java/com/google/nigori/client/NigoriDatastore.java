@@ -43,6 +43,7 @@ public class NigoriDatastore {
 
 	private final String serverUrl;
 	private final KeyManager keyManager;
+	private static final boolean PRINTFAILRESPONSE = true;
 
 	private class HttpResponse {
 
@@ -90,6 +91,18 @@ public class NigoriDatastore {
 		}
 	}
 
+  /**
+   * Get whether the HttpResponse indicates that the call was successful, if not print the message if configured to do so.
+   * @param resp
+   * @return whether the {@link HttpResponse#getResponseCode()} indicates success
+   */
+  private static boolean success(HttpResponse resp){
+    boolean success = resp.getResponseCode() == 200;
+    if (!success && PRINTFAILRESPONSE) {
+      System.err.println(resp.getResponseCode() + " : " + resp.getResponseMessage());
+    }
+    return success;
+  }
 
 	private HttpResponse post(String requestType, byte[] data) throws IOException {
 
@@ -127,7 +140,8 @@ public class NigoriDatastore {
 		}
 	}
 
-	/**
+
+  /**
 	 * Represents communication with a Nigori datastore for a specific user.
 	 * 
 	 * @param server DNS name or IP Address of the server.
@@ -213,7 +227,7 @@ public class NigoriDatastore {
 			String json = MessageLibrary.registerRequestAsJson(keyManager.getUsername(),keyManager.signer());
 			HttpResponse resp = post(MessageLibrary.REQUEST_REGISTER,
 					json.getBytes(MessageLibrary.CHARSET));
-			return resp.getResponseCode() == 200;
+			return success(resp);
 		} catch (NoSuchAlgorithmException e) {
 			throw new NigoriCryptographyException("Platform does have required crypto support:" +
 					e.getMessage());
@@ -230,7 +244,7 @@ public class NigoriDatastore {
       String json = MessageLibrary.unregisterRequestAsJson(keyManager.getUsername(),keyManager.signer());
       HttpResponse resp = post(MessageLibrary.REQUEST_UNREGISTER,
           json.getBytes(MessageLibrary.CHARSET));
-      return resp.getResponseCode() == 200;
+      return success(resp);
     } catch (NoSuchAlgorithmException e) {
       throw new NigoriCryptographyException("Platform does have required crypto support:" +
           e.getMessage());
@@ -248,7 +262,7 @@ public class NigoriDatastore {
 			String json = MessageLibrary.authenticateRequestAsJson(keyManager.signer());
 			HttpResponse resp = post(MessageLibrary.REQUEST_AUTHENTICATE, 
 					json.getBytes(MessageLibrary.CHARSET));
-			return resp.getResponseCode() == 200;
+			return success(resp);
 		} catch (NoSuchAlgorithmException e) {
 			throw new NigoriCryptographyException("Platform does have required crypto support:" +
 					e.getMessage());
@@ -292,7 +306,7 @@ public class NigoriDatastore {
 		try {
 			String json = MessageLibrary.putRequestAsJson(keyManager.signer(), encIndex, encValue);
 			HttpResponse resp = post(MessageLibrary.REQUEST_PUT, json.getBytes(MessageLibrary.CHARSET));
-			return resp.getResponseCode() == 200;
+			return success(resp);
 		} catch (NoSuchAlgorithmException e) {
 			throw new NigoriCryptographyException("Platform does have required crypto support:" +
 					e.getMessage());
@@ -350,6 +364,7 @@ public class NigoriDatastore {
 			return null; //request was successful, but no data key by that name was found.
 		}
 
+		success(resp);
 		if (resp.getResponseCode() != 200) {
 			throw new IOException("Server did not accept request. " + jsonResponse);
 		}
