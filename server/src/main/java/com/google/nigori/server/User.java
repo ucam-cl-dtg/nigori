@@ -25,6 +25,7 @@ import javax.jdo.annotations.PrimaryKey;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.ShortBlob;
 import com.google.nigori.common.NigoriConstants;
 import com.google.protobuf.ByteString;
 
@@ -43,9 +44,9 @@ public class User implements Principal {
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   private Key key;
   @Persistent
-  private final byte[] userName;
+  private final ShortBlob userName;
   @Persistent
-  private final byte[] publicKey;
+  private final ShortBlob publicKey;
   @Persistent
   private final Date registrationDate;
 
@@ -62,8 +63,8 @@ public class User implements Principal {
       throw new IllegalArgumentException("Public key too short, must be at least"
           + MIN_PUBLIC_KEY_LENGTH + " but was (" + publicKey.length + ")");
     }
-    this.userName = Arrays.copyOf(userName, userName.length);
-    this.publicKey = Arrays.copyOf(publicKey, publicKey.length);
+    this.userName = new ShortBlob(userName);
+    this.publicKey = new ShortBlob(publicKey);
     this.registrationDate = registrationDate;
     this.key =
         KeyFactory.createKey(AppEngineDatabase.USERSKEY, User.class.getSimpleName(), getName());
@@ -80,11 +81,12 @@ public class User implements Principal {
 
   @Override
   public String getName() {
-    return ByteString.copyFrom(userName).toStringUtf8();
+    return ByteString.copyFrom(userName.getBytes()).toStringUtf8();
   }
 
   public byte[] getPublicKey() {
-    return Arrays.copyOf(publicKey, publicKey.length);
+    byte[] pkB = publicKey.getBytes();
+    return Arrays.copyOf(pkB, pkB.length);
   }
 
   public Date getRegistrationDate() {
@@ -101,8 +103,8 @@ public class User implements Principal {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((key == null) ? 0 : key.hashCode());
-    result = prime * result + Arrays.hashCode(publicKey);
-    result = prime * result + Arrays.hashCode(userName);
+    result = prime * result + publicKey.hashCode();
+    result = prime * result + userName.hashCode();
     return result;
   }
 
@@ -120,9 +122,9 @@ public class User implements Principal {
         return false;
     } else if (!key.equals(other.key))
       return false;
-    if (!Arrays.equals(publicKey, other.publicKey))
+    if (!publicKey.equals(other.publicKey))
       return false;
-    if (!Arrays.equals(userName, other.userName))
+    if (!userName.equals(other.userName))
       return false;
     return true;
   }

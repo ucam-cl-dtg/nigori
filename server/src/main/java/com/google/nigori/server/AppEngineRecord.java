@@ -20,6 +20,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import com.google.appengine.api.datastore.Blob;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 
@@ -44,9 +45,8 @@ class AppEngineRecord {
 	/**
 	 * Data associated with the key for this record.
 	 */
-  //TODO(beresford): consider whether to make this a BLOB
 	@Persistent
-	private byte[] value;
+	private Blob value;
 
 	@Persistent
   private Revision revision;
@@ -54,7 +54,7 @@ class AppEngineRecord {
 	AppEngineRecord(Key lookup, Revision revision, byte[] value) {
 	  this.key = KeyFactory.createKey(key, "value", revision.toString());
 	  this.revision = revision;
-		this.value = value;
+		this.value = new Blob(value);
 	}
 	
 	Key getKey() {
@@ -62,7 +62,7 @@ class AppEngineRecord {
 	}
 	
 	byte[] getValue() {
-		return value;
+		return value.getBytes();
 	}
 	
 	Revision getRevision() {
