@@ -15,7 +15,24 @@
  */
 package com.google.nigori.client;
 
+import static org.junit.Assert.assertArrayEquals;
+
+import java.io.UnsupportedEncodingException;
+
+import org.junit.Test;
+
+import com.google.nigori.common.MessageLibrary;
+
 public class KeyManagerTest {
   
   //TODO(beresford): unit tests.
+  @Test
+  public void getUsernameAndPassword() throws NigoriCryptographyException, UnsupportedEncodingException {
+    byte[] serverName = "serverName".getBytes(MessageLibrary.CHARSET);
+    byte[] userName = "userName".getBytes(MessageLibrary.CHARSET);
+    byte[] password = "password".getBytes(MessageLibrary.CHARSET);
+    KeyManager keyManger = new KeyManager(serverName, userName, password);
+    assertArrayEquals("Username different",userName,keyManger.getUsername());
+    assertArrayEquals("Username different",password,keyManger.getPassword());
+  }
 }
