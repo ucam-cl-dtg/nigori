@@ -9,22 +9,23 @@
   <artifactId>test</artifactId>
   <packaging>jar</packaging>
   <dependencies>
-  	<dependency>
-  		<groupId>com.google.nigori</groupId>
-  		<artifactId>client</artifactId>
-  		<version>${project.version}</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>com.google.nigori</groupId>
-  		<artifactId>common</artifactId>
-  		<version>${project.version}</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>com.google.nigori</groupId>
-  		<artifactId>server</artifactId>
-  		<version>${project.version}</version>
-  	</dependency>
-  	<dependency>
+    <dependency>
+      <groupId>com.google.nigori</groupId>
+      <artifactId>client</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.nigori</groupId>
+      <artifactId>common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.nigori</groupId>
+      <artifactId>server</artifactId>
+      <version>${project.version}</version>
+      <classifier>classes</classifier>
+    </dependency>
+    <dependency>
       <groupId>com.google.appengine</groupId>
       <artifactId>appengine-testing</artifactId>
       <version>${appengine.version}</version>
