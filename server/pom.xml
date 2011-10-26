@@ -132,28 +132,6 @@
         </configuration>
       </plugin>
       <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>generate-sources</id>
-            <!-- Source generation is not a normal part of build and does not work on hudson
-            <phase>generate-sources</phase>
-            -->
-            <configuration>
-              <tasks>
-                <exec executable="protoc" failonerror="true">
-                  <arg value="--java_out=src/main/java"/>
-                  <arg value="src/main/proto/nigori_messages.proto"/>
-                </exec>
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.3.2</version>
