@@ -99,9 +99,33 @@ public class NigoriDatastore {
   private static boolean success(HttpResponse resp){
     boolean success = resp.getResponseCode() == 200;
     if (!success && PRINTFAILRESPONSE) {
-      System.err.println(resp.getResponseCode() + " : " + resp.getResponseMessage());
+      System.err.println(resp.getResponseCode() + " : " + resp.getResponseMessage() + " : " + inputStreamToString(resp.getInputStream()));
     }
     return success;
+  }
+
+  /**
+   * Turn an input stream into a String or in the case of an IO exception during that process return the empty string.
+   * @param s
+   * @return
+   */
+  private static String inputStreamToString(InputStream s) {
+    if (s == null){
+      return "";
+    }
+    try {
+      BufferedReader reader = new BufferedReader(new InputStreamReader(s));
+      StringBuilder builder = new StringBuilder();
+      String line = reader.readLine();
+      while (line != null) {
+        builder.append(line);
+        builder.append("\n");
+        line = reader.readLine();
+      }
+      return builder.toString();
+    } catch (IOException e) {
+      return "";
+    }
   }
 
 	private HttpResponse post(String requestType, byte[] data) throws IOException {
