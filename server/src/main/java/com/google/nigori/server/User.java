@@ -46,9 +46,9 @@ public class User implements Principal {
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   private Key key;
   @Persistent
-  private final ShortBlob publicKey;
+  private ShortBlob publicKey;
   @Persistent
-  private final Date registrationDate;
+  private Date registrationDate;
 
   public static Key keyForUser(byte[] publicKey) {
     return KeyFactory.createKey(AppEngineDatabase.USERSKEY, User.class.getSimpleName(), ByteString
