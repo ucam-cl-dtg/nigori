@@ -69,7 +69,7 @@ public class NigoriServletTest {
 				"username".getBytes(MessageLibrary.CHARSET),
 				"password".getBytes(MessageLibrary.CHARSET));
 		//TODO need to correctly create user
-		user = new User(keyManager.getUsername(), keyManager.signer().getPublicKey(), new Date());
+		user = new User(keyManager.signer().getPublicKey(), new Date());
 	}
 
 	@After
@@ -153,12 +153,12 @@ public class NigoriServletTest {
 	public void testGetRequestKeyDoesNotExist() throws Exception {
 
 		final byte[] key = "a key".getBytes(MessageLibrary.CHARSET);
-		final byte[] username = keyManager.getUsername();
+		final byte[] publicKey = keyManager.signer().getPublicKey();
 		
-		final String json = MessageLibrary.getRequestAsJson(keyManager.getUsername(), keyManager.signer(), key);		
+		final String json = MessageLibrary.getRequestAsJson(keyManager.signer(), key);
 		expectedCallsForJsonRequest(json, MessageLibrary.REQUEST_GET);
-		expect(database.getUser(aryEq(username))).andReturn(user);
-		expect(database.haveUser(aryEq(username))).andReturn(true);
+		expect(database.getUser(aryEq(publicKey))).andReturn(user);
+		expect(database.haveUser(aryEq(publicKey))).andReturn(true);
 		expect(database.getRecord(eq(user), aryEq(key))).andReturn(null);
 		ServletOutputStream out = expectedCallsForErrorResponse(HttpServletResponse.SC_NOT_FOUND);
 
@@ -170,12 +170,12 @@ public class NigoriServletTest {
 		
 		final byte[] key = "a key".getBytes(MessageLibrary.CHARSET);
 		final byte[] value = "a value".getBytes(MessageLibrary.CHARSET);
-		final byte[] username = keyManager.getUsername();
+		final byte[] publicKey = keyManager.signer().getPublicKey();
 		
-		final String jsonPut = MessageLibrary.putRequestAsJson(keyManager.getUsername(), keyManager.signer(), key, value);		
+		final String jsonPut = MessageLibrary.putRequestAsJson(keyManager.signer(), key, value);
 		expectedCallsForJsonRequest(jsonPut, MessageLibrary.REQUEST_PUT);
-		expect(database.getUser(aryEq(username))).andReturn(user);
-		expect(database.haveUser(aryEq(username))).andReturn(true);
+		expect(database.getUser(aryEq(publicKey))).andReturn(user);
+		expect(database.haveUser(aryEq(publicKey))).andReturn(true);
 		expect(database.putRecord(eq(user), aryEq(key), aryEq(value))).andReturn(true);
 		expectedCallsToOutputOkay();
 		
@@ -187,12 +187,12 @@ public class NigoriServletTest {
 
 		final byte[] key = "a key".getBytes(MessageLibrary.CHARSET);
 		final byte[] value = "a value".getBytes(MessageLibrary.CHARSET);
-		final byte[] username = keyManager.getUsername();
+		final byte[] publicKey = keyManager.signer().getPublicKey();
 
-		final String jsonGet = MessageLibrary.getRequestAsJson(keyManager.getUsername(), keyManager.signer(), key);		
+		final String jsonGet = MessageLibrary.getRequestAsJson(keyManager.signer(), key);
 		expectedCallsForJsonRequest(jsonGet, MessageLibrary.REQUEST_GET);
-		expect(database.getUser(aryEq(username))).andReturn(user);
-		expect(database.haveUser(aryEq(username))).andReturn(true);
+		expect(database.getUser(aryEq(publicKey))).andReturn(user);
+		expect(database.haveUser(aryEq(publicKey))).andReturn(true);
 		expect(database.getRecord(eq(user), aryEq(key))).andReturn(value);
 		ServletOutputStream out = expectedCallsForJsonResponse();
 		Capture<byte[]> result = new Capture<byte[]>();
@@ -232,7 +232,7 @@ public class NigoriServletTest {
 
 		//Build a broken version of the JSON request which has valid keys but invalid values
 		byte[] key = "a key".getBytes(MessageLibrary.CHARSET);
-		GetRequest get = MessageLibrary.getRequestAsProtobuf(keyManager.getUsername(), keyManager.signer(), key);		
+		GetRequest get = MessageLibrary.getRequestAsProtobuf(keyManager.signer(), key);
 		Map<FieldDescriptor, Object> fieldMap = get.getAllFields();
 		
 		StringBuilder json = new StringBuilder();

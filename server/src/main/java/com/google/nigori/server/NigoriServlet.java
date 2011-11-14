@@ -21,11 +21,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.codec.binary.Hex;
 
 import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.NigoriMessages.AuthenticateRequest;
@@ -39,6 +43,7 @@ import com.google.nigori.common.SchnorrVerify;
 @SuppressWarnings("serial")
 public class NigoriServlet extends HttpServlet {
 
+  private static final Logger log = Logger.getLogger(NigoriServlet.class.getName());
 	private static final int maxJsonQueryLength = 1024*1024*1;
 	private final Database database;
 
@@ -146,13 +151,12 @@ public class NigoriServlet extends HttpServlet {
 	 * @param message
 	 * @throws ServletException
 	 */
-  private User authenticateUser(byte[] username, byte[] schnorrS, byte[] schnorrE, byte[] nonce)
+  private User authenticateUser(byte[] publicKey, byte[] schnorrS, byte[] schnorrE, byte[] nonce)
       throws ServletException {
 
     SchnorrSignature sig = new SchnorrSignature(schnorrE, schnorrS, nonce);
     try {
-      User user = database.getUser(username);
-      byte[] publicKey = user.getPublicKey();
+      User user = database.getUser(publicKey);
       SchnorrVerify v = new SchnorrVerify(publicKey);
       Nonce n = new Nonce(sig.getMessage());
       // TODO(beresford): Put this constant in server configuration and use this to timeout storage
@@ -162,7 +166,7 @@ public class NigoriServlet extends HttpServlet {
       // TODO(beresford): Must check that n.getRandom() has not be used before.
       // Must avoid race condition when random number is used multiple times quickly
       boolean nonceUnique = true;
-      boolean userExists = database.haveUser(username);
+      boolean userExists = database.haveUser(publicKey);
 
       try {
         if (v.verify(sig) && timestampRecent && nonceUnique && userExists) {
@@ -173,7 +177,7 @@ public class NigoriServlet extends HttpServlet {
             "Internal error attempting to verify signature");
       }
     } catch (UserNotFoundException e) {
-      // TODO(drt24): potential security vunerability - user existance oracle.
+      // TODO(drt24): potential security vulnerability - user existence oracle.
       throw new ServletException(HttpServletResponse.SC_NOT_FOUND, "No such user");
     }
     throw new ServletException(HttpServletResponse.SC_UNAUTHORIZED, "The signature is invalid");
@@ -212,11 +216,11 @@ public class NigoriServlet extends HttpServlet {
 				GetRequest request = MessageLibrary.getRequestFromJson(json);
 				byte[] key = request.getKey().toByteArray();
 				AuthenticateRequest auth = request.getAuth();
-				byte[] username = auth.getUsername().toByteArray();
+				byte[] publicKey = auth.getPublicKey().toByteArray();
 				byte[] schnorrE = auth.getSchnorrE().toByteArray();
 				byte[] schnorrS = auth.getSchnorrS().toByteArray();
 				byte[] nonce = auth.getNonce().toByteArray();
-				User user = authenticateUser(username, schnorrE, schnorrS, nonce);
+				User user = authenticateUser(publicKey, schnorrE, schnorrS, nonce);
 
 				value = database.getRecord(user, key);
 
@@ -232,7 +236,7 @@ public class NigoriServlet extends HttpServlet {
 				w.write(response);
 				w.flush();
 			} catch(IOException ioe) {
-				throw new ServletException(500, "Internal error sending data to client");
+				throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal error sending data to client");
 			} catch (MessageLibrary.JsonConversionException jce) {
 				throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, "JSON format error: " + 
 						jce.getMessage());
@@ -251,19 +255,19 @@ public class NigoriServlet extends HttpServlet {
 				System.out.println(json);
 				PutRequest request = MessageLibrary.putRequestFromJson(json);
 				AuthenticateRequest auth = request.getAuth();
-				byte[] username = auth.getUsername().toByteArray();
+				byte[] publicKey = auth.getPublicKey().toByteArray();
 				byte[] schnorrE = auth.getSchnorrE().toByteArray();
 				byte[] schnorrS = auth.getSchnorrS().toByteArray();
 				byte[] nonce = auth.getNonce().toByteArray();
 				
-				User user = authenticateUser(username, schnorrE, schnorrS, nonce);
+				User user = authenticateUser(publicKey, schnorrE, schnorrS, nonce);
 
 				boolean success = database.putRecord(user, request.getKey().toByteArray(), 
 						request.getValue().toByteArray());
 
 				if (!success) {
 					throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, 
-							"Internal storage error for key " + request.getKey().toStringUtf8());
+							"Internal storage error for key " + Hex.encodeHexString(request.getKey().toByteArray()));
 				}
 
 				emptyBody(resp);
@@ -284,7 +288,7 @@ public class NigoriServlet extends HttpServlet {
 			try {
 				String json = getJsonAsString(req, maxJsonQueryLength);
 				AuthenticateRequest request = MessageLibrary.authenticateRequestFromJson(json);
-				authenticateUser(request.getUsername().toByteArray(),request.getSchnorrE().toByteArray(), 
+				authenticateUser(request.getPublicKey().toByteArray(),request.getSchnorrE().toByteArray(), 
 						request.getSchnorrS().toByteArray(), request.getNonce().toByteArray());
 
 				emptyBody(resp);
@@ -306,10 +310,10 @@ public class NigoriServlet extends HttpServlet {
 				String json = getJsonAsString(req, maxJsonQueryLength);
 				RegisterRequest request = MessageLibrary.registerRequestFromJson(json);
 
-				boolean success = database.addUser(request.getPublicKey().toByteArray(), request.getUser().toByteArray());
+				boolean success = database.addUser(request.getPublicKey().toByteArray());
 				if(!success) {
 					throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-							"Adding user " + request.getUser().toStringUtf8() + " failed");
+							"Adding user " + Hex.encodeHexString(request.getPublicKey().toByteArray()) + " failed");
 				}
 				emptyBody(resp);
 
@@ -357,6 +361,7 @@ public class NigoriServlet extends HttpServlet {
 			handler.handle(req, resp);
 
 		} catch (ServletException e) {
+		  log.severe(e.toString());
 			e.writeHttpResponse(resp);
 		}
 	}

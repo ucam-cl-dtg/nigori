@@ -71,28 +71,22 @@ public class MessageLibrary {
 		}
 	}
 
-	public static GetRequest getRequestAsProtobuf(byte[] username, SchnorrSign signer, byte[] key) throws 
+	public static GetRequest getRequestAsProtobuf(SchnorrSign signer, byte[] key) throws 
 	NoSuchAlgorithmException {
 
-		SchnorrSignature signedNonce = signer.sign(new Nonce().toToken());
-
-		AuthenticateRequest.Builder authBuilder = AuthenticateRequest.newBuilder()
-        .setUsername(ByteString.copyFrom(username))
-        .setSchnorrE(ByteString.copyFrom(signedNonce.getE()))
-        .setSchnorrS(ByteString.copyFrom(signedNonce.getS()))
-        .setNonce(ByteString.copyFrom(signedNonce.getMessage()));
+		//TODO sign key and method
 		
 		GetRequest req = GetRequest.newBuilder()
-		.setAuth(authBuilder.build())
+		.setAuth(authenticateRequestAsProtobuf(signer))
 		.setKey(ByteString.copyFrom(key))
 		.build();
 
 		return req;
 	}
 
-	public static String getRequestAsJson(byte[] username, SchnorrSign signer, byte[] key) throws
+	public static String getRequestAsJson(SchnorrSign signer, byte[] key) throws
 	NoSuchAlgorithmException {
-		return gson.toJson(getRequestAsProtobuf(username, signer, key));
+		return gson.toJson(getRequestAsProtobuf(signer, key));
 	}
 
 	public static GetRequest getRequestFromJson(String json)  throws JsonConversionException {
@@ -129,17 +123,11 @@ public class MessageLibrary {
 		}
 	}
 
-	public static PutRequest putRequestAsProtobuf(byte[] username, SchnorrSign signer, byte[] key, byte[] value) throws NoSuchAlgorithmException {
+	public static PutRequest putRequestAsProtobuf(SchnorrSign signer, byte[] key, byte[] value) throws NoSuchAlgorithmException {
 
-		SchnorrSignature signedNonce = signer.sign(new Nonce().toToken());
-
-		AuthenticateRequest.Builder authBuilder = AuthenticateRequest.newBuilder()
-		    .setUsername(ByteString.copyFrom(username))
-		    .setSchnorrE(ByteString.copyFrom(signedNonce.getE()))
-		    .setSchnorrS(ByteString.copyFrom(signedNonce.getS()))
-		    .setNonce(ByteString.copyFrom(signedNonce.getMessage()));
+	  //TODO sign method key and value
 		Builder reqBuilder = PutRequest.newBuilder()
-		.setAuth(authBuilder.build())
+		.setAuth(authenticateRequestAsProtobuf(signer))
 		.setKey(ByteString.copyFrom(key))
 		.setValue(ByteString.copyFrom(value));
 		
@@ -148,8 +136,8 @@ public class MessageLibrary {
 		return req;
 	}
 
-	public static String putRequestAsJson(byte[] username, SchnorrSign signer, byte[] key, byte[] value) throws	NoSuchAlgorithmException {
-		return gson.toJson(putRequestAsProtobuf(username, signer, key, value));
+	public static String putRequestAsJson(SchnorrSign signer, byte[] key, byte[] value) throws	NoSuchAlgorithmException {
+		return gson.toJson(putRequestAsProtobuf(signer, key, value));
 	}
 
 	public static PutRequest putRequestFromJson(String json) throws JsonConversionException {
@@ -162,13 +150,13 @@ public class MessageLibrary {
 		}
 	}
 
-	public static AuthenticateRequest authenticateRequestAsProtobuf(byte[] username, SchnorrSign signer) throws
+	public static AuthenticateRequest authenticateRequestAsProtobuf(SchnorrSign signer) throws
 	NoSuchAlgorithmException {
 
 		SchnorrSignature signedNonce = signer.sign(new Nonce().toToken());
 
 		AuthenticateRequest req = AuthenticateRequest.newBuilder()
-		.setUsername(ByteString.copyFrom(username))
+		.setPublicKey(ByteString.copyFrom(signer.getPublicKey()))
 		.setSchnorrE(ByteString.copyFrom(signedNonce.getE()))
 		.setSchnorrS(ByteString.copyFrom(signedNonce.getS()))
 		.setNonce(ByteString.copyFrom(signedNonce.getMessage()))
@@ -177,9 +165,9 @@ public class MessageLibrary {
 		return req;
 	}
 
-	public static String authenticateRequestAsJson(byte[] username, SchnorrSign signer) throws
+	public static String authenticateRequestAsJson(SchnorrSign signer) throws
 	NoSuchAlgorithmException {
-		return gson.toJson(authenticateRequestAsProtobuf(username, signer));
+		return gson.toJson(authenticateRequestAsProtobuf(signer));
 	}
 
 	public static AuthenticateRequest authenticateRequestFromJson(String json) throws
@@ -193,36 +181,35 @@ public class MessageLibrary {
 		}
 	}
 
-	public static RegisterRequest registerRequestAsProtobuf(byte[] user, SchnorrSign signer) throws
+	public static RegisterRequest registerRequestAsProtobuf( SchnorrSign signer, byte[] token ) throws
 	NoSuchAlgorithmException {
 
 		RegisterRequest req = RegisterRequest.newBuilder()
-		    .setUser(ByteString.copyFrom(user))
 		    .setPublicKey(ByteString.copyFrom(signer.getPublicKey()))
+		    .setToken(ByteString.copyFrom(token))
 		    .build();
 
 		return req;
 	}
 
-	public static String registerRequestAsJson(byte[] user, SchnorrSign signer) throws
+	public static String registerRequestAsJson(SchnorrSign signer, byte[] token) throws
 	NoSuchAlgorithmException {
-		return gson.toJson(registerRequestAsProtobuf(user, signer));
+		return gson.toJson(registerRequestAsProtobuf(signer, token));
 	}
 
-	public static UnregisterRequest unregisterRequestAsProtobuf(byte[] user, SchnorrSign signer) throws
+	public static UnregisterRequest unregisterRequestAsProtobuf(SchnorrSign signer) throws
   NoSuchAlgorithmException {
 
     UnregisterRequest req = UnregisterRequest.newBuilder()
-        .setUser(ByteString.copyFrom(user))
-        .setPublicKey(ByteString.copyFrom(signer.getPublicKey()))
+        .setAuth(authenticateRequestAsProtobuf(signer))
         .build();
 
     return req;
   }
 
-	public static String unregisterRequestAsJson(byte[] user, SchnorrSign signer) throws
+	public static String unregisterRequestAsJson(SchnorrSign signer) throws
   NoSuchAlgorithmException {
-    return gson.toJson(unregisterRequestAsProtobuf(user, signer));
+    return gson.toJson(unregisterRequestAsProtobuf(signer));
   }
 
 	public static RegisterRequest registerRequestFromJson(String json) throws 

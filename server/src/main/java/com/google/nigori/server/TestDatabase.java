@@ -36,10 +36,10 @@ public class TestDatabase implements Database {
 	private HashMap<ByteString,User> users = new HashMap<ByteString,User>();
 
 	@Override
-	public boolean addUser(byte[] authority, byte[] userName) {
+	public boolean addUser(byte[] publicKey) {
 		//TODO(beresford): check authority to carry out action
-	  User user = new User(userName, authority, new Date());
-		users.put(ByteString.copyFrom(userName),user);
+	  User user = new User(publicKey, new Date());
+		users.put(ByteString.copyFrom(publicKey),user);
 		stores.put(user, new HashMap<ByteString, ByteString>());
 		return true;
 	}
@@ -57,10 +57,10 @@ public class TestDatabase implements Database {
 	}
 
   @Override
-  public User getUser(byte[] username) throws UserNotFoundException {
-    assert username != null;
-    assert username.length > 0;
-    User user = users.get(username);
+  public User getUser(byte[] publicKey) throws UserNotFoundException {
+    assert publicKey != null;
+    assert publicKey.length > 0;
+    User user = users.get(publicKey);
     if (user == null) {
       throw new UserNotFoundException();
     }

@@ -33,7 +33,6 @@ import com.google.nigori.common.MessageLibrary;
  */
 public class AppEngineDatabaseTest {
 
-  private static byte[] user;
   private static byte[] publicKey;
 
   private Database database;
@@ -42,8 +41,7 @@ public class AppEngineDatabaseTest {
   @BeforeClass
   public static void init() throws UnsupportedEncodingException {
     helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
-    user = "test-username".getBytes(MessageLibrary.CHARSET);
-    publicKey = "test-user's public encryption and signing key".getBytes(MessageLibrary.CHARSET);
+    publicKey = "test-user's public key".getBytes(MessageLibrary.CHARSET);
   }
 
   @Before
@@ -54,26 +52,26 @@ public class AppEngineDatabaseTest {
 
   @Test
   public void addDeleteUser() {
-    assertFalse(database.haveUser(user));
-    assertTrue(database.addUser(publicKey, user));
-    assertTrue(database.haveUser(user));
-    assertTrue(database.deleteUser(user));
-    assertFalse(database.haveUser(user));
+    assertFalse(database.haveUser(publicKey));
+    assertTrue(database.addUser(publicKey));
+    assertTrue(database.haveUser(publicKey));
+    assertTrue(database.deleteUser(publicKey));
+    assertFalse(database.haveUser(publicKey));
   }
 
   @Test
   public void deleteNotPresent() {
-    assertFalse(database.deleteUser("non existant user".getBytes()));
+    assertFalse(database.deleteUser("non existant user key".getBytes()));
   }
 
   @Test
   public void addTwice() {
-    assertFalse(database.haveUser(user));
-    assertTrue(database.addUser(publicKey, user));
-    assertFalse(database.addUser(publicKey, user));
-    assertTrue(database.haveUser(user));
-    assertTrue(database.deleteUser(user));
-    assertFalse(database.haveUser(user));
+    assertFalse(database.haveUser(publicKey));
+    assertTrue(database.addUser(publicKey));
+    assertFalse(database.addUser(publicKey));
+    assertTrue(database.haveUser(publicKey));
+    assertTrue(database.deleteUser(publicKey));
+    assertFalse(database.haveUser(publicKey));
   }
 
   @After

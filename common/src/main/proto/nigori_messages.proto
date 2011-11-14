@@ -19,7 +19,7 @@ option java_package = "com.google.nigori.common";
 option java_outer_classname = "NigoriMessages";
 
 message AuthenticateRequest {
-  required bytes username = 1;
+  required bytes public_key = 1;
   required bytes schnorr_s = 2;
   required bytes schnorr_e = 3;
   required bytes nonce = 4;
@@ -47,11 +47,9 @@ message DeleteRequest {
 
 //TODO(beresford): Registration may require a valid signature from Nigori store admin
 message RegisterRequest {
-  required bytes user = 1;
-  required bytes public_key = 2;
+  required bytes public_key = 1;
+  required bytes token = 2;
 }
 message UnregisterRequest {
   required AuthenticateRequest auth = 1;
-  required bytes user = 2;
-  required bytes public_key = 3;
 }

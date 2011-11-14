@@ -23,6 +23,8 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import org.apache.commons.codec.binary.Hex;
+
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.ShortBlob;
@@ -44,35 +46,26 @@ public class User implements Principal {
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   private Key key;
   @Persistent
-  private final ShortBlob userName;
-  @Persistent
   private final ShortBlob publicKey;
   @Persistent
   private final Date registrationDate;
 
-  protected User(byte[] userName, byte[] publicKey, Date registrationDate)
+  public static Key keyForUser(byte[] publicKey) {
+    return KeyFactory.createKey(AppEngineDatabase.USERSKEY, User.class.getSimpleName(), ByteString
+        .copyFrom(publicKey).toStringUtf8());
+  }
+
+  protected User(byte[] publicKey, Date registrationDate)
       throws IllegalArgumentException {
-    assert userName != null;
     assert publicKey != null;
     assert registrationDate != null;
-    if (userName.length < MIN_USERNAME_LENGTH) {
-      throw new IllegalArgumentException("Username too short, must be at least "
-          + MIN_USERNAME_LENGTH + " but was (" + userName.length + ")");
-    }
     if (publicKey.length < MIN_PUBLIC_KEY_LENGTH) {
       throw new IllegalArgumentException("Public key too short, must be at least"
           + MIN_PUBLIC_KEY_LENGTH + " but was (" + publicKey.length + ")");
     }
-    this.userName = new ShortBlob(userName);
     this.publicKey = new ShortBlob(publicKey);
     this.registrationDate = registrationDate;
-    this.key =
-        KeyFactory.createKey(AppEngineDatabase.USERSKEY, User.class.getSimpleName(), getName());
-  }
-
-  public static Key keyForUser(byte[] userName) {
-    return KeyFactory.createKey(AppEngineDatabase.USERSKEY, User.class.getSimpleName(), ByteString
-        .copyFrom(userName).toStringUtf8());
+    this.key = keyForUser(publicKey);
   }
 
   public Key getKey() {
@@ -81,7 +74,7 @@ public class User implements Principal {
 
   @Override
   public String getName() {
-    return ByteString.copyFrom(userName.getBytes()).toStringUtf8();
+    return Hex.encodeHexString(getPublicKey());
   }
 
   public byte[] getPublicKey() {
@@ -104,7 +97,6 @@ public class User implements Principal {
     int result = 1;
     result = prime * result + ((key == null) ? 0 : key.hashCode());
     result = prime * result + publicKey.hashCode();
-    result = prime * result + userName.hashCode();
     return result;
   }
 
@@ -123,8 +115,6 @@ public class User implements Principal {
     } else if (!key.equals(other.key))
       return false;
     if (!publicKey.equals(other.publicKey))
-      return false;
-    if (!userName.equals(other.userName))
       return false;
     return true;
   }

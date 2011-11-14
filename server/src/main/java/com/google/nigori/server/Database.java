@@ -23,11 +23,17 @@ package com.google.nigori.server;
  */
 interface Database {
 	
-	public boolean addUser(byte[] publicKey, byte[] newUserName);
+	public boolean addUser(byte[] publicKey);
 	public boolean haveUser(byte[] existingUser);
 	public boolean deleteUser(byte[] existingUser);
 	
-	public User getUser(byte[] username) throws UserNotFoundException;
+	/**
+	 * WARNING: great care must be taken when using this, the user must be authenticated correctly before any user object can be used on their behalf
+	 * @param publicKey
+	 * @return
+	 * @throws UserNotFoundException
+	 */
+	public User getUser(byte[] publicKey) throws UserNotFoundException;
 	
 	public byte[] getRecord(User user, byte[] key);
 	public boolean putRecord(User user, byte[] key, byte[] data);

@@ -34,8 +34,8 @@ public final class AppEngineDatabase implements Database {
   private static final PersistenceManagerFactory pmfInstance = JDOHelper
       .getPersistenceManagerFactory("transactions-optional");
 
-  private User getUser(byte[] username, PersistenceManager pm) throws JDOObjectNotFoundException {
-    return pm.getObjectById(User.class, User.keyForUser(username));
+  private User getUser(byte[] publicKey, PersistenceManager pm) throws JDOObjectNotFoundException {
+    return pm.getObjectById(User.class, User.keyForUser(publicKey));
   }
 
   private boolean haveUser(byte[] existingUser, PersistenceManager pm) {
@@ -54,27 +54,24 @@ public final class AppEngineDatabase implements Database {
   }
 
   @Override
-  public boolean haveUser(byte[] existingUser) {
-    if (existingUser == null) {
+  public boolean haveUser(byte[] existingUserPK) {
+    if (existingUserPK == null) {
       throw new IllegalArgumentException("Null existingUser");
     }
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {
-      return haveUser(existingUser, pm);
+      return haveUser(existingUserPK, pm);
     } finally {
       pm.close();
     }
   }
 
   @Override
-  public boolean addUser(byte[] publicKey, byte[] newUser) throws IllegalArgumentException {
-    if (newUser == null) {
-      throw new IllegalArgumentException("Null newUser");
-    }
-    User user = new User(newUser, publicKey, new Date());
+  public boolean addUser(byte[] publicKey) throws IllegalArgumentException {
+    User user = new User(publicKey, new Date());
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {
-      if (haveUser(newUser, pm)) {
+      if (haveUser(publicKey, pm)) {
         return false;
       }
       pm.makePersistent(user);
@@ -85,10 +82,10 @@ public final class AppEngineDatabase implements Database {
   }
 
   @Override
-  public boolean deleteUser(byte[] existingUser) {
+  public boolean deleteUser(byte[] existingUserPK) {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {
-      User existing = pm.getObjectById(User.class, User.keyForUser(existingUser));
+      User existing = pm.getObjectById(User.class, User.keyForUser(existingUserPK));
       if (existing != null) {
         pm.deletePersistent(existing);
         return true;
@@ -103,10 +100,10 @@ public final class AppEngineDatabase implements Database {
   }
 
   @Override
-  public User getUser(byte[] username) throws UserNotFoundException {
+  public User getUser(byte[] publicKey) throws UserNotFoundException {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {
-      User user = getUser(username, pm);
+      User user = getUser(publicKey, pm);
       return user;
     } catch (JDOObjectNotFoundException e) {
       throw new UserNotFoundException();
