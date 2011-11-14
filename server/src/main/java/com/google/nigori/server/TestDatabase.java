@@ -60,7 +60,7 @@ public class TestDatabase implements Database {
   public User getUser(byte[] publicKey) throws UserNotFoundException {
     assert publicKey != null;
     assert publicKey.length > 0;
-    User user = users.get(publicKey);
+    User user = users.get(ByteString.copyFrom(publicKey));
     if (user == null) {
       throw new UserNotFoundException();
     }
