@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
@@ -36,6 +35,7 @@ import com.google.nigori.common.NigoriMessages.AuthenticateRequest;
 import com.google.nigori.common.NigoriMessages.GetRequest;
 import com.google.nigori.common.NigoriMessages.PutRequest;
 import com.google.nigori.common.NigoriMessages.RegisterRequest;
+import com.google.nigori.common.NigoriMessages.UnregisterRequest;
 import com.google.nigori.common.Nonce;
 import com.google.nigori.common.SchnorrSignature;
 import com.google.nigori.common.SchnorrVerify;
@@ -318,6 +318,30 @@ public class NigoriServlet extends HttpServlet {
 			}
 		}
 	}
+	private class JsonUnregisterRequestHandler implements RequestHandler {
+
+    public void handle(HttpServletRequest req, HttpServletResponse resp)
+    throws ServletException {
+
+      try {
+        String json = getJsonAsString(req, maxJsonQueryLength);
+        UnregisterRequest request = MessageLibrary.unregisterRequestFromJson(json);
+        AuthenticateRequest auth = request.getAuth();
+        User user = authenticateUser(auth);
+
+        boolean success = database.deleteUser(user);
+        if(!success) {
+          throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+              "Adding user " + Hex.encodeHexString(auth.getPublicKey().toByteArray()) + " failed");
+        }
+        emptyBody(resp);
+
+      } catch (MessageLibrary.JsonConversionException jce) {
+        throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, "JSON format error: " + 
+            jce.getMessage());
+      }
+    }
+  }
 
 	//TODO(beresford): double-check that Servlet instances are created rarely
 	private HashMap<RequestHandlerType, RequestHandler> handlers = initHandlers();
@@ -332,6 +356,8 @@ public class NigoriServlet extends HttpServlet {
 				new JsonAuthenticateRequestHandler());
 		h.put(new RequestHandlerType(MessageLibrary.MIMETYPE_JSON, MessageLibrary.REQUEST_REGISTER),
 				new JsonRegisterRequestHandler());
+		h.put(new RequestHandlerType(MessageLibrary.MIMETYPE_JSON, MessageLibrary.REQUEST_UNREGISTER),
+		    new JsonUnregisterRequestHandler());
 		return h;
 	}
 

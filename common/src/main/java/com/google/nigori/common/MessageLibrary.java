@@ -222,4 +222,14 @@ public class MessageLibrary {
 			throw new JsonConversionException("Unable to parse JSON fields into correct message format");
 		}
 	}
+	public static UnregisterRequest unregisterRequestFromJson(String json) throws 
+  JsonConversionException {
+    try {
+      return gson.fromJson(json, UnregisterRequest.class);
+    } catch (JsonSyntaxException jse) {
+      throw new JsonConversionException("Invalid JSON syntax");
+    } catch (JsonParseException jse) {
+      throw new JsonConversionException("Unable to parse JSON fields into correct message format");
+    }
+  }
 }
