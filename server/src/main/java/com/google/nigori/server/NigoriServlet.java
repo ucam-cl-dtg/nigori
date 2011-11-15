@@ -48,8 +48,7 @@ public class NigoriServlet extends HttpServlet {
 	private final Database database;
 
 	public NigoriServlet() {
-		super();
-		this.database = new TestDatabase();
+		this(new TestDatabase());
 	}
 
 	public NigoriServlet(Database database) {
