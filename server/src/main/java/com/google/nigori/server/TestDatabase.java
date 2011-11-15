@@ -50,9 +50,9 @@ public class TestDatabase implements Database {
 	}
 
 	@Override
-	public boolean deleteUser(byte[] existingUser) {
+	public boolean deleteUser(User existingUser) {
 		//TODO(beresford): check authority to carry out action
-	  User user = users.remove(ByteString.copyFrom(existingUser));
+	  User user = users.remove(ByteString.copyFrom(existingUser.getPublicKey()));
 	  return user != null && stores.remove(user) != null;
 	}
 

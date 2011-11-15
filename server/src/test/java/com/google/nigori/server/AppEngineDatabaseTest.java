@@ -17,6 +17,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Date;
 
 import org.junit.After;
 import org.junit.Before;
@@ -51,26 +52,28 @@ public class AppEngineDatabaseTest {
   }
 
   @Test
-  public void addDeleteUser() {
+  public void addDeleteUser() throws UserNotFoundException {
     assertFalse(database.haveUser(publicKey));
     assertTrue(database.addUser(publicKey));
     assertTrue(database.haveUser(publicKey));
-    assertTrue(database.deleteUser(publicKey));
+    User user = database.getUser(publicKey);
+    assertTrue(database.deleteUser(user));
     assertFalse(database.haveUser(publicKey));
   }
 
   @Test
   public void deleteNotPresent() {
-    assertFalse(database.deleteUser("non existant user key".getBytes()));
+    assertFalse(database.deleteUser(new User("non existant user key".getBytes(), new Date())));
   }
 
   @Test
-  public void addTwice() {
+  public void addTwice() throws UserNotFoundException {
     assertFalse(database.haveUser(publicKey));
     assertTrue(database.addUser(publicKey));
     assertFalse(database.addUser(publicKey));
     assertTrue(database.haveUser(publicKey));
-    assertTrue(database.deleteUser(publicKey));
+    User user = database.getUser(publicKey);
+    assertTrue(database.deleteUser(user));
     assertFalse(database.haveUser(publicKey));
   }
 

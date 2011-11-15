@@ -25,7 +25,7 @@ interface Database {
 	
 	public boolean addUser(byte[] publicKey);
 	public boolean haveUser(byte[] existingUser);
-	public boolean deleteUser(byte[] existingUser);
+	public boolean deleteUser(User existingUser);
 	
 	/**
 	 * WARNING: great care must be taken when using this, the user must be authenticated correctly before any user object can be used on their behalf

@@ -82,10 +82,10 @@ public final class AppEngineDatabase implements Database {
   }
 
   @Override
-  public boolean deleteUser(byte[] existingUserPK) {
+  public boolean deleteUser(User existingUser) {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {
-      User existing = pm.getObjectById(User.class, User.keyForUser(existingUserPK));
+      User existing = pm.getObjectById(User.class, User.keyForUser(existingUser.getPublicKey()));
       if (existing != null) {
         pm.deletePersistent(existing);
         return true;
