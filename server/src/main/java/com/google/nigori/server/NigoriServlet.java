@@ -159,7 +159,7 @@ public class NigoriServlet extends HttpServlet {
     byte[] schnorrS = auth.getSchnorrS().toByteArray();
     byte[] nonce = auth.getNonce().toByteArray();
 
-    SchnorrSignature sig = new SchnorrSignature(schnorrE, schnorrS, nonce);
+    SchnorrSignature sig = new SchnorrSignature(schnorrS, schnorrE, nonce);
     try {
       SchnorrVerify v = new SchnorrVerify(publicKey);
       Nonce n = new Nonce(sig.getMessage());
