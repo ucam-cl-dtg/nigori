@@ -151,12 +151,16 @@ public class NigoriServlet extends HttpServlet {
 	 * @param message
 	 * @throws ServletException
 	 */
-  private User authenticateUser(byte[] publicKey, byte[] schnorrS, byte[] schnorrE, byte[] nonce)
+  private User authenticateUser(AuthenticateRequest auth)
       throws ServletException {
+
+    byte[] publicKey = auth.getPublicKey().toByteArray();
+    byte[] schnorrE = auth.getSchnorrE().toByteArray();
+    byte[] schnorrS = auth.getSchnorrS().toByteArray();
+    byte[] nonce = auth.getNonce().toByteArray();
 
     SchnorrSignature sig = new SchnorrSignature(schnorrE, schnorrS, nonce);
     try {
-      User user = database.getUser(publicKey);
       SchnorrVerify v = new SchnorrVerify(publicKey);
       Nonce n = new Nonce(sig.getMessage());
       // TODO(beresford): Put this constant in server configuration and use this to timeout storage
@@ -170,7 +174,7 @@ public class NigoriServlet extends HttpServlet {
 
       try {
         if (v.verify(sig) && timestampRecent && nonceUnique && userExists) {
-          return user;
+          return database.getUser(publicKey);
         }
       } catch (NoSuchAlgorithmException nsae) {
         throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
@@ -216,11 +220,7 @@ public class NigoriServlet extends HttpServlet {
 				GetRequest request = MessageLibrary.getRequestFromJson(json);
 				byte[] key = request.getKey().toByteArray();
 				AuthenticateRequest auth = request.getAuth();
-				byte[] publicKey = auth.getPublicKey().toByteArray();
-				byte[] schnorrE = auth.getSchnorrE().toByteArray();
-				byte[] schnorrS = auth.getSchnorrS().toByteArray();
-				byte[] nonce = auth.getNonce().toByteArray();
-				User user = authenticateUser(publicKey, schnorrE, schnorrS, nonce);
+				User user = authenticateUser(auth);
 
 				value = database.getRecord(user, key);
 
@@ -255,12 +255,8 @@ public class NigoriServlet extends HttpServlet {
 				System.out.println(json);
 				PutRequest request = MessageLibrary.putRequestFromJson(json);
 				AuthenticateRequest auth = request.getAuth();
-				byte[] publicKey = auth.getPublicKey().toByteArray();
-				byte[] schnorrE = auth.getSchnorrE().toByteArray();
-				byte[] schnorrS = auth.getSchnorrS().toByteArray();
-				byte[] nonce = auth.getNonce().toByteArray();
 				
-				User user = authenticateUser(publicKey, schnorrE, schnorrS, nonce);
+				User user = authenticateUser(auth);
 
 				boolean success = database.putRecord(user, request.getKey().toByteArray(), 
 						request.getValue().toByteArray());
@@ -287,9 +283,8 @@ public class NigoriServlet extends HttpServlet {
 
 			try {
 				String json = getJsonAsString(req, maxJsonQueryLength);
-				AuthenticateRequest request = MessageLibrary.authenticateRequestFromJson(json);
-				authenticateUser(request.getPublicKey().toByteArray(),request.getSchnorrE().toByteArray(), 
-						request.getSchnorrS().toByteArray(), request.getNonce().toByteArray());
+				AuthenticateRequest auth = MessageLibrary.authenticateRequestFromJson(json);
+				authenticateUser(auth);
 
 				emptyBody(resp);
 
