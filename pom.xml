@@ -8,9 +8,9 @@
   <name>nigori: Secrets in the Cloud</name>
   <url>http://code.google.com/p/nigori/</url>
   <modules>
-    <module>client</module>
     <module>common</module>
     <module>server</module>
+    <module>client</module>
     <module>test</module>
   </modules>
   <dependencies>
