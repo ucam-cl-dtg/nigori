@@ -58,6 +58,7 @@ public class MessageLibrary {
 		gsonBuilder.registerTypeAdapter(PutRequest.class, new TypeAdapterProtobuf());
 		gsonBuilder.registerTypeAdapter(DeleteRequest.class, new TypeAdapterProtobuf());
 		gsonBuilder.registerTypeAdapter(RegisterRequest.class, new TypeAdapterProtobuf());
+		gsonBuilder.registerTypeAdapter(UnregisterRequest.class, new TypeAdapterProtobuf());
 		gsonBuilder.registerTypeAdapter(AuthenticateRequest.class, new TypeAdapterProtobuf());
 		gsonBuilder.registerTypeAdapter(ByteString.class, new TypeAdapterByteString());
 		gsonBuilder.setPrettyPrinting();
