@@ -16,8 +16,8 @@ import org.junit.runners.Suite;
   })
 public class AcceptanceTests {
 
-  public static final int PORT = 8080;//8888;// TODO need to use a more obscure port so that don't get clashes with tomcat etc.
-  public static final String HOST = "localhost";
+  protected static final int PORT = 8888;
+  protected static final String HOST = "localhost";
   private static long startTime;
   private static final int EXTERNAL_TIMEOUT = 20000;
 
