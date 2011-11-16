@@ -97,7 +97,7 @@ public class NigoriDatastore {
    * @return whether the {@link HttpResponse#getResponseCode()} indicates success
    */
   private static boolean success(HttpResponse resp){
-    boolean success = resp.getResponseCode() == 200;
+    boolean success = resp.getResponseCode() == HttpURLConnection.HTTP_OK;
     if (!success && PRINTFAILRESPONSE) {
       System.err.println(resp.getResponseCode() + " : " + resp.getResponseMessage() + " : " + inputStreamToString(resp.getInputStream()));
     }
@@ -385,12 +385,12 @@ public class NigoriDatastore {
 			jsonResponse.append(new String(buffer, 0, bytesRead, MessageLibrary.CHARSET));
 		}
 
-		if (resp.getResponseCode() == 404) {
+		if (resp.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
 			return null; //request was successful, but no data key by that name was found.
 		}
 
 		success(resp);
-		if (resp.getResponseCode() != 200) {
+		if (resp.getResponseCode() != HttpURLConnection.HTTP_OK) {
 			throw new IOException("Server did not accept request. " + jsonResponse);
 		}
 
