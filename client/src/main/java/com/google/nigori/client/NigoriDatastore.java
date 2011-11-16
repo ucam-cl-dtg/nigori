@@ -412,11 +412,52 @@ public class NigoriDatastore {
 	 * @param key
 	 * @return true if the deletion was successful; false if no such key was found or a server error
 	 * occurred.
+	 * @throws IOException 
+	 * @throws NigoriCryptographyException 
+	 * @throws UnsupportedEncodingException 
 	 */
-	public boolean delete(byte[] key) {
-		//TODO(beresford): complete this API call
-		return false;
-	}
+  public boolean delete(byte[] index) throws UnsupportedEncodingException, NigoriCryptographyException, IOException {
+    return delete(null, index);
+  }
+
+  private boolean delete(byte[] encKey, byte[] index) throws NigoriCryptographyException, UnsupportedEncodingException, IOException {
+    byte[] encIndex;
+    if (encKey == null) {
+      encIndex = keyManager.encryptWithZeroIv(index);
+    } else {
+      encIndex = keyManager.encryptWithZeroIv(encKey, index);
+    }
+
+    String jsonRequest;
+    try {
+      jsonRequest = MessageLibrary.deleteRequestAsJson(keyManager.signer(), encIndex);
+    } catch (NoSuchAlgorithmException e) {
+      throw new NigoriCryptographyException("Platform does have required crypto support:" +
+          e.getMessage());
+    }
+
+    HttpResponse resp = post(MessageLibrary.REQUEST_DELETE,
+        jsonRequest.getBytes(MessageLibrary.CHARSET));
+
+    BufferedInputStream in = new BufferedInputStream(resp.getInputStream());
+    StringBuilder jsonResponse = new StringBuilder();
+    //TODO(beresford): optimise this buffer size
+    byte[] buffer = new byte[1024];
+    int bytesRead;
+    while((bytesRead = in.read(buffer)) != -1) {
+      jsonResponse.append(new String(buffer, 0, bytesRead, MessageLibrary.CHARSET));
+    }
+
+    if (resp.getResponseCode() ==  HttpURLConnection.HTTP_NOT_FOUND) {
+      return false; //request was successful, but no data key by that name was found.
+    }
+
+    success(resp);
+    if (resp.getResponseCode() !=  HttpURLConnection.HTTP_OK) {
+      throw new IOException("Server did not accept request. " + jsonResponse);
+    }
+    return true;
+  }
 
 	/**
 	 * Creates a new shared key suitable for use with the client-side encryption

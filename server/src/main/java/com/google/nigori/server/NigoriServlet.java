@@ -32,6 +32,7 @@ import org.apache.commons.codec.binary.Hex;
 
 import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.NigoriMessages.AuthenticateRequest;
+import com.google.nigori.common.NigoriMessages.DeleteRequest;
 import com.google.nigori.common.NigoriMessages.GetRequest;
 import com.google.nigori.common.NigoriMessages.PutRequest;
 import com.google.nigori.common.NigoriMessages.RegisterRequest;
@@ -275,6 +276,37 @@ public class NigoriServlet extends HttpServlet {
 		}
 	}
 
+	private class JsonDeleteRequestHandler implements RequestHandler {
+
+    public void handle(HttpServletRequest req, HttpServletResponse resp)
+    throws ServletException {
+
+      try {
+        String json = getJsonAsString(req, maxJsonQueryLength);
+
+        System.out.println(json);
+        DeleteRequest request = MessageLibrary.deleteRequestFromJson(json);
+        AuthenticateRequest auth = request.getAuth();
+
+        User user = authenticateUser(auth);
+
+        boolean success = database.deleteRecord(user, request.getKey().toByteArray());
+
+        if (!success) {
+          throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+              "Internal storage error for key " + Hex.encodeHexString(request.getKey().toByteArray()));
+        }
+
+        emptyBody(resp);
+
+      } catch (MessageLibrary.JsonConversionException jce) {
+        throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, "JSON format error: " + 
+            jce.getMessage());
+      }
+
+    }
+  }
+
 	private class JsonAuthenticateRequestHandler implements RequestHandler {
 
 		public void handle(HttpServletRequest req, HttpServletResponse resp)
@@ -351,6 +383,8 @@ public class NigoriServlet extends HttpServlet {
 				new JsonGetRequestHandler());
 		h.put(new RequestHandlerType(MessageLibrary.MIMETYPE_JSON, MessageLibrary.REQUEST_PUT), 
 				new JsonPutRequestHandler());
+		h.put(new RequestHandlerType(MessageLibrary.MIMETYPE_JSON, MessageLibrary.REQUEST_DELETE), 
+        new JsonDeleteRequestHandler());
 		h.put(new RequestHandlerType(MessageLibrary.MIMETYPE_JSON, MessageLibrary.REQUEST_AUTHENTICATE),
 				new JsonAuthenticateRequestHandler());
 		h.put(new RequestHandlerType(MessageLibrary.MIMETYPE_JSON, MessageLibrary.REQUEST_REGISTER),

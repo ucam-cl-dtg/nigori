@@ -26,7 +26,6 @@ import com.google.nigori.common.NigoriMessages.DeleteRequest;
 import com.google.nigori.common.NigoriMessages.GetRequest;
 import com.google.nigori.common.NigoriMessages.GetResponse;
 import com.google.nigori.common.NigoriMessages.PutRequest;
-import com.google.nigori.common.NigoriMessages.PutRequest.Builder;
 import com.google.nigori.common.NigoriMessages.RegisterRequest;
 import com.google.nigori.common.NigoriMessages.UnregisterRequest;
 import com.google.protobuf.ByteString;
@@ -127,7 +126,7 @@ public class MessageLibrary {
 	public static PutRequest putRequestAsProtobuf(SchnorrSign signer, byte[] key, byte[] value) throws NoSuchAlgorithmException {
 
 	  //TODO sign method key and value
-		Builder reqBuilder = PutRequest.newBuilder()
+	  PutRequest.Builder reqBuilder = PutRequest.newBuilder()
 		.setAuth(authenticateRequestAsProtobuf(signer))
 		.setKey(ByteString.copyFrom(key))
 		.setValue(ByteString.copyFrom(value));
@@ -151,7 +150,32 @@ public class MessageLibrary {
 		}
 	}
 
-	public static AuthenticateRequest authenticateRequestAsProtobuf(SchnorrSign signer) throws
+	public static DeleteRequest deleteRequestAsProtobuf(SchnorrSign signer, byte[] index) throws NoSuchAlgorithmException{
+	  //TODO sign index
+	  DeleteRequest.Builder delBuilder = DeleteRequest.newBuilder()
+	      .setAuth(authenticateRequestAsProtobuf(signer))
+	      .setKey(ByteString.copyFrom(index));
+
+	  DeleteRequest del = delBuilder.build();
+
+	  return del;
+	}
+
+	public static String deleteRequestAsJson(SchnorrSign signer, byte[] index) throws NoSuchAlgorithmException {
+    return gson.toJson(deleteRequestAsProtobuf(signer,index));
+  }
+
+	public static DeleteRequest deleteRequestFromJson(String json) throws JsonConversionException {
+    try {
+      return gson.fromJson(json, DeleteRequest.class);
+    } catch (JsonSyntaxException jse) {
+      throw new JsonConversionException("Invalid JSON syntax");
+    } catch (JsonParseException jse) {
+      throw new JsonConversionException("Unable to parse JSON fields into correct message format");
+    }
+  }
+
+  public static AuthenticateRequest authenticateRequestAsProtobuf(SchnorrSign signer) throws
 	NoSuchAlgorithmException {
 
 		SchnorrSignature signedNonce = signer.sign(new Nonce().toToken());

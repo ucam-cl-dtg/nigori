@@ -31,8 +31,8 @@ public class RegistrationTest {
 
   @Test
   public void test() throws NigoriCryptographyException, IOException {
-    NigoriDatastore nigori = new NigoriDatastore(AcceptanceTests.HOST, AcceptanceTests.PORT, "nigori");
-    for (int i = 0; i < 3; ++i) {// check we can do this more than once
+    NigoriDatastore nigori = AcceptanceTests.getStore();
+    for (int i = 0; i < AcceptanceTests.REPEAT; ++i) {// check we can do this more than once
       assertTrue("Not registered", nigori.register());
       assertTrue("Can't authenticate",nigori.authenticate());
       assertTrue("Can't unregister", nigori.unregister());
