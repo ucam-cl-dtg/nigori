@@ -130,6 +130,7 @@
           <unpackVersion>${appengine.version}</unpackVersion>
           <sdkDir> ${settings.localRepository}/com/google/appengine/appengine-java-sdk/${appengine.version}/appengine-java-sdk-${appengine.version}</sdkDir>
           <port>8888</port>
+          <monitorPort>8889</monitorPort>
         </configuration>
       </plugin>
       <plugin>
