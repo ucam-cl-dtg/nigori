@@ -3,7 +3,7 @@ package com.google.nigori.client;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-import com.google.nigori.client.accept.RegistrationTest;
+import com.google.nigori.client.accept.AcceptanceTests;
 
 /**
  * Tests which are expected to pass for client
@@ -13,7 +13,7 @@ import com.google.nigori.client.accept.RegistrationTest;
 @RunWith(Suite.class)
 @Suite.SuiteClasses ({
   KeyManagerTest.class,
-  RegistrationTest.class
+  AcceptanceTests.class
   })
 public class ClientTests {
 
