@@ -49,7 +49,7 @@ public class NigoriServlet extends HttpServlet {
 	private final Database database;
 
 	public NigoriServlet() {
-		this(new TestDatabase());
+		this(new AppEngineDatabase());
 	}
 
 	public NigoriServlet(Database database) {
