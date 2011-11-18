@@ -38,7 +38,7 @@ public class SetGetDeleteTest {
     }
   }
 
-  protected IndexValue[] testCases =
+  protected static final IndexValue[] testCases =
       {
           new IndexValue("index", "value"),
           new IndexValue("", "foo"),
