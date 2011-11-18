@@ -35,6 +35,12 @@ interface Database {
 	 */
 	public User getUser(byte[] publicKey) throws UserNotFoundException;
 	
+	/**
+	 * 
+	 * @param user
+	 * @param key
+	 * @return the record for the key or null if there is no record for that key
+	 */
 	public byte[] getRecord(User user, byte[] key);
 	public boolean putRecord(User user, byte[] key, byte[] data);
 	public boolean updateRecord(User user, byte[] key, byte[] data, Revision expected, Revision dataRevision);

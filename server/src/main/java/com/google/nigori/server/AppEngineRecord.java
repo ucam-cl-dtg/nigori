@@ -48,11 +48,11 @@ class AppEngineRecord {
 	@Persistent
 	private Blob value;
 
-	@Persistent
+	@Persistent(serialized = "true",types={com.google.nigori.server.IntRevision.class})
   private Revision revision;
 	
 	AppEngineRecord(Key lookup, Revision revision, byte[] value) {
-	  this.key = KeyFactory.createKey(key, "value", revision.toString());
+	  this.key = lookup;
 	  this.revision = revision;
 		this.value = new Blob(value);
 	}

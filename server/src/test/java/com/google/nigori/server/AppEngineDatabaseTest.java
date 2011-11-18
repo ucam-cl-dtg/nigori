@@ -14,7 +14,9 @@
 package com.google.nigori.server;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertArrayEquals;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
@@ -75,6 +77,20 @@ public class AppEngineDatabaseTest {
     User user = database.getUser(publicKey);
     assertTrue(database.deleteUser(user));
     assertFalse(database.haveUser(publicKey));
+  }
+
+  @Test
+  public void setGetDelete() throws UserNotFoundException {
+    assertTrue(database.addUser(publicKey));
+    User user = database.getUser(publicKey);
+    byte[] index = "index".getBytes();
+    byte[] value = "value".getBytes();
+    assertTrue(database.putRecord(user, index, value));
+    assertArrayEquals(value,database.getRecord(user, index));
+    assertTrue(database.deleteRecord(user, index));
+    assertNull(database.getRecord(user, index));
+    assertFalse(database.deleteRecord(user, index));
+    assertTrue(database.deleteUser(user));
   }
 
   @After

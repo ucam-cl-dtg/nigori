@@ -123,6 +123,8 @@ public final class AppEngineDatabase implements Database {
           pm.getObjectById(AppEngineRecord.class, KeyFactory.createKey(lookup.getKey(),
               AppEngineRecord.class.getSimpleName(), revision.toString()));
       return record.getValue();
+    } catch (JDOObjectNotFoundException e) {
+      return null;
     } finally {
       pm.close();
     }
@@ -131,13 +133,25 @@ public final class AppEngineDatabase implements Database {
   @Override
   public boolean putRecord(User user, byte[] key, byte[] data) {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
+    //TODO(drt24): Do revisions properly
+    Revision revision = new IntRevision(0);
     try {
-      
+      Key lookupKey = Lookup.makeKey(user, key);
+      Lookup lookup;
+      try {
+        lookup = pm.getObjectById(Lookup.class, lookupKey);
+      } catch (JDOObjectNotFoundException e) {
+        lookup = new Lookup(lookupKey, revision);
+        pm.makePersistent(lookup);
+      }
+      AppEngineRecord record =
+          new AppEngineRecord(KeyFactory.createKey(lookup.getKey(), AppEngineRecord.class
+              .getSimpleName(), revision.toString()), revision, data);
+      pm.makePersistent(record);
+      return true;
     } finally {
-      
+      pm.close();
     }
-    // TODO Auto-generated method stub
-    return false;
   }
 
   @Override
@@ -149,8 +163,27 @@ public final class AppEngineDatabase implements Database {
 
   @Override
   public boolean deleteRecord(User user, byte[] key) {
-    // TODO Auto-generated method stub
-    return false;
+    PersistenceManager pm = pmfInstance.getPersistenceManager();
+    try {
+      Key lookupKey = Lookup.makeKey(user, key);
+      Lookup lookup = pm.getObjectById(Lookup.class, lookupKey);
+      Revision revision = lookup.getCurrentRevision();
+      // TODO(drt24) multiple revisions
+      try {
+        AppEngineRecord record =
+            pm.getObjectById(AppEngineRecord.class, KeyFactory.createKey(lookup.getKey(),
+                AppEngineRecord.class.getSimpleName(), revision.toString()));
+        pm.deletePersistent(record);
+      } finally {// even if there is no value the key still needs to be deleted - but we haven't
+                 // actually done a delete
+        pm.deletePersistent(lookup);
+      }
+      return true;
+    } catch (JDOObjectNotFoundException e) {
+      return false;
+    } finally {
+      pm.close();
+    }
   }
 
   	/**

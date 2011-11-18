@@ -34,7 +34,7 @@ public class Lookup {
   @Persistent
   private Key key;
 
-  @Persistent
+  @Persistent(serialized = "true",types={com.google.nigori.server.IntRevision.class})
   private Revision currentRevision;
 
   public Lookup(Key key, Revision revision){
