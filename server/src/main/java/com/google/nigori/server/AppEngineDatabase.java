@@ -27,8 +27,6 @@ import com.google.appengine.api.datastore.KeyFactory;
 
 public final class AppEngineDatabase implements Database {
 
-  // private static final String USERSKEY = "users";
-  protected static final Key USERSKEY = KeyFactory.createKey("users", "users");
   protected static final String STORE = "store";
 
   private static final PersistenceManagerFactory pmfInstance = JDOHelper

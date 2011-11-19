@@ -39,9 +39,13 @@ import com.google.protobuf.ByteString;
 public class User implements Principal {
 
   @NotPersistent
+  protected static final Key USERSKEY = KeyFactory.createKey("users", "users");
+
+  @NotPersistent
   public static final int MIN_USERNAME_LENGTH = 6;
   @NotPersistent
   public static final int MIN_PUBLIC_KEY_LENGTH = NigoriConstants.B_DSA;
+
   @PrimaryKey
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   private Key key;
@@ -51,7 +55,7 @@ public class User implements Principal {
   private Date registrationDate;
 
   public static Key keyForUser(byte[] publicKey) {
-    return KeyFactory.createKey(AppEngineDatabase.USERSKEY, User.class.getSimpleName(), ByteString
+    return KeyFactory.createKey(USERSKEY, User.class.getSimpleName(), ByteString
         .copyFrom(publicKey).toStringUtf8());
   }
 
