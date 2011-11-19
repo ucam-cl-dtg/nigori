@@ -16,6 +16,7 @@
 package com.google.nigori.client.accept;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -59,6 +60,7 @@ public class SetGetDeleteTest {
         assertArrayEquals("Got different" + i, value, nigori.get(index));
         assertTrue("Not deleted" + i, nigori.delete(index));
         assertNull("Not deleted" + i, nigori.get(index));
+        assertFalse("Could redelete",nigori.delete(index));
       }
       // allow them to accumulate
       for (IndexValue iv : testCases) {

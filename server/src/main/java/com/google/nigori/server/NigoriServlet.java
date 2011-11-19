@@ -289,8 +289,13 @@ public class NigoriServlet extends HttpServlet {
         AuthenticateRequest auth = request.getAuth();
 
         User user = authenticateUser(auth);
+        byte[] index = request.getKey().toByteArray();
+        boolean exists = database.getRecord(user, index) != null;
+        if (! exists){
+          throw new ServletException(HttpServletResponse.SC_NOT_FOUND, "No such key: " + Hex.encodeHexString(request.getKey().toByteArray()) );
+        }
 
-        boolean success = database.deleteRecord(user, request.getKey().toByteArray());
+        boolean success = database.deleteRecord(user, index);
 
         if (!success) {
           throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
