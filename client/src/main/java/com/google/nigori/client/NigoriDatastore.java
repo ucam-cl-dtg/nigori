@@ -454,7 +454,7 @@ public class NigoriDatastore {
 
     success(resp);
     if (resp.getResponseCode() !=  HttpURLConnection.HTTP_OK) {
-      throw new IOException("Server did not accept request. " + jsonResponse);
+      throw new IOException("Server did not accept request("+ resp.getResponseCode() + "). " + jsonResponse);
     }
     return true;
   }
