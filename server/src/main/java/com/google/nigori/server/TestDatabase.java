@@ -38,6 +38,9 @@ public class TestDatabase implements Database {
 	@Override
 	public boolean addUser(byte[] publicKey) {
 		//TODO(beresford): check authority to carry out action
+	  if (haveUser(publicKey)){
+	    return false;
+	  }
 	  User user = new User(publicKey, new Date());
 		users.put(ByteString.copyFrom(publicKey),user);
 		stores.put(user, new HashMap<ByteString, ByteString>());
@@ -45,8 +48,8 @@ public class TestDatabase implements Database {
 	}
 	
 	@Override
-	public boolean haveUser(byte[] user) {
-		return users.containsKey(ByteString.copyFrom(user));
+	public boolean haveUser(byte[] publicKey) {
+		return users.containsKey(ByteString.copyFrom(publicKey));
 	}
 
 	@Override
@@ -106,7 +109,6 @@ public class TestDatabase implements Database {
 	@Override
 	public boolean deleteRecord(User user, byte[] key) {
 		//TODO(beresford): check authority to carry out action
-	  stores.get(user).remove(ByteString.copyFrom(key));
-		return true;
+	  return stores.get(user).remove(ByteString.copyFrom(key)) != null;
 	}
 }
