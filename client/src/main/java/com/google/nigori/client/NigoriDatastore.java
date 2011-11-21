@@ -38,6 +38,8 @@ import com.google.nigori.common.NigoriMessages.GetResponse;
  * 
  * @author Alastair Beresford
  *
+ * It is worth looking at {@link java.util.Collection} but we can't implement that or most of the methods in it until we have a "list indexes" method which at least for now we don't intend to do.
+ * putAll from {@link java.util.Map} might be worth implementing
  */
 public class NigoriDatastore {
 
