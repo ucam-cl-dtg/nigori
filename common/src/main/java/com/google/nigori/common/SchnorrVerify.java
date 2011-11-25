@@ -77,8 +77,6 @@ public class SchnorrVerify {
    */
   public boolean verify(SchnorrSignature sig) throws NoSuchAlgorithmException {
 
-    MessageDigest  m = MessageDigest.getInstance(DIGEST_ALGORITHM);
-
     //r = (pow(self.g, s, self.p) * pow(self.publicKey, e, self.p)) % self.p
     BigInteger e = new BigInteger(positiveIntToTwosCompliment(sig.getE()));
     BigInteger s = new BigInteger(positiveIntToTwosCompliment(sig.getS()));
@@ -89,6 +87,8 @@ public class SchnorrVerify {
     byte[] messageAndR = new byte[message.length + rAsBytes.length];
     System.arraycopy(message, 0, messageAndR, 0, message.length);
     System.arraycopy(rAsBytes, 0, messageAndR, message.length, rAsBytes.length);
+
+    MessageDigest  m = MessageDigest.getInstance(DIGEST_ALGORITHM);
     m.update(messageAndR);
     byte[] newE = m.digest();
 
