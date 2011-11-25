@@ -41,7 +41,7 @@ public class TestDatabase implements Database {
 	  if (haveUser(publicKey)){
 	    return false;
 	  }
-	  User user = new User(publicKey, new Date());
+	  User user = new JUser(publicKey, new Date());
 		users.put(ByteString.copyFrom(publicKey),user);
 		stores.put(user, new HashMap<ByteString, ByteString>());
 		return true;
@@ -111,4 +111,9 @@ public class TestDatabase implements Database {
 		//TODO(beresford): check authority to carry out action
 	  return stores.get(user).remove(ByteString.copyFrom(key)) != null;
 	}
+
+  @Override
+  public UserFactory getUserFactory() {
+    return JUser.Factory.getInstance();
+  }
 }

@@ -50,7 +50,7 @@ public class Lookup {
     return currentRevision;
   }
 
-  public static Key makeKey(User user, byte[] key){
+  public static Key makeKey(AEUser user, byte[] key){
     return KeyFactory.createKey(KeyFactory.createKey(user.getKey(),AppEngineDatabase.STORE,AppEngineDatabase.STORE),Lookup.class.getSimpleName(),Hex.encodeHexString(key));
   }
 }

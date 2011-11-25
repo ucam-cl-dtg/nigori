@@ -23,6 +23,8 @@ package com.google.nigori.server;
  */
 interface Database {
 	
+  UserFactory getUserFactory();
+  
 	public boolean addUser(byte[] publicKey);
 	public boolean haveUser(byte[] existingUser);
 	public boolean deleteUser(User existingUser);

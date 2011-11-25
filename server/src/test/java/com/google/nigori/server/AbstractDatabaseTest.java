@@ -63,7 +63,7 @@ public abstract class AbstractDatabaseTest {
 
   @Test
   public void deleteNotPresent() {
-    assertFalse(database.deleteUser(new User("non existant user key".getBytes(), new Date())));
+    assertFalse(database.deleteUser(database.getUserFactory().getUser("non existant user key".getBytes(), new Date())));
   }
 
   @Test

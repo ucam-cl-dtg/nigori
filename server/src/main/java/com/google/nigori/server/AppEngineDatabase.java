@@ -32,15 +32,15 @@ public final class AppEngineDatabase implements Database {
   private static final PersistenceManagerFactory pmfInstance = JDOHelper
       .getPersistenceManagerFactory("transactions-optional");
 
-  private User getUser(byte[] publicKey, PersistenceManager pm) throws JDOObjectNotFoundException {
-    return pm.getObjectById(User.class, User.keyForUser(publicKey));
+  private AEUser getUser(byte[] publicKey, PersistenceManager pm) throws JDOObjectNotFoundException {
+    return pm.getObjectById(AEUser.class, AEUser.keyForUser(publicKey));
   }
 
   private boolean haveUser(byte[] existingUser, PersistenceManager pm) {
     assert pm != null;
     assert existingUser != null;
     try {
-      User existing = getUser(existingUser,pm);
+      AEUser existing = getUser(existingUser,pm);
       if (existing != null) {
         return true;
       } else {
@@ -66,7 +66,7 @@ public final class AppEngineDatabase implements Database {
 
   @Override
   public boolean addUser(byte[] publicKey) throws IllegalArgumentException {
-    User user = new User(publicKey, new Date());
+    AEUser user = new AEUser(publicKey, new Date());
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {
       if (haveUser(publicKey, pm)) {
@@ -83,7 +83,7 @@ public final class AppEngineDatabase implements Database {
   public boolean deleteUser(User existingUser) {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {
-      User existing = pm.getObjectById(User.class, User.keyForUser(existingUser.getPublicKey()));
+      AEUser existing = pm.getObjectById(AEUser.class, AEUser.keyForUser(existingUser.getPublicKey()));
       if (existing != null) {
         pm.deletePersistent(existing);
         return true;
@@ -98,10 +98,10 @@ public final class AppEngineDatabase implements Database {
   }
 
   @Override
-  public User getUser(byte[] publicKey) throws UserNotFoundException {
+  public AEUser getUser(byte[] publicKey) throws UserNotFoundException {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {
-      User user = getUser(publicKey, pm);
+      AEUser user = getUser(publicKey, pm);
       return user;
     } catch (JDOObjectNotFoundException e) {
       throw new UserNotFoundException();
@@ -110,11 +110,18 @@ public final class AppEngineDatabase implements Database {
     }
   }
 
+  private Key getLookupKey(User user, byte[] key) {
+    if (! (user instanceof AEUser)){
+      throw new IllegalArgumentException("Must be an AEUser: " + user.getClass().getCanonicalName());
+      //TODO(drt24): 
+    }
+    return Lookup.makeKey((AEUser)user, key);
+  }
   @Override
   public byte[] getRecord(User user, byte[] key) {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {
-      Key lookupKey = Lookup.makeKey(user, key);
+      Key lookupKey = getLookupKey(user,key);
       Lookup lookup = pm.getObjectById(Lookup.class, lookupKey);
       Revision revision = lookup.getCurrentRevision();
       AppEngineRecord record =
@@ -134,7 +141,7 @@ public final class AppEngineDatabase implements Database {
     //TODO(drt24): Do revisions properly
     Revision revision = new IntRevision(0);
     try {
-      Key lookupKey = Lookup.makeKey(user, key);
+      Key lookupKey = getLookupKey(user,key);
       Lookup lookup;
       try {
         lookup = pm.getObjectById(Lookup.class, lookupKey);
@@ -163,7 +170,7 @@ public final class AppEngineDatabase implements Database {
   public boolean deleteRecord(User user, byte[] key) {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {
-      Key lookupKey = Lookup.makeKey(user, key);
+      Key lookupKey = getLookupKey(user,key);
       Lookup lookup = pm.getObjectById(Lookup.class, lookupKey);
       Revision revision = lookup.getCurrentRevision();
       // TODO(drt24) multiple revisions
@@ -182,6 +189,11 @@ public final class AppEngineDatabase implements Database {
     } finally {
       pm.close();
     }
+  }
+
+  @Override
+  public UserFactory getUserFactory() {
+    return AEUser.Factory.getInstance();
   }
 
   	/**

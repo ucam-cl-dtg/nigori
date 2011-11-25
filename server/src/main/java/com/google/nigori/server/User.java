@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Daniel Thomas (drt24)
+ * Copyright (C) 2011 Daniel R. Thomas (drt24)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,113 +14,30 @@
 package com.google.nigori.server;
 
 import java.security.Principal;
-import java.util.Arrays;
 import java.util.Date;
 
-import javax.jdo.annotations.IdGeneratorStrategy;
-import javax.jdo.annotations.NotPersistent;
-import javax.jdo.annotations.PersistenceCapable;
-import javax.jdo.annotations.Persistent;
-import javax.jdo.annotations.PrimaryKey;
-
-import org.apache.commons.codec.binary.Hex;
-
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.ShortBlob;
-import com.google.nigori.common.NigoriConstants;
-import com.google.protobuf.ByteString;
-
 /**
+ * Interface for objects representing users detailing their public key and registration date.
  * @author drt24
  * 
  */
-@PersistenceCapable
-public class User implements Principal {
+public interface User extends Principal {
 
-  @NotPersistent
-  protected static final Key USERSKEY = KeyFactory.createKey("users", "users");
+  /**
+   * Handle for representing the user, based on their public key - a human supplied identifier
+   * should never reach the server unencrypted.
+   */
+  String getName();
+  /**
+   * 
+   * @return the public key for the user
+   */
+  byte[] getPublicKey();
 
-  @NotPersistent
-  public static final int MIN_USERNAME_LENGTH = 6;
-  @NotPersistent
-  public static final int MIN_PUBLIC_KEY_LENGTH = NigoriConstants.B_DSA;
-
-  @PrimaryKey
-  @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-  private Key key;
-  @Persistent
-  private ShortBlob publicKey;
-  @Persistent
-  private Date registrationDate;
-
-  public static Key keyForUser(byte[] publicKey) {
-    return KeyFactory.createKey(USERSKEY, User.class.getSimpleName(), ByteString
-        .copyFrom(publicKey).toStringUtf8());
-  }
-
-  protected User(byte[] publicKey, Date registrationDate)
-      throws IllegalArgumentException {
-    assert publicKey != null;
-    assert registrationDate != null;
-    if (publicKey.length < MIN_PUBLIC_KEY_LENGTH) {
-      throw new IllegalArgumentException("Public key too short, must be at least"
-          + MIN_PUBLIC_KEY_LENGTH + " but was (" + publicKey.length + ")");
-    }
-    this.publicKey = new ShortBlob(publicKey);
-    this.registrationDate = registrationDate;
-    this.key = keyForUser(publicKey);
-  }
-
-  public Key getKey() {
-    return key;
-  }
-
-  @Override
-  public String getName() {
-    return Hex.encodeHexString(getPublicKey());
-  }
-
-  public byte[] getPublicKey() {
-    byte[] pkB = publicKey.getBytes();
-    return Arrays.copyOf(pkB, pkB.length);
-  }
-
-  public Date getRegistrationDate() {
-    return registrationDate;
-  }
-
-  @Override
-  public String toString() {
-    return getName();// + " reg: " + registrationDate;//TODO use a sensible date format.
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((key == null) ? 0 : key.hashCode());
-    result = prime * result + publicKey.hashCode();
-    return result;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    User other = (User) obj;
-    if (key == null) {
-      if (other.key != null)
-        return false;
-    } else if (!key.equals(other.key))
-      return false;
-    if (!publicKey.equals(other.publicKey))
-      return false;
-    return true;
-  }
+  /**
+   * 
+   * @return the date the user registered their public key
+   */
+  Date getRegistrationDate();
 
 }

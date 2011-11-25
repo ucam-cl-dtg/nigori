@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 
 import com.google.nigori.common.MessageLibrary;
@@ -263,7 +264,7 @@ public class NigoriServlet extends HttpServlet {
 
 				if (!success) {
 					throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, 
-							"Internal storage error for key " + Hex.encodeHexString(request.getKey().toByteArray()));
+							"Internal storage error for key " + Base64.encodeBase64String(request.getKey().toByteArray()));
 				}
 
 				emptyBody(resp);
@@ -292,14 +293,14 @@ public class NigoriServlet extends HttpServlet {
         byte[] index = request.getKey().toByteArray();
         boolean exists = database.getRecord(user, index) != null;
         if (! exists){
-          throw new ServletException(HttpServletResponse.SC_NOT_FOUND, "No such key: " + Hex.encodeHexString(request.getKey().toByteArray()) );
+          throw new ServletException(HttpServletResponse.SC_NOT_FOUND, "No such key: " + Base64.encodeBase64String(request.getKey().toByteArray()) );
         }
 
         boolean success = database.deleteRecord(user, index);
 
         if (!success) {
           throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-              "Internal storage error for key " + Hex.encodeHexString(request.getKey().toByteArray()));
+              "Internal storage error for key " + Base64.encodeBase64String(request.getKey().toByteArray()));
         }
 
         emptyBody(resp);
@@ -344,7 +345,7 @@ public class NigoriServlet extends HttpServlet {
 				boolean success = database.addUser(request.getPublicKey().toByteArray());
 				if(!success) {
 					throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-							"Adding user " + Hex.encodeHexString(request.getPublicKey().toByteArray()) + " failed");
+							"Adding user " + Base64.encodeBase64String(request.getPublicKey().toByteArray()) + " failed");
 				}
 				emptyBody(resp);
 
@@ -368,7 +369,7 @@ public class NigoriServlet extends HttpServlet {
         boolean success = database.deleteUser(user);
         if(!success) {
           throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-              "Adding user " + Hex.encodeHexString(auth.getPublicKey().toByteArray()) + " failed");
+              "Adding user " + Base64.encodeBase64String(auth.getPublicKey().toByteArray()) + " failed");
         }
         emptyBody(resp);
 

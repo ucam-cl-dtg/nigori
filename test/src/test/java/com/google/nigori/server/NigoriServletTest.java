@@ -69,7 +69,7 @@ public class NigoriServletTest {
 				"username".getBytes(MessageLibrary.CHARSET),
 				"password".getBytes(MessageLibrary.CHARSET));
 		//TODO need to correctly create user
-		user = new User(keyManager.signer().getPublicKey(), new Date());
+		user = new AEUser(keyManager.signer().getPublicKey(), new Date());
 	}
 
 	@After
