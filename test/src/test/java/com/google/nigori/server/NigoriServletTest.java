@@ -40,6 +40,7 @@ import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestC
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.nigori.client.KeyManager;
 import com.google.nigori.common.MessageLibrary;
+import com.google.nigori.common.Nonce;
 import com.google.nigori.common.NigoriMessages.GetRequest;
 import com.google.nigori.common.NigoriMessages.GetResponse;
 import com.google.protobuf.Descriptors.FieldDescriptor;
@@ -128,7 +129,13 @@ public class NigoriServletTest {
 		response.setContentType(MessageLibrary.MIMETYPE_JSON);
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.flushBuffer();
-	}
+  }
+
+  private void expectedCallsToAuthenticateUser(byte[] publicKey) throws UserNotFoundException {
+    expect(database.checkAndAddNonce(anyObject(Nonce.class), anyObject(byte[].class))).andReturn(true);
+    expect(database.getUser(aryEq(publicKey))).andReturn(user);
+    expect(database.haveUser(aryEq(publicKey))).andReturn(true);
+  }
 
 	private void runReplayVerifyWithDoPost(ServletOutputStream out) throws IOException {
 		
@@ -157,8 +164,7 @@ public class NigoriServletTest {
 		
 		final String json = MessageLibrary.getRequestAsJson(keyManager.signer(), key);
 		expectedCallsForJsonRequest(json, MessageLibrary.REQUEST_GET);
-		expect(database.getUser(aryEq(publicKey))).andReturn(user);
-		expect(database.haveUser(aryEq(publicKey))).andReturn(true);
+		expectedCallsToAuthenticateUser(publicKey);
 		expect(database.getRecord(eq(user), aryEq(key))).andReturn(null);
 		ServletOutputStream out = expectedCallsForErrorResponse(HttpServletResponse.SC_NOT_FOUND);
 
@@ -174,8 +180,7 @@ public class NigoriServletTest {
 		
 		final String jsonPut = MessageLibrary.putRequestAsJson(keyManager.signer(), key, value);
 		expectedCallsForJsonRequest(jsonPut, MessageLibrary.REQUEST_PUT);
-		expect(database.getUser(aryEq(publicKey))).andReturn(user);
-		expect(database.haveUser(aryEq(publicKey))).andReturn(true);
+		expectedCallsToAuthenticateUser(publicKey);
 		expect(database.putRecord(eq(user), aryEq(key), aryEq(value))).andReturn(true);
 		expectedCallsToOutputOkay();
 		
@@ -191,8 +196,7 @@ public class NigoriServletTest {
 
 		final String jsonGet = MessageLibrary.getRequestAsJson(keyManager.signer(), key);
 		expectedCallsForJsonRequest(jsonGet, MessageLibrary.REQUEST_GET);
-		expect(database.getUser(aryEq(publicKey))).andReturn(user);
-		expect(database.haveUser(aryEq(publicKey))).andReturn(true);
+		expectedCallsToAuthenticateUser(publicKey);
 		expect(database.getRecord(eq(user), aryEq(key))).andReturn(value);
 		ServletOutputStream out = expectedCallsForJsonResponse();
 		Capture<byte[]> result = new Capture<byte[]>();

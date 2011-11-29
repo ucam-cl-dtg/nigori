@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
 
 import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.NigoriMessages.AuthenticateRequest;
@@ -163,29 +162,30 @@ public class NigoriServlet extends HttpServlet {
     SchnorrSignature sig = new SchnorrSignature(schnorrS, schnorrE, nonce);
     try {
       SchnorrVerify v = new SchnorrVerify(publicKey);
-      Nonce n = new Nonce(sig.getMessage());
-      // TODO(beresford): Put this constant in server configuration and use this to timeout storage
-      // of random nonce values out of the database (when we start to store them!).
-      boolean timestampRecent =
-          n.getSinceEpoch() - System.currentTimeMillis() / 1000 < 60 * 60 * 24 * 2;
-      // TODO(beresford): Must check that n.getRandom() has not be used before.
-      // Must avoid race condition when random number is used multiple times quickly
-      boolean nonceUnique = true;
-      boolean userExists = database.haveUser(publicKey);
 
-      try {
-        if (v.verify(sig) && timestampRecent && nonceUnique && userExists) {
-          return database.getUser(publicKey);
+      if (v.verify(sig)) {
+        Nonce n = new Nonce(sig.getMessage());
+        boolean validNonce = database.checkAndAddNonce(n, publicKey);
+
+        boolean userExists = database.haveUser(publicKey);
+        if (validNonce && userExists) {
+          try {
+            return database.getUser(publicKey);
+          } catch (UserNotFoundException e) {
+            // TODO(drt24): potential security vulnerability - user existence oracle.
+            throw new ServletException(HttpServletResponse.SC_UNAUTHORIZED, "No such user");
+          }
+        } else {
+          throw new ServletException(HttpServletResponse.SC_FORBIDDEN,
+              "Invalid nonce or no such user");
         }
-      } catch (NoSuchAlgorithmException nsae) {
-        throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-            "Internal error attempting to verify signature");
+      } else {
+        throw new ServletException(HttpServletResponse.SC_UNAUTHORIZED, "The signature is invalid");
       }
-    } catch (UserNotFoundException e) {
-      // TODO(drt24): potential security vulnerability - user existence oracle.
-      throw new ServletException(HttpServletResponse.SC_NOT_FOUND, "No such user");
+    } catch (NoSuchAlgorithmException nsae) {
+      throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+          "Internal error attempting to verify signature");
     }
-    throw new ServletException(HttpServletResponse.SC_UNAUTHORIZED, "The signature is invalid");
   }
 
 	/**

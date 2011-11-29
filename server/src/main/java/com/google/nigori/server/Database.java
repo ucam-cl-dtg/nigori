@@ -15,6 +15,8 @@
  */
 package com.google.nigori.server;
 
+import com.google.nigori.common.Nonce;
+
 /**
  * API required by Nigori to save user data.
  * 
@@ -29,6 +31,18 @@ interface Database {
 	public boolean haveUser(byte[] existingUser);
 	public boolean deleteUser(User existingUser);
 	
+	/**
+	 * Check that the Nonce has not been used while the timestamp it is for has been valid.
+	 * If it has not been used before it now has been and so future calls with that Nonce will return false.
+	 * @param nonce
+	 * @return
+	 */
+	// TODO(beresford): Put this constant in server configuration and use this to timeout
+	// storage of random nonce values out of the database (when we start to store them!).
+	// TODO(beresford): Must avoid race condition when random number is used multiple times
+	// quickly
+	public boolean checkAndAddNonce(Nonce nonce, byte[] publicKey);
+
 	/**
 	 * WARNING: great care must be taken when using this, the user must be authenticated correctly before any user object can be used on their behalf
 	 * @param publicKey

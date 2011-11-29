@@ -17,8 +17,11 @@ package com.google.nigori.server;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import com.google.nigori.common.Nonce;
 import com.google.protobuf.ByteString;
 
 /**
@@ -34,6 +37,7 @@ public class TestDatabase implements Database {
 
 	private HashMap<User,Map<ByteString, ByteString>> stores = new HashMap<User,Map<ByteString, ByteString>>();
 	private HashMap<ByteString,User> users = new HashMap<ByteString,User>();
+	private HashMap<ByteString,Set<Nonce>> nonces = new HashMap<ByteString,Set<Nonce>>();
 
 	@Override
 	public boolean addUser(byte[] publicKey) {
@@ -115,5 +119,25 @@ public class TestDatabase implements Database {
   @Override
   public UserFactory getUserFactory() {
     return JUser.Factory.getInstance();
+  }
+
+  @Override
+  public boolean checkAndAddNonce(Nonce nonce, byte[] publicKey) {
+    //TODO(drt24) old nonces are never pruned
+    if (!nonce.isRecent()){
+      return false;
+    }
+    ByteString pk = ByteString.copyFrom(publicKey);
+    Set<Nonce> nonceSet = nonces.get(pk);
+    if (nonceSet == null){
+      nonceSet = new HashSet<Nonce>();
+      nonces.put(pk,nonceSet);
+    }
+    if (nonceSet.contains(nonce))
+      return false;
+    else {
+      nonceSet.add(nonce);
+      return true;
+    }
   }
 }

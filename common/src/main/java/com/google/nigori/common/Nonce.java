@@ -66,6 +66,9 @@ public class Nonce {
   public int getSinceEpoch() {
   	return sinceEpoch;
   }
+  public boolean isRecent() {
+    return sinceEpoch - System.currentTimeMillis() / 1000 < 60 * 60 * 24 * 2;
+  }
   
   public int getRandon() {
   	return random;

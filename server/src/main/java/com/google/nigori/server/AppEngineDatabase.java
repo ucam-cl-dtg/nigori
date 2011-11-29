@@ -24,6 +24,7 @@ import javax.jdo.PersistenceManagerFactory;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.nigori.common.Nonce;
 
 public final class AppEngineDatabase implements Database {
 
@@ -194,6 +195,27 @@ public final class AppEngineDatabase implements Database {
   @Override
   public UserFactory getUserFactory() {
     return AEUser.Factory.getInstance();
+  }
+
+  @Override
+  public boolean checkAndAddNonce(Nonce nonce, byte[] publicKey) {
+    if (!nonce.isRecent()) {
+      return false;
+    }
+    PersistenceManager pm = pmfInstance.getPersistenceManager();
+    try {
+      AENonce aeNonce = new AENonce(nonce,publicKey);
+      try {
+        pm.getObjectById(AENonce.class,aeNonce.getKey());
+        return false;// getObjectById should throw an exception
+      } catch (JDOObjectNotFoundException e) {
+        // We haven't seen this nonce yet so add it and return true
+        pm.makePersistent(aeNonce);
+        return true;
+      }
+    } finally {
+      pm.close();
+    }
   }
 
   	/**

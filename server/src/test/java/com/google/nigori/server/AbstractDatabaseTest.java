@@ -26,6 +26,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.nigori.common.MessageLibrary;
+import com.google.nigori.common.Nonce;
 
 /**
  * @author drt24
@@ -90,5 +91,16 @@ public abstract class AbstractDatabaseTest {
     assertFalse(database.deleteRecord(user, index));
     assertTrue(database.deleteUser(user));
   }
+  @Test
+  public void newNoncePasses() {
+    Nonce nonce = new Nonce();
+    assertTrue(database.checkAndAddNonce(nonce,publicKey));
+  }
 
+  @Test
+  public void repeatedNonceFails() {
+    Nonce nonce = new Nonce();
+    assertTrue(database.checkAndAddNonce(nonce,publicKey));
+    assertFalse(database.checkAndAddNonce(nonce,publicKey));
+  }
 }
