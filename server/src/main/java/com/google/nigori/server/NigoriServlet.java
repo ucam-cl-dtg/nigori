@@ -173,10 +173,11 @@ public class NigoriServlet extends HttpServlet {
             return database.getUser(publicKey);
           } catch (UserNotFoundException e) {
             // TODO(drt24): potential security vulnerability - user existence oracle.
+            // Should not happen often - is only possible due to concurrency
             throw new ServletException(HttpServletResponse.SC_UNAUTHORIZED, "No such user");
           }
         } else {
-          throw new ServletException(HttpServletResponse.SC_FORBIDDEN,
+          throw new ServletException(HttpServletResponse.SC_UNAUTHORIZED,
               "Invalid nonce or no such user");
         }
       } else {
@@ -326,7 +327,7 @@ public class NigoriServlet extends HttpServlet {
 				emptyBody(resp);
 
 			} catch (MessageLibrary.JsonConversionException jce) {
-				throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, "JSON format error: " + 
+				throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, "JSON format error: " +
 						jce.getMessage());
 			}
 
