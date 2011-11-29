@@ -53,7 +53,7 @@ public final class AppEngineDatabase implements Database {
   }
 
   @Override
-  public boolean haveUser(byte[] existingUserPK) {
+  public boolean haveUser(byte[] existingUserPK) throws IllegalArgumentException {
     if (existingUserPK == null) {
       throw new IllegalArgumentException("Null existingUser");
     }
@@ -113,8 +113,7 @@ public final class AppEngineDatabase implements Database {
 
   private Key getLookupKey(User user, byte[] key) {
     if (! (user instanceof AEUser)){
-      throw new IllegalArgumentException("Must be an AEUser: " + user.getClass().getCanonicalName());
-      //TODO(drt24): 
+      user = new AEUser(user.getPublicKey(), user.getRegistrationDate());
     }
     return Lookup.makeKey((AEUser)user, key);
   }
