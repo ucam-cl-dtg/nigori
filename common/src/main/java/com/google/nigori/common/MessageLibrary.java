@@ -71,22 +71,22 @@ public class MessageLibrary {
 		}
 	}
 
-	public static GetRequest getRequestAsProtobuf(SchnorrSign signer, byte[] key) throws 
+	public static GetRequest getRequestAsProtobuf(SchnorrSign signer, byte[] index) throws 
 	NoSuchAlgorithmException {
 
-		//TODO sign key and method
+		//TODO sign index and method
 		
 		GetRequest req = GetRequest.newBuilder()
 		.setAuth(authenticateRequestAsProtobuf(signer))
-		.setKey(ByteString.copyFrom(key))
+		.setKey(ByteString.copyFrom(index))
 		.build();
 
 		return req;
 	}
 
-	public static String getRequestAsJson(SchnorrSign signer, byte[] key) throws
+	public static String getRequestAsJson(SchnorrSign signer, byte[] index) throws
 	NoSuchAlgorithmException {
-		return gson.toJson(getRequestAsProtobuf(signer, key));
+		return gson.toJson(getRequestAsProtobuf(signer, index));
 	}
 
 	public static GetRequest getRequestFromJson(String json)  throws JsonConversionException {
@@ -123,12 +123,12 @@ public class MessageLibrary {
 		}
 	}
 
-	public static PutRequest putRequestAsProtobuf(SchnorrSign signer, byte[] key, byte[] value) throws NoSuchAlgorithmException {
+	public static PutRequest putRequestAsProtobuf(SchnorrSign signer, byte[] index, byte[] value) throws NoSuchAlgorithmException {
 
-	  //TODO sign method key and value
+	  //TODO sign method index and value
 	  PutRequest.Builder reqBuilder = PutRequest.newBuilder()
 		.setAuth(authenticateRequestAsProtobuf(signer))
-		.setKey(ByteString.copyFrom(key))
+		.setKey(ByteString.copyFrom(index))
 		.setValue(ByteString.copyFrom(value));
 		
 		PutRequest req = reqBuilder.build();
@@ -136,8 +136,8 @@ public class MessageLibrary {
 		return req;
 	}
 
-	public static String putRequestAsJson(SchnorrSign signer, byte[] key, byte[] value) throws	NoSuchAlgorithmException {
-		return gson.toJson(putRequestAsProtobuf(signer, key, value));
+	public static String putRequestAsJson(SchnorrSign signer, byte[] index, byte[] value) throws	NoSuchAlgorithmException {
+		return gson.toJson(putRequestAsProtobuf(signer, index, value));
 	}
 
 	public static PutRequest putRequestFromJson(String json) throws JsonConversionException {
