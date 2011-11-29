@@ -16,11 +16,14 @@
 package com.google.nigori.client.accept;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 import org.junit.Test;
@@ -34,6 +37,26 @@ public class ConcurrencyTest {
   private static final int THREADS = 8;
   protected boolean failed = false;
 
+  private void startThenJoinThreads(Thread[] threads){
+    for (Thread t : threads){
+      t.start();
+    }
+    for (Thread t : threads){
+      try {
+        t.join();
+      } catch (InterruptedException e) {// just continue
+      }
+    }
+  }
+  private void ifFailedPrintFailures(boolean failed, List<Exception> exceptionList){
+    if (failed){
+      System.err.println("Exceptions during concurrency testing");
+      for (Exception e : exceptionList){
+        e.printStackTrace();
+      }
+      fail("Exceptions during concurrency testing");
+    }
+  }
   /**
    * Test that multiple users can do stuff at the same time.
    * @throws NigoriCryptographyException
@@ -41,8 +64,10 @@ public class ConcurrencyTest {
    */
   @Test
   public void multiUserConcurrency() throws NigoriCryptographyException, IOException {
+    failed = false;
     Thread[] threads = new Thread[THREADS];
 
+    final List<Exception> exceptionList = Collections.synchronizedList(new LinkedList<Exception>());
     for (int j = 0; j < THREADS; ++j) {
       threads[j] = new Thread() {
         public void run() {
@@ -63,28 +88,20 @@ public class ConcurrencyTest {
               assertTrue(nigori.unregister());
             }
           } catch (NullPointerException e) {
+            failed = true;
+            exceptionList.add(e);
           } catch (IOException e) {
             failed = true;
-            // TODO(drt24) put the exception somewhere
-            e.printStackTrace();
+            exceptionList.add(e);
           } catch (NigoriCryptographyException e) {
-            // TODO(drt24) put the exception somewhere
             failed = true;
-            e.printStackTrace();
+            exceptionList.add(e);
           }
         }
       };
     }
-    for (Thread t : threads){
-      t.start();
-    }
-    for (Thread t : threads){
-      try {
-        t.join();
-      } catch (InterruptedException e) {// just continue
-      }
-    }
-    assertFalse(failed);
+    startThenJoinThreads(threads);
+    ifFailedPrintFailures(failed,exceptionList);
   }
   /**
    * Test that one user can do lots of things at the same time.
@@ -93,10 +110,12 @@ public class ConcurrencyTest {
    */
   @Test
   public void singleUserConcurrency() throws NigoriCryptographyException, IOException {
+    failed = false;
     Thread[] threads = new Thread[THREADS];
 
     final NigoriDatastore nigori = AcceptanceTests.getStore();
     assertTrue("Not registered", nigori.register());
+    final List<Exception> exceptionList = Collections.synchronizedList(new LinkedList<Exception>());
     for (int j = 0; j < THREADS; ++j) {
       threads[j] = new Thread() {
         public void run() {
@@ -113,32 +132,23 @@ public class ConcurrencyTest {
                 assertTrue("Not deleted" + i, nigori.delete(index));
                 assertNull("Not deleted" + i, nigori.get(index));
               }
-
             }
           } catch (NullPointerException e) {
+            failed = true;
+            exceptionList.add(e);
           } catch (IOException e) {
             failed = true;
-            // TODO(drt24) put the exception somewhere
-            e.printStackTrace();
+            exceptionList.add(e);
           } catch (NigoriCryptographyException e) {
-            // TODO(drt24) put the exception somewhere
             failed = true;
-            e.printStackTrace();
+            exceptionList.add(e);
           }
         }
       };
     }
-    for (Thread t : threads){
-      t.start();
-    }
-    for (Thread t : threads){
-      try {
-        t.join();
-      } catch (InterruptedException e) {// just continue
-      }
-    }
+    startThenJoinThreads(threads);
     assertTrue(nigori.unregister());
-    assertFalse(failed);
+    ifFailedPrintFailures(failed,exceptionList);
   }
 
   //TODO(drt24) once we have versioning then test that concurrent execution on the same keys works. 
