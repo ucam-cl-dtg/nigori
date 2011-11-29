@@ -343,6 +343,7 @@ public class NigoriServlet extends HttpServlet {
 				String json = getJsonAsString(req, maxJsonQueryLength);
 				RegisterRequest request = MessageLibrary.registerRequestFromJson(json);
 
+				//TODO(drt24): validate request.getToken()
 				boolean success = database.addUser(request.getPublicKey().toByteArray());
 				if(!success) {
 					throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
