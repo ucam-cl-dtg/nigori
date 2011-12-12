@@ -37,6 +37,7 @@ public final class NigoriConstants {
   public static final int N_USER = N_SALT + 1;
   public static final int N_ENC = N_SALT + 2;
   public static final int N_MAC = N_SALT + 3;
+  public static final int N_IV = N_SALT + 4;
   
   // Sizes in bytes
   public static final int B_AES = 16;

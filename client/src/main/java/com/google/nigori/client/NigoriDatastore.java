@@ -323,10 +323,10 @@ public class NigoriDatastore {
 		byte[] encIndex;
 		byte[] encValue;
 		if (encKey == null) {
-			encIndex = keyManager.encryptWithZeroIv(index);
+			encIndex = keyManager.encryptDeterministically(index);
 			encValue = keyManager.encrypt(value);
 		} else {
-			encIndex = keyManager.encryptWithZeroIv(encKey, index);
+			encIndex = keyManager.encryptDeterministically(encKey, index);
 			encValue = keyManager.encrypt(encKey, value);
 		}
 
@@ -362,9 +362,9 @@ public class NigoriDatastore {
 
 		byte[] encIndex;
 		if (encKey == null) {
-			encIndex = keyManager.encryptWithZeroIv(index);
+			encIndex = keyManager.encryptDeterministically(index);
 		} else {
-			encIndex = keyManager.encryptWithZeroIv(encKey, index);
+			encIndex = keyManager.encryptDeterministically(encKey, index);
 		}
 
 		String jsonRequest;
@@ -425,9 +425,9 @@ public class NigoriDatastore {
   private boolean delete(byte[] encKey, byte[] index) throws NigoriCryptographyException, UnsupportedEncodingException, IOException {
     byte[] encIndex;
     if (encKey == null) {
-      encIndex = keyManager.encryptWithZeroIv(index);
+      encIndex = keyManager.encryptDeterministically(index);
     } else {
-      encIndex = keyManager.encryptWithZeroIv(encKey, index);
+      encIndex = keyManager.encryptDeterministically(encKey, index);
     }
 
     String jsonRequest;

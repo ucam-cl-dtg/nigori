@@ -56,9 +56,9 @@ public class KeyManagerTest {
     assertThat(keyManager.encrypt(plaintext), not(equalTo(keyManager.encrypt(plaintext))));
   }
   @Test
-  public void encryptWithZeroIVSameValueGivesSameAnswer() throws UnsupportedEncodingException, NigoriCryptographyException{
+  public void encryptDeterministicallySameValueGivesSameAnswer() throws UnsupportedEncodingException, NigoriCryptographyException{
     KeyManager keyManager = new KeyManager("server".getBytes(MessageLibrary.CHARSET));
     byte[] plaintext = "plaintext".getBytes(MessageLibrary.CHARSET);
-    assertThat(keyManager.encryptWithZeroIv(plaintext), equalTo(keyManager.encryptWithZeroIv(plaintext)));
+    assertThat(keyManager.encryptDeterministically(plaintext), equalTo(keyManager.encryptDeterministically(plaintext)));
   }
 }

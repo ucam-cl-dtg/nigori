@@ -46,9 +46,22 @@ import com.google.nigori.common.SchnorrSign;
  */
 public class KeyManager {
 
+  /**
+   * For authenticating the user
+   */
   private byte[] userSecretKey;
+  /**
+   * For encrypting the data
+   */
   private byte[] encryptionSecretKey;
+  /**
+   * For HMACs on ciphertexts
+   */
   private byte[] macSecretKey;
+  /**
+   * For HMACs on plaintexts, used for initialisation vectors
+   */
+  private byte[] ivSecretKey;
 
   private byte[] username;
   private byte[] password;
@@ -103,6 +116,7 @@ public class KeyManager {
     this.userSecretKey = pbkdf2(password, salt, NigoriConstants.N_USER, NigoriConstants.B_DSA);
     this.encryptionSecretKey = pbkdf2(password, salt, NigoriConstants.N_ENC, NigoriConstants.B_KENC);
     this.macSecretKey = pbkdf2(password, salt, NigoriConstants.N_MAC, NigoriConstants.B_KMAC);
+    this.ivSecretKey = pbkdf2(password, salt, NigoriConstants.N_IV, NigoriConstants.B_KMAC);
   }
   
   private static byte[] pbkdf2(byte[] password, byte[] salt, int rounds, int outputByteCount) 
@@ -130,13 +144,19 @@ public class KeyManager {
   }
 
   
-  private byte[] generateHMAC(byte[] message) throws NigoriCryptographyException {
+  private byte[] generateCipherHMAC(byte[] message) throws NigoriCryptographyException {
+    return generateHMAC(message, macSecretKey);
+  }
+  private byte[] generatePlaintextHMAC(byte[] message) throws NigoriCryptographyException {
+    return generateHMAC(message, ivSecretKey);
+  }
+  private byte[] generateHMAC(byte[] message, byte[] secretKey) throws NigoriCryptographyException {
 
     try {
       //TODO(drt24): The spec says SHA256, but this is not available on AppEngine - need to bundle library.
       String hmacAlgorithm = NigoriConstants.A_HMAC;
       Mac mac = Mac.getInstance(hmacAlgorithm);
-      SecretKey key = new SecretKeySpec(macSecretKey, NigoriConstants.A_KMAC);
+      SecretKey key = new SecretKeySpec(secretKey, NigoriConstants.A_KMAC);
       mac.init(key);
       return mac.doFinal(message);
     } catch(Exception e) {
@@ -191,7 +211,7 @@ public class KeyManager {
     System.arraycopy(ciphertext, ciphertext.length-mac.length, mac, 0, mac.length);
     System.arraycopy(ciphertext, iv.length, data, 0, data.length);
 
-    byte[] macCheck = generateHMAC(data);
+    byte[] macCheck = generateCipherHMAC(data);
     if (mac.length != macCheck.length) {
       throw new NigoriCryptographyException(
           String.format("Length mismatch between provided (%d) and received (%d) HMACs.", mac.length, macCheck.length));
@@ -234,29 +254,32 @@ public class KeyManager {
     return encrypt(key, plaintext, true);
   }
 
-  public byte[] encryptWithZeroIv(byte[] plaintext) throws NigoriCryptographyException {
+  public byte[] encryptDeterministically(byte[] plaintext) throws NigoriCryptographyException {
   	return encrypt(encryptionSecretKey, plaintext, false);
   }
   
-  public byte[] encryptWithZeroIv(byte[] key, byte[] plaintext) throws 
+  public byte[] encryptDeterministically(byte[] key, byte[] plaintext) throws
   NigoriCryptographyException {
     return encrypt(key, plaintext, false);
   }  
   
-  private byte[] encrypt(byte[] key, byte[] plaintext, boolean randomPadding) 
+  private byte[] encrypt(byte[] key, byte[] plaintext, boolean randomIV)
   throws NigoriCryptographyException {
 
     try {
       Cipher cipher = Cipher.getInstance(NigoriConstants.A_SYMENC_CIPHER);
       SecretKey secret = new SecretKeySpec(key, NigoriConstants.A_SYMENC);
       byte[] iv = new byte[NigoriConstants.B_SYMENC];
-      if (randomPadding) {
+      if (randomIV) {
         random.nextBytes(iv); 
+      } else {
+        byte[] ivMac = generatePlaintextHMAC(plaintext);
+        xorFill(iv,ivMac);
       }
       IvParameterSpec ips = new IvParameterSpec(iv);
       cipher.init(Cipher.ENCRYPT_MODE, secret, ips);
       byte[] data = cipher.doFinal(plaintext);
-      byte[] mac = generateHMAC(data);
+      byte[] mac = generateCipherHMAC(data);
 
       byte[] ciphertext = new byte[iv.length + data.length + mac.length];
       System.arraycopy(iv, 0, ciphertext, 0, iv.length);
@@ -280,6 +303,16 @@ public class KeyManager {
   }
 
   /**
+   * @param iv
+   * @param ivMac
+   */
+  private void xorFill(byte[] iv, byte[] ivMac) {
+    for (int macIdx = 0, ivIdx = 0; macIdx<ivMac.length; ++macIdx, ++ivIdx, ivIdx %= iv.length){
+      iv[ivIdx] ^= ivMac[macIdx];
+    }
+  }
+
+  /**
    * Return an instance of {@code SchnorrSign} which is capable of signing user-encrypted data.
    * 
    */
@@ -288,8 +321,8 @@ public class KeyManager {
   }
 
   public byte[] generateSessionKey() {
-    byte[] key = new byte[16];// TODO(drt24) which kind of key is this and what is it for - not
-                              // currently used.
+    // TODO(drt24) which kind of key is this and what is it for - not currently used.
+    byte[] key = new byte[16];
     random.nextBytes(key);
     return key;
   }
