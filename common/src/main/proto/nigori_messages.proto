@@ -18,7 +18,8 @@
 option java_package = "com.google.nigori.common";
 option java_outer_classname = "NigoriMessages";
 
-message AuthenticateRequest {//TODO(drt24) we need to have the server name in here.
+message AuthenticateRequest {
+//TODO(drt24) we need to have the server name in here.
   required bytes public_key = 1;
   required bytes schnorr_s = 2;
   required bytes schnorr_e = 3;
@@ -31,6 +32,7 @@ message GetRequest {
 }
 
 message GetResponse {
+//TODO(drt24): want to put key here too.
   required bytes value = 1;
 }
 
