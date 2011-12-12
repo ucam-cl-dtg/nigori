@@ -33,7 +33,9 @@ import com.google.nigori.client.NigoriDatastore;
 @Suite.SuiteClasses ({
   RegistrationTest.class,
   SetGetDeleteTest.class,
-  ConcurrencyTest.class
+  ConcurrencyTest.class,
+  CommandLineExampleTest.class,
+  TwoUserDemoTest.class,
   })
 public class AcceptanceTests {
 
