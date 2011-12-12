@@ -31,10 +31,11 @@ public class CommandLineExample {
     System.out.println("Usage: java nigori.jar server port <action and args>");
     System.out.println(" Where <action and args> is one of the following:");
     System.out.println("  register username password");
+    System.out.println("  unregister username password");
     System.out.println("  authenticate username password");
-    System.out.println("  put username password key value");
-    System.out.println("  get username password key");		
-    System.out.println("  delete username password key");		
+    System.out.println("  put username password index revision value");
+    System.out.println("  get username password index");
+    System.out.println("  delete username password key");
   }	
 	
 	public static void main(String[] args) throws Exception {
@@ -55,7 +56,10 @@ public class CommandLineExample {
 		if (action.equals("register")) {
 			boolean success = nigori.register();
 			System.out.println("Success: " + success);
-		}
+    } else if (action.equals("unregister")) {
+      boolean success = nigori.unregister();
+      System.out.println("Success: " + success);
+    }
 		else if (action.equals("authenticate")) {
 			boolean success = nigori.authenticate();
 			System.out.println("Success: " + success);
