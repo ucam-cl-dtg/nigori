@@ -32,35 +32,21 @@ public class Nonce {
   private final int sinceEpoch;
   private final int random;
 
-  private void int2bin(byte[] out, int offset, int i) {
-    out[offset + 0] = (byte)(i >> 24); 
-    out[offset + 1] = (byte)(i >> 16 & 0xff);
-    out[offset + 2] = (byte)(i >> 8 & 0xff); 
-    out[offset + 3] = (byte)(i & 0xff);		
-  }
-  
-  private static int bin2int(byte[] array, int offset) {
-    return ((array[offset + 0] & 0xff) << 24)
-    + ((array[offset + 1] & 0xff) << 16)
-    + ((array[offset + 2] & 0xff) << 8) 
-    + (array[offset + 3] & 0xff);
-  }
-
   public Nonce() {
     random = randomGenerator.nextInt();
     sinceEpoch = (int) (System.currentTimeMillis() / 1000);
    }
 
   public Nonce(byte[] token) {
-  	this.random = bin2int(token, RANDOM_OFFSET);
-  	this.sinceEpoch = bin2int(token, SINCE_EPOCH_OFFSET);
+    this.random = Util.bin2int(token, RANDOM_OFFSET);
+    this.sinceEpoch = Util.bin2int(token, SINCE_EPOCH_OFFSET);
   }
 
   public byte[] toToken() {
-  	byte[] token = new byte[8];
-  	int2bin(token, RANDOM_OFFSET, random);
-  	int2bin(token, SINCE_EPOCH_OFFSET, sinceEpoch);
-  	return token;
+    byte[] token = new byte[8];
+    Util.int2bin(token, RANDOM_OFFSET, random);
+    Util.int2bin(token, SINCE_EPOCH_OFFSET, sinceEpoch);
+    return token;
   }
   
   public int getSinceEpoch() {
