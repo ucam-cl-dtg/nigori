@@ -22,6 +22,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
+import java.util.Arrays;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -325,5 +326,23 @@ public class KeyManager {
     byte[] key = new byte[16];
     random.nextBytes(key);
     return key;
+  }
+
+  /**
+   * Destroy all the secret data stored in this KeyManager
+   */
+  public void destroy() {
+    Arrays.fill(userSecretKey, (byte) 0);
+    Arrays.fill(encryptionSecretKey, (byte) 0);
+    Arrays.fill(macSecretKey, (byte) 0);
+    Arrays.fill(ivSecretKey, (byte) 0);
+    Arrays.fill(username, (byte) 0);
+    Arrays.fill(password, (byte) 0);
+  }
+
+  @Override
+  public void finalize() throws Throwable {
+    destroy();
+    super.finalize();
   }
 }
