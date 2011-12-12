@@ -17,8 +17,10 @@
 package com.google.nigori.client;
 
 import java.io.IOException;
+import java.util.List;
 
 import com.google.nigori.common.MessageLibrary;
+import com.google.nigori.common.RevValue;
 
 /**
  * 
@@ -65,13 +67,13 @@ public class CommandLineExample {
 			System.out.println("Success: " + success);
 		}
 		else if (action.equals("put")) {
-			if (args.length != 7) {
-				System.out.println("*** Error: exactly six elements needed for a put action");
+			if (args.length != 8) {
+				System.out.println("*** Error: exactly seven elements needed for a put action");
 				usage();
 				return;
 			}
-			boolean success = nigori.put(args[5].getBytes(MessageLibrary.CHARSET), 
-					args[6].getBytes(MessageLibrary.CHARSET));
+			boolean success = nigori.put(args[5].getBytes(MessageLibrary.CHARSET), args[6].getBytes(MessageLibrary.CHARSET),
+					args[7].getBytes(MessageLibrary.CHARSET));
 			System.out.println("Success: " + success);
 		}
 		else if (action.equals("get")) {
@@ -81,8 +83,10 @@ public class CommandLineExample {
 				return;
 			}
 			try {
-				byte[] data = nigori.get(args[5].getBytes(MessageLibrary.CHARSET));
-				System.out.println(new String(data));
+				List<RevValue> data = nigori.get(args[5].getBytes(MessageLibrary.CHARSET));
+        for (RevValue datum : data) {
+          System.out.println(new String(datum.getRevision()) + new String(datum.getValue()));
+        }
 			} catch (IOException ioe) {
 				System.out.println(ioe.getMessage());
 			}

@@ -47,7 +47,7 @@ class AppEngineRecord {
 	@Persistent
 	private Blob value;
 
-	@Persistent(serialized = "true",types={com.google.nigori.server.IntRevision.class})
+	@Persistent(serialized = "true",types={com.google.nigori.server.IntRevision.class, com.google.nigori.server.BytesRevision.class})
   private Revision revision;
 	
 	AppEngineRecord(Key lookup, Revision revision, byte[] value) {

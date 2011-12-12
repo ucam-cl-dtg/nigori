@@ -34,20 +34,12 @@ public class Lookup {
   @Persistent
   private Key key;
 
-  @Persistent(serialized = "true",types={com.google.nigori.server.IntRevision.class})
-  private Revision currentRevision;
-
-  public Lookup(Key key, Revision revision){
+  public Lookup(Key key){
     this.key = key;
-    this.currentRevision = revision;
   }
 
   public Key getKey() {
     return key;
-  }
-
-  public Revision getCurrentRevision() {
-    return currentRevision;
   }
 
   public static Key makeKey(AEUser user, byte[] key){

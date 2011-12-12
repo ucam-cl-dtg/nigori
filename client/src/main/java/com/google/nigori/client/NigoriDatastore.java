@@ -28,10 +28,14 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.google.nigori.common.MessageLibrary;
+import com.google.nigori.common.RevValue;
 import com.google.nigori.common.MessageLibrary.JsonConversionException;
 import com.google.nigori.common.NigoriMessages.GetResponse;
+import com.google.nigori.common.NigoriMessages.RevisionValue;
 
 /**
  * A client API capable of managing a session with a Nigori Server.
@@ -304,8 +308,8 @@ public class NigoriDatastore {
 	 * @return true if the data was successfully inserted; false otherwise.
 	 * @throws NigoriCryptographyException 
 	 */
-	public boolean put(byte[] index, byte[] value)  throws IOException, NigoriCryptographyException {
-		return put(null, index, value);
+	public boolean put(byte[] index, byte[] revision, byte[] value)  throws IOException, NigoriCryptographyException {
+		return put(null, index, revision, value);
 	}
 
 	/**
@@ -317,21 +321,24 @@ public class NigoriDatastore {
 	 * @param writeAuthorities list of public keys of people permitted to read this key-value pair.
 	 * @return true if the data was successfully inserted; false otherwise.
 	 */
-	private boolean put(byte[] encKey, byte[] index, byte[] value) throws IOException, 
+	private boolean put(byte[] encKey, byte[] index, byte[] revision, byte[] value) throws IOException, 
 	NigoriCryptographyException {
 
 		byte[] encIndex;
+		byte[] encRevision;
 		byte[] encValue;
 		if (encKey == null) {
 			encIndex = keyManager.encryptDeterministically(index);
+			encRevision = keyManager.encryptDeterministically(revision);
 			encValue = keyManager.encrypt(value);
 		} else {
 			encIndex = keyManager.encryptDeterministically(encKey, index);
+			encRevision = keyManager.encryptDeterministically(encKey, revision);
 			encValue = keyManager.encrypt(encKey, value);
 		}
 
 		try {
-			String json = MessageLibrary.putRequestAsJson(keyManager.signer(), encIndex, encValue);
+			String json = MessageLibrary.putRequestAsJson(keyManager.signer(), encIndex, encRevision, encValue);
 			HttpResponse resp = post(MessageLibrary.REQUEST_PUT, json.getBytes(MessageLibrary.CHARSET));
 			return success(resp);
 		} catch (NoSuchAlgorithmException e) {
@@ -347,7 +354,7 @@ public class NigoriDatastore {
 	 * @return a byte array containing the data associated with {@code key} or {@code null} if no
 	 * data exists.
 	 */
-	public byte[] get(byte[] index) throws IOException,	NigoriCryptographyException {
+	public List<RevValue> get(byte[] index) throws IOException,	NigoriCryptographyException {
 		return get(null, index);
 	}
 
@@ -358,7 +365,7 @@ public class NigoriDatastore {
 	 * @return a byte array containing the data associated with {@code key} or {@code null} if no
 	 * data exists.
 	 */
-	private byte[] get(byte[] encKey, byte[] index) throws IOException, NigoriCryptographyException {
+	private List<RevValue> get(byte[] encKey, byte[] index) throws IOException, NigoriCryptographyException {
 
 		byte[] encIndex;
 		if (encKey == null) {
@@ -398,12 +405,20 @@ public class NigoriDatastore {
 
 		try {
 			GetResponse getResponse = MessageLibrary.getResponseFromJson(jsonResponse.toString());
-			byte[] ciphertext = getResponse.getValue().toByteArray();
-			if (encKey == null) {
-				return keyManager.decrypt(ciphertext);
-			} else {
-				return keyManager.decrypt(encKey, ciphertext);
-			}
+			List<RevisionValue> revisions = getResponse.getRevisionsList();
+			List<RevValue> answer = new ArrayList<RevValue>(revisions.size());
+      for (RevisionValue revisionValue : revisions) {
+        byte[] revisionciphertext = revisionValue.getRevision().toByteArray();
+        byte[] valueciphertext = revisionValue.getValue().toByteArray();
+        if (encKey == null) {
+          answer.add(new RevValue(keyManager.decrypt(revisionciphertext), keyManager
+              .decrypt(valueciphertext)));
+        } else {
+          answer.add(new RevValue(keyManager.decrypt(encKey, revisionciphertext), keyManager
+              .decrypt(encKey, valueciphertext)));
+        }
+      }
+      return answer;
 		} catch(JsonConversionException jce) {
 			throw new IOException("Error reading JSON sent by server: "+ jce.getMessage());
 		}
@@ -467,4 +482,14 @@ public class NigoriDatastore {
 	public byte[] generateSessionKey() {
 		return keyManager.generateSessionKey();
 	}
+
+  /**
+   * @param index
+   * @param revision
+   * @return
+   */
+  public byte[] getRevision(byte[] index, byte[] revision) {
+    // TODO(drt24) Auto-generated method stub
+    return null;
+  }
 }

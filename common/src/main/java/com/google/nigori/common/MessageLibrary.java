@@ -16,6 +16,9 @@
 package com.google.nigori.common;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -27,6 +30,7 @@ import com.google.nigori.common.NigoriMessages.GetRequest;
 import com.google.nigori.common.NigoriMessages.GetResponse;
 import com.google.nigori.common.NigoriMessages.PutRequest;
 import com.google.nigori.common.NigoriMessages.RegisterRequest;
+import com.google.nigori.common.NigoriMessages.RevisionValue;
 import com.google.nigori.common.NigoriMessages.UnregisterRequest;
 import com.google.protobuf.ByteString;
 
@@ -100,17 +104,21 @@ public class MessageLibrary {
 	}
 
 
-	public static GetResponse getResponseAsProtobuf(byte[] value) {
-
-		GetResponse resp = GetResponse.newBuilder()
-		.setValue(ByteString.copyFrom(value))
-		.build();
+	public static GetResponse getResponseAsProtobuf(Collection<RevValue> revisions) {
+	  // TODO(drt24) add index
+	  List<RevisionValue> protoRevisions = new ArrayList<RevisionValue>(revisions.size());
+	  for (RevValue rv : revisions){
+	    protoRevisions.add(RevisionValue.newBuilder().setRevision(ByteString.copyFrom(rv.getRevision())).setValue(ByteString.copyFrom(rv.getValue())).build());
+	  }
+	  GetResponse resp = GetResponse.newBuilder()
+	      .addAllRevisions(protoRevisions)
+	      .build();
 
 		return resp;
 	}
 
-	public static String getResponseAsJson(byte[] value) {
-		return gson.toJson(getResponseAsProtobuf(value));
+	public static String getResponseAsJson(Collection<RevValue> revisions) {
+		return gson.toJson(getResponseAsProtobuf(revisions));
 	}
 
 	public static GetResponse getResponseFromJson(String json) throws JsonConversionException {
@@ -123,21 +131,22 @@ public class MessageLibrary {
 		}
 	}
 
-	public static PutRequest putRequestAsProtobuf(SchnorrSign signer, byte[] index, byte[] value) throws NoSuchAlgorithmException {
+	public static PutRequest putRequestAsProtobuf(SchnorrSign signer, byte[] index, byte[] revision, byte[] value) throws NoSuchAlgorithmException {
 
-	  //TODO sign method index and value
+	  //TODO sign method index, revision and value
 	  PutRequest.Builder reqBuilder = PutRequest.newBuilder()
-		.setAuth(authenticateRequestAsProtobuf(signer))
-		.setKey(ByteString.copyFrom(index))
-		.setValue(ByteString.copyFrom(value));
-		
+	      .setAuth(authenticateRequestAsProtobuf(signer))
+	      .setKey(ByteString.copyFrom(index))
+	      .setRevision(ByteString.copyFrom(revision))
+	      .setValue(ByteString.copyFrom(value));
+
 		PutRequest req = reqBuilder.build();
 
 		return req;
 	}
 
-	public static String putRequestAsJson(SchnorrSign signer, byte[] index, byte[] value) throws	NoSuchAlgorithmException {
-		return gson.toJson(putRequestAsProtobuf(signer, index, value));
+	public static String putRequestAsJson(SchnorrSign signer, byte[] index, byte[] revision, byte[] value) throws	NoSuchAlgorithmException {
+		return gson.toJson(putRequestAsProtobuf(signer, index, revision, value));
 	}
 
 	public static PutRequest putRequestFromJson(String json) throws JsonConversionException {

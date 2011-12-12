@@ -13,17 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.nigori.server;
-
-import java.io.Serializable;
+package com.google.nigori.common;
 
 /**
  * @author drt24
  *
  */
-public interface Revision extends Comparable<Revision>, Serializable {
+public class RevValue {
 
-  @Override
-  String toString();
-  byte[] getBytes();
+  private final byte[] revision;
+  private final byte[] value;
+  public RevValue(byte[] revision, byte[] value) {
+    this.revision = revision;
+    this.value = value;
+  }
+  /**
+   * @return the revision
+   */
+  public byte[] getRevision() {
+    return revision;
+  }
+  /**
+   * @return the value
+   */
+  public byte[] getValue() {
+    return value;
+  }
 }

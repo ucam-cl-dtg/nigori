@@ -15,7 +15,11 @@
  */
 package com.google.nigori.server;
 
+import java.io.IOException;
+import java.util.Collection;
+
 import com.google.nigori.common.Nonce;
+import com.google.nigori.common.RevValue;
 
 /**
  * API required by Nigori to save user data.
@@ -56,9 +60,10 @@ interface Database {
 	 * @param user
 	 * @param key
 	 * @return the record for the key or null if there is no record for that key
+	 * @throws IOException 
 	 */
-	public byte[] getRecord(User user, byte[] key);
-	public boolean putRecord(User user, byte[] key, byte[] data);
+	public Collection<RevValue> getRecord(User user, byte[] key) throws IOException;
+	public boolean putRecord(User user, byte[] key, byte[] revision, byte[] data);
 	public boolean updateRecord(User user, byte[] key, byte[] data, Revision expected, Revision dataRevision);
 	public boolean deleteRecord(User user, byte[] key);
 }

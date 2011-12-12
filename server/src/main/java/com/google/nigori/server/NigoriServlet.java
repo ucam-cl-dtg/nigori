@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
@@ -38,12 +39,14 @@ import com.google.nigori.common.NigoriMessages.PutRequest;
 import com.google.nigori.common.NigoriMessages.RegisterRequest;
 import com.google.nigori.common.NigoriMessages.UnregisterRequest;
 import com.google.nigori.common.Nonce;
+import com.google.nigori.common.RevValue;
 import com.google.nigori.common.SchnorrSignature;
 import com.google.nigori.common.SchnorrVerify;
 
 @SuppressWarnings("serial")
 public class NigoriServlet extends HttpServlet {
 
+  private static final boolean DEBUG_JSON = false;
   private static final Logger log = Logger.getLogger(NigoriServlet.class.getName());
 	private static final int maxJsonQueryLength = 1024*1024*1;
 	private final Database database;
@@ -216,7 +219,7 @@ public class NigoriServlet extends HttpServlet {
 		throws ServletException {
 
 			String json = getJsonAsString(req, maxJsonQueryLength);
-			byte[] value;
+			Collection<RevValue> value;
 
 			try {
 				GetRequest request = MessageLibrary.getRequestFromJson(json);
@@ -248,19 +251,20 @@ public class NigoriServlet extends HttpServlet {
 
 	private class JsonPutRequestHandler implements RequestHandler {
 
-		public void handle(HttpServletRequest req, HttpServletResponse resp) 
+    public void handle(HttpServletRequest req, HttpServletResponse resp) 
 		throws ServletException {
 
 			try {
 				String json = getJsonAsString(req, maxJsonQueryLength);
-				
-				System.out.println(json);
+        if (DEBUG_JSON) {
+          System.out.println(json);
+        }
 				PutRequest request = MessageLibrary.putRequestFromJson(json);
 				AuthenticateRequest auth = request.getAuth();
 				
 				User user = authenticateUser(auth);
 
-				boolean success = database.putRecord(user, request.getKey().toByteArray(), 
+				boolean success = database.putRecord(user, request.getKey().toByteArray(), request.getRevision().toByteArray(),
 						request.getValue().toByteArray());
 
 				if (!success) {
@@ -286,7 +290,9 @@ public class NigoriServlet extends HttpServlet {
       try {
         String json = getJsonAsString(req, maxJsonQueryLength);
 
-        System.out.println(json);
+        if (DEBUG_JSON) {
+          System.out.println(json);
+        }
         DeleteRequest request = MessageLibrary.deleteRequestFromJson(json);
         AuthenticateRequest auth = request.getAuth();
 
@@ -309,6 +315,8 @@ public class NigoriServlet extends HttpServlet {
       } catch (MessageLibrary.JsonConversionException jce) {
         throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, "JSON format error: " + 
             jce.getMessage());
+      } catch (IOException e) {
+        throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Exception: " + e.getLocalizedMessage());
       }
 
     }
@@ -371,7 +379,7 @@ public class NigoriServlet extends HttpServlet {
         boolean success = database.deleteUser(user);
         if(!success) {
           throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-              "Adding user " + Base64.encodeBase64String(auth.getPublicKey().toByteArray()) + " failed");
+              "Removing user " + Base64.encodeBase64String(auth.getPublicKey().toByteArray()) + " failed");
         }
         emptyBody(resp);
 

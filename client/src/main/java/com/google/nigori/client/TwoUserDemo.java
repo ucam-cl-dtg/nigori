@@ -16,6 +16,10 @@
 package com.google.nigori.client;
 
 import java.io.IOException;
+import java.util.List;
+
+import com.google.nigori.common.MessageLibrary;
+import com.google.nigori.common.RevValue;
 
 /**
  * Create two threads which communicate by placing encrypted data in the Nigori datastore.
@@ -28,6 +32,7 @@ public class TwoUserDemo {
   protected static final int PORT = 8888;
   protected static final String HOST = "localhost";
   private static final int ITERATIONS = 60;
+  private static final int DELAY = 100;
 	private static class SeparateUserAccessesSharedStore extends Thread {
 		
 		private String username;
@@ -47,8 +52,8 @@ public class TwoUserDemo {
 				NigoriDatastore sharedStore = new NigoriDatastore(HOST, PORT, "nigori", username,
 						password);
 				for(int i = 0; i < ITERATIONS; ++i) {
-					sharedStore.put(sharedIndex, new byte[]{count++});
-					sleep(2000);
+					sharedStore.put(sharedIndex, new byte[]{}, new byte[]{count++});
+					sleep(DELAY * 2);
 				}
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
@@ -84,14 +89,22 @@ public class TwoUserDemo {
 		
 		//First user, possibly on a different device
 		for(int i = 0; i < ITERATIONS; ++i) {
-			byte[] result = sharedStore.get(sharedIndex);
-			if (result == null) {
-				System.out.println("No valid data held");
-			} else {
-				System.out.println("Count has the value " + result[0]);
-			}
+		  List<RevValue> results = sharedStore.get(sharedIndex);
+      if (results == null || results.isEmpty()) {
+        System.out.println("No valid data held");
+      } else {
+        for (RevValue rv : results) {
+          byte[] result = rv.getValue();
+          if (result == null) {
+            System.out.println("No valid data held for " + rv.getRevision());
+          } else {
+            System.out.println("Count has the value " + result[0] + " for revision "
+                + new String(rv.getRevision(), MessageLibrary.CHARSET));
+          }
+        }
+      }
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(DELAY);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

@@ -26,20 +26,36 @@ message AuthenticateRequest {
   required bytes nonce = 4;
 }
 
+message RevisionValue {
+  required bytes revision = 1;
+  required bytes value = 2;
+}
+
 message GetRequest {
   required AuthenticateRequest auth = 1;
   required bytes key = 2;
+  optional bytes revision = 3;
 }
 
 message GetResponse {
-//TODO(drt24): want to put key here too.
-  required bytes value = 1;
+  repeated RevisionValue revisions = 1;
+  optional bytes key = 2;// optional as may want to keep packet size down.
+}
+
+message GetRevisions {
+  required AuthenticateRequest auth = 1;
+  required bytes key = 2;
+}
+message GetRevisionsResponse {
+  repeated bytes revisions = 1;
+  optional bytes key = 2; 
 }
 
 message PutRequest {
   required AuthenticateRequest auth = 1;
   required bytes key = 2;
-  required bytes value = 3;  
+  required bytes revision = 3;
+  required bytes value = 4;
 }
 
 message DeleteRequest {
@@ -47,11 +63,11 @@ message DeleteRequest {
   required bytes key = 2;
 }
 
-//TODO(beresford): Registration may require a valid signature from Nigori store admin
 message RegisterRequest {
   required bytes public_key = 1;
   required bytes token = 2;
 }
+
 message UnregisterRequest {
   required AuthenticateRequest auth = 1;
 }

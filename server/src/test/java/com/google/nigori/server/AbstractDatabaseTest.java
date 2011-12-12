@@ -14,11 +14,14 @@
 package com.google.nigori.server;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Collection;
 import java.util.Date;
 
 import org.junit.Before;
@@ -27,6 +30,7 @@ import org.junit.Test;
 
 import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.Nonce;
+import com.google.nigori.common.RevValue;
 
 /**
  * @author drt24
@@ -79,13 +83,19 @@ public abstract class AbstractDatabaseTest {
   }
 
   @Test
-  public void setGetDelete() throws UserNotFoundException {
+  public void setGetDelete() throws UserNotFoundException, IOException {
     assertTrue(database.addUser(publicKey));
     User user = database.getUser(publicKey);
     byte[] index = "index".getBytes();
+    byte[] revision = "revision".getBytes();
     byte[] value = "value".getBytes();
-    assertTrue(database.putRecord(user, index, value));
-    assertArrayEquals(value,database.getRecord(user, index));
+    assertTrue(database.putRecord(user, index, revision, value));
+    Collection<RevValue> revs = database.getRecord(user, index);
+    assertEquals(1, revs.size());
+    for (RevValue rv : revs) {
+      assertArrayEquals(revision, rv.getRevision());
+      assertArrayEquals(value, rv.getValue());
+    }
     assertTrue(database.deleteRecord(user, index));
     assertNull(database.getRecord(user, index));
     assertFalse(database.deleteRecord(user, index));

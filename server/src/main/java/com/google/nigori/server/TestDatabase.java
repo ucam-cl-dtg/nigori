@@ -15,13 +15,17 @@
  */
 package com.google.nigori.server;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.google.nigori.common.Nonce;
+import com.google.nigori.common.RevValue;
 import com.google.protobuf.ByteString;
 
 /**
@@ -35,7 +39,7 @@ import com.google.protobuf.ByteString;
  */
 public class TestDatabase implements Database {
 
-	private HashMap<User,Map<ByteString, ByteString>> stores = new HashMap<User,Map<ByteString, ByteString>>();
+	private HashMap<User,Map<ByteString, Map<ByteString,ByteString>>> stores = new HashMap<User,Map<ByteString, Map<ByteString,ByteString>>>();
 	private HashMap<ByteString,User> users = new HashMap<ByteString,User>();
 	private HashMap<ByteString,Set<Nonce>> nonces = new HashMap<ByteString,Set<Nonce>>();
 
@@ -47,7 +51,7 @@ public class TestDatabase implements Database {
 	  }
 	  User user = new JUser(publicKey, new Date());
 		users.put(ByteString.copyFrom(publicKey),user);
-		stores.put(user, new HashMap<ByteString, ByteString>());
+		stores.put(user, new HashMap<ByteString, Map<ByteString,ByteString>>());
 		return true;
 	}
 	
@@ -75,33 +79,47 @@ public class TestDatabase implements Database {
   }
 
   @Override
-	public byte[] getRecord(User user, byte[] key) {
+	public Collection<RevValue> getRecord(User user, byte[] key) {
 
-		//TODO(beresford): check authority to carry out action
-		if (key == null) {
-			return null;
-		}
+    // TODO(beresford): check authority to carry out action
+    if (key == null) {
+      return null;
+    }
 
-		ByteString value = stores.get(user).get(ByteString.copyFrom(key));
+    Map<ByteString, ByteString> revisions = stores.get(user).get(ByteString.copyFrom(key));
+    if (revisions != null) {
+      List<RevValue> answer = new ArrayList<RevValue>(revisions.size());
+      for (Map.Entry<ByteString, ByteString> rv : revisions.entrySet()) {
+        answer.add(new RevValue(rv.getKey().toByteArray(), rv.getValue().toByteArray()));
+      }
 
-		if (value == null) {
-			return null;
-		} else {		
-			byte[] v = value.toByteArray();
-			return v;
-		}
+      return answer;
+    } else {
+      return null;
+    }
 	}
 
 	@Override
-	public boolean putRecord(User user, byte[] key, byte[] value) {
-		//TODO(beresford): check authority to carry out action
-		if (key == null || value == null) {
-			return false;
-		}
-		
-		stores.get(user).put(ByteString.copyFrom(key), ByteString.copyFrom(value));
-		return true;
-	}
+  public boolean putRecord(User user, byte[] key, byte[] revision, byte[] value) {
+    // TODO(beresford): check authority to carry out action
+    if (key == null || revision == null || value == null) {
+      return false;
+    }
+    Map<ByteString, ByteString> revisions = stores.get(user).get(ByteString.copyFrom(key));
+    if (revisions == null) {
+      revisions = new HashMap<ByteString, ByteString>();
+      stores.get(user).put(ByteString.copyFrom(key), revisions);
+    }
+    ByteString bRevision = ByteString.copyFrom(revision);
+    ByteString bValue = ByteString.copyFrom(value);
+    ByteString existing = revisions.get(bRevision);
+    if (existing == null) {
+      revisions.put(bRevision, bValue);
+    } else if (!existing.equals(bValue)) {
+      return false;
+    }
+    return true;
+  }
 
 	@Override
 	public boolean updateRecord(User user, byte[] key, byte[] value, Revision expected, Revision dataRevision) {

@@ -15,51 +15,38 @@
  */
 package com.google.nigori.server;
 
-import com.google.nigori.common.Util;
+import org.apache.commons.codec.binary.Base64;
 
 /**
- * 
  * @author drt24
  *
  */
-public class IntRevision implements Revision {
+public class BytesRevision implements Revision {
+
   private static final long serialVersionUID = 1L;
 
-  private final int version;
-
-  public IntRevision(int version) {
-    this.version = version;
+  private final byte[] revision;
+  
+  public BytesRevision(byte[] revision) {
+    this.revision = revision;
   }
-
-  public int getVersion() {
-    return version;
-  }
-
+  
   @Override
   public int compareTo(Revision o) {
-    if (o instanceof IntRevision) {
-      if (version < ((IntRevision) o).version) {
-        return -1;
-      } else if (version > ((IntRevision) o).version) {
-        return 1;
-      } else
-        return 0;
-    }
     if (o == null) {
       return 0;
     } else {
       return this.toString().compareTo(o.toString());
     }
   }
-
+  
   @Override
   public String toString() {
-    return "" + version;
+    return "" + Base64.encodeBase64String(revision);
   }
 
   @Override
   public byte[] getBytes() {
-    return Util.int2bin(version);
+    return revision;
   }
-
 }

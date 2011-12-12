@@ -559,6 +559,421 @@ public final class NigoriMessages {
     // @@protoc_insertion_point(class_scope:nigori.AuthenticateRequest)
   }
   
+  public interface RevisionValueOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+    
+    // required bytes revision = 1;
+    boolean hasRevision();
+    com.google.protobuf.ByteString getRevision();
+    
+    // required bytes value = 2;
+    boolean hasValue();
+    com.google.protobuf.ByteString getValue();
+  }
+  public static final class RevisionValue extends
+      com.google.protobuf.GeneratedMessage
+      implements RevisionValueOrBuilder {
+    // Use RevisionValue.newBuilder() to construct.
+    private RevisionValue(Builder builder) {
+      super(builder);
+    }
+    private RevisionValue(boolean noInit) {}
+    
+    private static final RevisionValue defaultInstance;
+    public static RevisionValue getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public RevisionValue getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.google.nigori.common.NigoriMessages.internal_static_nigori_RevisionValue_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.google.nigori.common.NigoriMessages.internal_static_nigori_RevisionValue_fieldAccessorTable;
+    }
+    
+    private int bitField0_;
+    // required bytes revision = 1;
+    public static final int REVISION_FIELD_NUMBER = 1;
+    private com.google.protobuf.ByteString revision_;
+    public boolean hasRevision() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    public com.google.protobuf.ByteString getRevision() {
+      return revision_;
+    }
+    
+    // required bytes value = 2;
+    public static final int VALUE_FIELD_NUMBER = 2;
+    private com.google.protobuf.ByteString value_;
+    public boolean hasValue() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    public com.google.protobuf.ByteString getValue() {
+      return value_;
+    }
+    
+    private void initFields() {
+      revision_ = com.google.protobuf.ByteString.EMPTY;
+      value_ = com.google.protobuf.ByteString.EMPTY;
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+      
+      if (!hasRevision()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasValue()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      memoizedIsInitialized = 1;
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeBytes(1, revision_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeBytes(2, value_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(1, revision_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, value_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    @java.lang.Override
+    protected Object writeReplace() throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+    
+    public static com.google.nigori.common.NigoriMessages.RevisionValue parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static com.google.nigori.common.NigoriMessages.RevisionValue parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.google.nigori.common.NigoriMessages.RevisionValue parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static com.google.nigori.common.NigoriMessages.RevisionValue parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.google.nigori.common.NigoriMessages.RevisionValue parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static com.google.nigori.common.NigoriMessages.RevisionValue parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.google.nigori.common.NigoriMessages.RevisionValue parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static com.google.nigori.common.NigoriMessages.RevisionValue parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static com.google.nigori.common.NigoriMessages.RevisionValue parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static com.google.nigori.common.NigoriMessages.RevisionValue parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(com.google.nigori.common.NigoriMessages.RevisionValue prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements com.google.nigori.common.NigoriMessages.RevisionValueOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.google.nigori.common.NigoriMessages.internal_static_nigori_RevisionValue_descriptor;
+      }
+      
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.google.nigori.common.NigoriMessages.internal_static_nigori_RevisionValue_fieldAccessorTable;
+      }
+      
+      // Construct using com.google.nigori.common.NigoriMessages.RevisionValue.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+      
+      private Builder(BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+      
+      public Builder clear() {
+        super.clear();
+        revision_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        value_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.google.nigori.common.NigoriMessages.RevisionValue.getDescriptor();
+      }
+      
+      public com.google.nigori.common.NigoriMessages.RevisionValue getDefaultInstanceForType() {
+        return com.google.nigori.common.NigoriMessages.RevisionValue.getDefaultInstance();
+      }
+      
+      public com.google.nigori.common.NigoriMessages.RevisionValue build() {
+        com.google.nigori.common.NigoriMessages.RevisionValue result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+      
+      private com.google.nigori.common.NigoriMessages.RevisionValue buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        com.google.nigori.common.NigoriMessages.RevisionValue result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return result;
+      }
+      
+      public com.google.nigori.common.NigoriMessages.RevisionValue buildPartial() {
+        com.google.nigori.common.NigoriMessages.RevisionValue result = new com.google.nigori.common.NigoriMessages.RevisionValue(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.revision_ = revision_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.value_ = value_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.google.nigori.common.NigoriMessages.RevisionValue) {
+          return mergeFrom((com.google.nigori.common.NigoriMessages.RevisionValue)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(com.google.nigori.common.NigoriMessages.RevisionValue other) {
+        if (other == com.google.nigori.common.NigoriMessages.RevisionValue.getDefaultInstance()) return this;
+        if (other.hasRevision()) {
+          setRevision(other.getRevision());
+        }
+        if (other.hasValue()) {
+          setValue(other.getValue());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public final boolean isInitialized() {
+        if (!hasRevision()) {
+          
+          return false;
+        }
+        if (!hasValue()) {
+          
+          return false;
+        }
+        return true;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              onChanged();
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                onChanged();
+                return this;
+              }
+              break;
+            }
+            case 10: {
+              bitField0_ |= 0x00000001;
+              revision_ = input.readBytes();
+              break;
+            }
+            case 18: {
+              bitField0_ |= 0x00000002;
+              value_ = input.readBytes();
+              break;
+            }
+          }
+        }
+      }
+      
+      private int bitField0_;
+      
+      // required bytes revision = 1;
+      private com.google.protobuf.ByteString revision_ = com.google.protobuf.ByteString.EMPTY;
+      public boolean hasRevision() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      public com.google.protobuf.ByteString getRevision() {
+        return revision_;
+      }
+      public Builder setRevision(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        revision_ = value;
+        onChanged();
+        return this;
+      }
+      public Builder clearRevision() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        revision_ = getDefaultInstance().getRevision();
+        onChanged();
+        return this;
+      }
+      
+      // required bytes value = 2;
+      private com.google.protobuf.ByteString value_ = com.google.protobuf.ByteString.EMPTY;
+      public boolean hasValue() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      public com.google.protobuf.ByteString getValue() {
+        return value_;
+      }
+      public Builder setValue(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        value_ = value;
+        onChanged();
+        return this;
+      }
+      public Builder clearValue() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        value_ = getDefaultInstance().getValue();
+        onChanged();
+        return this;
+      }
+      
+      // @@protoc_insertion_point(builder_scope:nigori.RevisionValue)
+    }
+    
+    static {
+      defaultInstance = new RevisionValue(true);
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:nigori.RevisionValue)
+  }
+  
   public interface GetRequestOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
     
@@ -570,6 +985,10 @@ public final class NigoriMessages {
     // required bytes key = 2;
     boolean hasKey();
     com.google.protobuf.ByteString getKey();
+    
+    // optional bytes revision = 3;
+    boolean hasRevision();
+    com.google.protobuf.ByteString getRevision();
   }
   public static final class GetRequest extends
       com.google.protobuf.GeneratedMessage
@@ -623,9 +1042,20 @@ public final class NigoriMessages {
       return key_;
     }
     
+    // optional bytes revision = 3;
+    public static final int REVISION_FIELD_NUMBER = 3;
+    private com.google.protobuf.ByteString revision_;
+    public boolean hasRevision() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    public com.google.protobuf.ByteString getRevision() {
+      return revision_;
+    }
+    
     private void initFields() {
       auth_ = com.google.nigori.common.NigoriMessages.AuthenticateRequest.getDefaultInstance();
       key_ = com.google.protobuf.ByteString.EMPTY;
+      revision_ = com.google.protobuf.ByteString.EMPTY;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -657,6 +1087,9 @@ public final class NigoriMessages {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeBytes(2, key_);
       }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeBytes(3, revision_);
+      }
       getUnknownFields().writeTo(output);
     }
     
@@ -673,6 +1106,10 @@ public final class NigoriMessages {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(2, key_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(3, revision_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -805,6 +1242,8 @@ public final class NigoriMessages {
         bitField0_ = (bitField0_ & ~0x00000001);
         key_ = com.google.protobuf.ByteString.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000002);
+        revision_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
       
@@ -855,6 +1294,10 @@ public final class NigoriMessages {
           to_bitField0_ |= 0x00000002;
         }
         result.key_ = key_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.revision_ = revision_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -871,6 +1314,1168 @@ public final class NigoriMessages {
       
       public Builder mergeFrom(com.google.nigori.common.NigoriMessages.GetRequest other) {
         if (other == com.google.nigori.common.NigoriMessages.GetRequest.getDefaultInstance()) return this;
+        if (other.hasAuth()) {
+          mergeAuth(other.getAuth());
+        }
+        if (other.hasKey()) {
+          setKey(other.getKey());
+        }
+        if (other.hasRevision()) {
+          setRevision(other.getRevision());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public final boolean isInitialized() {
+        if (!hasAuth()) {
+          
+          return false;
+        }
+        if (!hasKey()) {
+          
+          return false;
+        }
+        if (!getAuth().isInitialized()) {
+          
+          return false;
+        }
+        return true;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              onChanged();
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                onChanged();
+                return this;
+              }
+              break;
+            }
+            case 10: {
+              com.google.nigori.common.NigoriMessages.AuthenticateRequest.Builder subBuilder = com.google.nigori.common.NigoriMessages.AuthenticateRequest.newBuilder();
+              if (hasAuth()) {
+                subBuilder.mergeFrom(getAuth());
+              }
+              input.readMessage(subBuilder, extensionRegistry);
+              setAuth(subBuilder.buildPartial());
+              break;
+            }
+            case 18: {
+              bitField0_ |= 0x00000002;
+              key_ = input.readBytes();
+              break;
+            }
+            case 26: {
+              bitField0_ |= 0x00000004;
+              revision_ = input.readBytes();
+              break;
+            }
+          }
+        }
+      }
+      
+      private int bitField0_;
+      
+      // required .nigori.AuthenticateRequest auth = 1;
+      private com.google.nigori.common.NigoriMessages.AuthenticateRequest auth_ = com.google.nigori.common.NigoriMessages.AuthenticateRequest.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          com.google.nigori.common.NigoriMessages.AuthenticateRequest, com.google.nigori.common.NigoriMessages.AuthenticateRequest.Builder, com.google.nigori.common.NigoriMessages.AuthenticateRequestOrBuilder> authBuilder_;
+      public boolean hasAuth() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      public com.google.nigori.common.NigoriMessages.AuthenticateRequest getAuth() {
+        if (authBuilder_ == null) {
+          return auth_;
+        } else {
+          return authBuilder_.getMessage();
+        }
+      }
+      public Builder setAuth(com.google.nigori.common.NigoriMessages.AuthenticateRequest value) {
+        if (authBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          auth_ = value;
+          onChanged();
+        } else {
+          authBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      public Builder setAuth(
+          com.google.nigori.common.NigoriMessages.AuthenticateRequest.Builder builderForValue) {
+        if (authBuilder_ == null) {
+          auth_ = builderForValue.build();
+          onChanged();
+        } else {
+          authBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      public Builder mergeAuth(com.google.nigori.common.NigoriMessages.AuthenticateRequest value) {
+        if (authBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001) &&
+              auth_ != com.google.nigori.common.NigoriMessages.AuthenticateRequest.getDefaultInstance()) {
+            auth_ =
+              com.google.nigori.common.NigoriMessages.AuthenticateRequest.newBuilder(auth_).mergeFrom(value).buildPartial();
+          } else {
+            auth_ = value;
+          }
+          onChanged();
+        } else {
+          authBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      public Builder clearAuth() {
+        if (authBuilder_ == null) {
+          auth_ = com.google.nigori.common.NigoriMessages.AuthenticateRequest.getDefaultInstance();
+          onChanged();
+        } else {
+          authBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+      public com.google.nigori.common.NigoriMessages.AuthenticateRequest.Builder getAuthBuilder() {
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return getAuthFieldBuilder().getBuilder();
+      }
+      public com.google.nigori.common.NigoriMessages.AuthenticateRequestOrBuilder getAuthOrBuilder() {
+        if (authBuilder_ != null) {
+          return authBuilder_.getMessageOrBuilder();
+        } else {
+          return auth_;
+        }
+      }
+      private com.google.protobuf.SingleFieldBuilder<
+          com.google.nigori.common.NigoriMessages.AuthenticateRequest, com.google.nigori.common.NigoriMessages.AuthenticateRequest.Builder, com.google.nigori.common.NigoriMessages.AuthenticateRequestOrBuilder> 
+          getAuthFieldBuilder() {
+        if (authBuilder_ == null) {
+          authBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              com.google.nigori.common.NigoriMessages.AuthenticateRequest, com.google.nigori.common.NigoriMessages.AuthenticateRequest.Builder, com.google.nigori.common.NigoriMessages.AuthenticateRequestOrBuilder>(
+                  auth_,
+                  getParentForChildren(),
+                  isClean());
+          auth_ = null;
+        }
+        return authBuilder_;
+      }
+      
+      // required bytes key = 2;
+      private com.google.protobuf.ByteString key_ = com.google.protobuf.ByteString.EMPTY;
+      public boolean hasKey() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      public com.google.protobuf.ByteString getKey() {
+        return key_;
+      }
+      public Builder setKey(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        key_ = value;
+        onChanged();
+        return this;
+      }
+      public Builder clearKey() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+      
+      // optional bytes revision = 3;
+      private com.google.protobuf.ByteString revision_ = com.google.protobuf.ByteString.EMPTY;
+      public boolean hasRevision() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      public com.google.protobuf.ByteString getRevision() {
+        return revision_;
+      }
+      public Builder setRevision(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        revision_ = value;
+        onChanged();
+        return this;
+      }
+      public Builder clearRevision() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        revision_ = getDefaultInstance().getRevision();
+        onChanged();
+        return this;
+      }
+      
+      // @@protoc_insertion_point(builder_scope:nigori.GetRequest)
+    }
+    
+    static {
+      defaultInstance = new GetRequest(true);
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:nigori.GetRequest)
+  }
+  
+  public interface GetResponseOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+    
+    // repeated .nigori.RevisionValue revisions = 1;
+    java.util.List<com.google.nigori.common.NigoriMessages.RevisionValue> 
+        getRevisionsList();
+    com.google.nigori.common.NigoriMessages.RevisionValue getRevisions(int index);
+    int getRevisionsCount();
+    java.util.List<? extends com.google.nigori.common.NigoriMessages.RevisionValueOrBuilder> 
+        getRevisionsOrBuilderList();
+    com.google.nigori.common.NigoriMessages.RevisionValueOrBuilder getRevisionsOrBuilder(
+        int index);
+    
+    // optional bytes key = 2;
+    boolean hasKey();
+    com.google.protobuf.ByteString getKey();
+  }
+  public static final class GetResponse extends
+      com.google.protobuf.GeneratedMessage
+      implements GetResponseOrBuilder {
+    // Use GetResponse.newBuilder() to construct.
+    private GetResponse(Builder builder) {
+      super(builder);
+    }
+    private GetResponse(boolean noInit) {}
+    
+    private static final GetResponse defaultInstance;
+    public static GetResponse getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public GetResponse getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.google.nigori.common.NigoriMessages.internal_static_nigori_GetResponse_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.google.nigori.common.NigoriMessages.internal_static_nigori_GetResponse_fieldAccessorTable;
+    }
+    
+    private int bitField0_;
+    // repeated .nigori.RevisionValue revisions = 1;
+    public static final int REVISIONS_FIELD_NUMBER = 1;
+    private java.util.List<com.google.nigori.common.NigoriMessages.RevisionValue> revisions_;
+    public java.util.List<com.google.nigori.common.NigoriMessages.RevisionValue> getRevisionsList() {
+      return revisions_;
+    }
+    public java.util.List<? extends com.google.nigori.common.NigoriMessages.RevisionValueOrBuilder> 
+        getRevisionsOrBuilderList() {
+      return revisions_;
+    }
+    public int getRevisionsCount() {
+      return revisions_.size();
+    }
+    public com.google.nigori.common.NigoriMessages.RevisionValue getRevisions(int index) {
+      return revisions_.get(index);
+    }
+    public com.google.nigori.common.NigoriMessages.RevisionValueOrBuilder getRevisionsOrBuilder(
+        int index) {
+      return revisions_.get(index);
+    }
+    
+    // optional bytes key = 2;
+    public static final int KEY_FIELD_NUMBER = 2;
+    private com.google.protobuf.ByteString key_;
+    public boolean hasKey() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    public com.google.protobuf.ByteString getKey() {
+      return key_;
+    }
+    
+    private void initFields() {
+      revisions_ = java.util.Collections.emptyList();
+      key_ = com.google.protobuf.ByteString.EMPTY;
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+      
+      for (int i = 0; i < getRevisionsCount(); i++) {
+        if (!getRevisions(i).isInitialized()) {
+          memoizedIsInitialized = 0;
+          return false;
+        }
+      }
+      memoizedIsInitialized = 1;
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      for (int i = 0; i < revisions_.size(); i++) {
+        output.writeMessage(1, revisions_.get(i));
+      }
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeBytes(2, key_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      for (int i = 0; i < revisions_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, revisions_.get(i));
+      }
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, key_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    @java.lang.Override
+    protected Object writeReplace() throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+    
+    public static com.google.nigori.common.NigoriMessages.GetResponse parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static com.google.nigori.common.NigoriMessages.GetResponse parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.google.nigori.common.NigoriMessages.GetResponse parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static com.google.nigori.common.NigoriMessages.GetResponse parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.google.nigori.common.NigoriMessages.GetResponse parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static com.google.nigori.common.NigoriMessages.GetResponse parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.google.nigori.common.NigoriMessages.GetResponse parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static com.google.nigori.common.NigoriMessages.GetResponse parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static com.google.nigori.common.NigoriMessages.GetResponse parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static com.google.nigori.common.NigoriMessages.GetResponse parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(com.google.nigori.common.NigoriMessages.GetResponse prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements com.google.nigori.common.NigoriMessages.GetResponseOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.google.nigori.common.NigoriMessages.internal_static_nigori_GetResponse_descriptor;
+      }
+      
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.google.nigori.common.NigoriMessages.internal_static_nigori_GetResponse_fieldAccessorTable;
+      }
+      
+      // Construct using com.google.nigori.common.NigoriMessages.GetResponse.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+      
+      private Builder(BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getRevisionsFieldBuilder();
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+      
+      public Builder clear() {
+        super.clear();
+        if (revisionsBuilder_ == null) {
+          revisions_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          revisionsBuilder_.clear();
+        }
+        key_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.google.nigori.common.NigoriMessages.GetResponse.getDescriptor();
+      }
+      
+      public com.google.nigori.common.NigoriMessages.GetResponse getDefaultInstanceForType() {
+        return com.google.nigori.common.NigoriMessages.GetResponse.getDefaultInstance();
+      }
+      
+      public com.google.nigori.common.NigoriMessages.GetResponse build() {
+        com.google.nigori.common.NigoriMessages.GetResponse result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+      
+      private com.google.nigori.common.NigoriMessages.GetResponse buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        com.google.nigori.common.NigoriMessages.GetResponse result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return result;
+      }
+      
+      public com.google.nigori.common.NigoriMessages.GetResponse buildPartial() {
+        com.google.nigori.common.NigoriMessages.GetResponse result = new com.google.nigori.common.NigoriMessages.GetResponse(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (revisionsBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001)) {
+            revisions_ = java.util.Collections.unmodifiableList(revisions_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.revisions_ = revisions_;
+        } else {
+          result.revisions_ = revisionsBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.key_ = key_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.google.nigori.common.NigoriMessages.GetResponse) {
+          return mergeFrom((com.google.nigori.common.NigoriMessages.GetResponse)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(com.google.nigori.common.NigoriMessages.GetResponse other) {
+        if (other == com.google.nigori.common.NigoriMessages.GetResponse.getDefaultInstance()) return this;
+        if (revisionsBuilder_ == null) {
+          if (!other.revisions_.isEmpty()) {
+            if (revisions_.isEmpty()) {
+              revisions_ = other.revisions_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+            } else {
+              ensureRevisionsIsMutable();
+              revisions_.addAll(other.revisions_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.revisions_.isEmpty()) {
+            if (revisionsBuilder_.isEmpty()) {
+              revisionsBuilder_.dispose();
+              revisionsBuilder_ = null;
+              revisions_ = other.revisions_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              revisionsBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getRevisionsFieldBuilder() : null;
+            } else {
+              revisionsBuilder_.addAllMessages(other.revisions_);
+            }
+          }
+        }
+        if (other.hasKey()) {
+          setKey(other.getKey());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+      
+      public final boolean isInitialized() {
+        for (int i = 0; i < getRevisionsCount(); i++) {
+          if (!getRevisions(i).isInitialized()) {
+            
+            return false;
+          }
+        }
+        return true;
+      }
+      
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder(
+            this.getUnknownFields());
+        while (true) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              this.setUnknownFields(unknownFields.build());
+              onChanged();
+              return this;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                this.setUnknownFields(unknownFields.build());
+                onChanged();
+                return this;
+              }
+              break;
+            }
+            case 10: {
+              com.google.nigori.common.NigoriMessages.RevisionValue.Builder subBuilder = com.google.nigori.common.NigoriMessages.RevisionValue.newBuilder();
+              input.readMessage(subBuilder, extensionRegistry);
+              addRevisions(subBuilder.buildPartial());
+              break;
+            }
+            case 18: {
+              bitField0_ |= 0x00000002;
+              key_ = input.readBytes();
+              break;
+            }
+          }
+        }
+      }
+      
+      private int bitField0_;
+      
+      // repeated .nigori.RevisionValue revisions = 1;
+      private java.util.List<com.google.nigori.common.NigoriMessages.RevisionValue> revisions_ =
+        java.util.Collections.emptyList();
+      private void ensureRevisionsIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          revisions_ = new java.util.ArrayList<com.google.nigori.common.NigoriMessages.RevisionValue>(revisions_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+      
+      private com.google.protobuf.RepeatedFieldBuilder<
+          com.google.nigori.common.NigoriMessages.RevisionValue, com.google.nigori.common.NigoriMessages.RevisionValue.Builder, com.google.nigori.common.NigoriMessages.RevisionValueOrBuilder> revisionsBuilder_;
+      
+      public java.util.List<com.google.nigori.common.NigoriMessages.RevisionValue> getRevisionsList() {
+        if (revisionsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(revisions_);
+        } else {
+          return revisionsBuilder_.getMessageList();
+        }
+      }
+      public int getRevisionsCount() {
+        if (revisionsBuilder_ == null) {
+          return revisions_.size();
+        } else {
+          return revisionsBuilder_.getCount();
+        }
+      }
+      public com.google.nigori.common.NigoriMessages.RevisionValue getRevisions(int index) {
+        if (revisionsBuilder_ == null) {
+          return revisions_.get(index);
+        } else {
+          return revisionsBuilder_.getMessage(index);
+        }
+      }
+      public Builder setRevisions(
+          int index, com.google.nigori.common.NigoriMessages.RevisionValue value) {
+        if (revisionsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureRevisionsIsMutable();
+          revisions_.set(index, value);
+          onChanged();
+        } else {
+          revisionsBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      public Builder setRevisions(
+          int index, com.google.nigori.common.NigoriMessages.RevisionValue.Builder builderForValue) {
+        if (revisionsBuilder_ == null) {
+          ensureRevisionsIsMutable();
+          revisions_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          revisionsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      public Builder addRevisions(com.google.nigori.common.NigoriMessages.RevisionValue value) {
+        if (revisionsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureRevisionsIsMutable();
+          revisions_.add(value);
+          onChanged();
+        } else {
+          revisionsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      public Builder addRevisions(
+          int index, com.google.nigori.common.NigoriMessages.RevisionValue value) {
+        if (revisionsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureRevisionsIsMutable();
+          revisions_.add(index, value);
+          onChanged();
+        } else {
+          revisionsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      public Builder addRevisions(
+          com.google.nigori.common.NigoriMessages.RevisionValue.Builder builderForValue) {
+        if (revisionsBuilder_ == null) {
+          ensureRevisionsIsMutable();
+          revisions_.add(builderForValue.build());
+          onChanged();
+        } else {
+          revisionsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      public Builder addRevisions(
+          int index, com.google.nigori.common.NigoriMessages.RevisionValue.Builder builderForValue) {
+        if (revisionsBuilder_ == null) {
+          ensureRevisionsIsMutable();
+          revisions_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          revisionsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      public Builder addAllRevisions(
+          java.lang.Iterable<? extends com.google.nigori.common.NigoriMessages.RevisionValue> values) {
+        if (revisionsBuilder_ == null) {
+          ensureRevisionsIsMutable();
+          super.addAll(values, revisions_);
+          onChanged();
+        } else {
+          revisionsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      public Builder clearRevisions() {
+        if (revisionsBuilder_ == null) {
+          revisions_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          revisionsBuilder_.clear();
+        }
+        return this;
+      }
+      public Builder removeRevisions(int index) {
+        if (revisionsBuilder_ == null) {
+          ensureRevisionsIsMutable();
+          revisions_.remove(index);
+          onChanged();
+        } else {
+          revisionsBuilder_.remove(index);
+        }
+        return this;
+      }
+      public com.google.nigori.common.NigoriMessages.RevisionValue.Builder getRevisionsBuilder(
+          int index) {
+        return getRevisionsFieldBuilder().getBuilder(index);
+      }
+      public com.google.nigori.common.NigoriMessages.RevisionValueOrBuilder getRevisionsOrBuilder(
+          int index) {
+        if (revisionsBuilder_ == null) {
+          return revisions_.get(index);  } else {
+          return revisionsBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      public java.util.List<? extends com.google.nigori.common.NigoriMessages.RevisionValueOrBuilder> 
+           getRevisionsOrBuilderList() {
+        if (revisionsBuilder_ != null) {
+          return revisionsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(revisions_);
+        }
+      }
+      public com.google.nigori.common.NigoriMessages.RevisionValue.Builder addRevisionsBuilder() {
+        return getRevisionsFieldBuilder().addBuilder(
+            com.google.nigori.common.NigoriMessages.RevisionValue.getDefaultInstance());
+      }
+      public com.google.nigori.common.NigoriMessages.RevisionValue.Builder addRevisionsBuilder(
+          int index) {
+        return getRevisionsFieldBuilder().addBuilder(
+            index, com.google.nigori.common.NigoriMessages.RevisionValue.getDefaultInstance());
+      }
+      public java.util.List<com.google.nigori.common.NigoriMessages.RevisionValue.Builder> 
+           getRevisionsBuilderList() {
+        return getRevisionsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          com.google.nigori.common.NigoriMessages.RevisionValue, com.google.nigori.common.NigoriMessages.RevisionValue.Builder, com.google.nigori.common.NigoriMessages.RevisionValueOrBuilder> 
+          getRevisionsFieldBuilder() {
+        if (revisionsBuilder_ == null) {
+          revisionsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              com.google.nigori.common.NigoriMessages.RevisionValue, com.google.nigori.common.NigoriMessages.RevisionValue.Builder, com.google.nigori.common.NigoriMessages.RevisionValueOrBuilder>(
+                  revisions_,
+                  ((bitField0_ & 0x00000001) == 0x00000001),
+                  getParentForChildren(),
+                  isClean());
+          revisions_ = null;
+        }
+        return revisionsBuilder_;
+      }
+      
+      // optional bytes key = 2;
+      private com.google.protobuf.ByteString key_ = com.google.protobuf.ByteString.EMPTY;
+      public boolean hasKey() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      public com.google.protobuf.ByteString getKey() {
+        return key_;
+      }
+      public Builder setKey(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        key_ = value;
+        onChanged();
+        return this;
+      }
+      public Builder clearKey() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+      
+      // @@protoc_insertion_point(builder_scope:nigori.GetResponse)
+    }
+    
+    static {
+      defaultInstance = new GetResponse(true);
+      defaultInstance.initFields();
+    }
+    
+    // @@protoc_insertion_point(class_scope:nigori.GetResponse)
+  }
+  
+  public interface GetRevisionsOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+    
+    // required .nigori.AuthenticateRequest auth = 1;
+    boolean hasAuth();
+    com.google.nigori.common.NigoriMessages.AuthenticateRequest getAuth();
+    com.google.nigori.common.NigoriMessages.AuthenticateRequestOrBuilder getAuthOrBuilder();
+    
+    // required bytes key = 2;
+    boolean hasKey();
+    com.google.protobuf.ByteString getKey();
+  }
+  public static final class GetRevisions extends
+      com.google.protobuf.GeneratedMessage
+      implements GetRevisionsOrBuilder {
+    // Use GetRevisions.newBuilder() to construct.
+    private GetRevisions(Builder builder) {
+      super(builder);
+    }
+    private GetRevisions(boolean noInit) {}
+    
+    private static final GetRevisions defaultInstance;
+    public static GetRevisions getDefaultInstance() {
+      return defaultInstance;
+    }
+    
+    public GetRevisions getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+    
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.google.nigori.common.NigoriMessages.internal_static_nigori_GetRevisions_descriptor;
+    }
+    
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.google.nigori.common.NigoriMessages.internal_static_nigori_GetRevisions_fieldAccessorTable;
+    }
+    
+    private int bitField0_;
+    // required .nigori.AuthenticateRequest auth = 1;
+    public static final int AUTH_FIELD_NUMBER = 1;
+    private com.google.nigori.common.NigoriMessages.AuthenticateRequest auth_;
+    public boolean hasAuth() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    public com.google.nigori.common.NigoriMessages.AuthenticateRequest getAuth() {
+      return auth_;
+    }
+    public com.google.nigori.common.NigoriMessages.AuthenticateRequestOrBuilder getAuthOrBuilder() {
+      return auth_;
+    }
+    
+    // required bytes key = 2;
+    public static final int KEY_FIELD_NUMBER = 2;
+    private com.google.protobuf.ByteString key_;
+    public boolean hasKey() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    public com.google.protobuf.ByteString getKey() {
+      return key_;
+    }
+    
+    private void initFields() {
+      auth_ = com.google.nigori.common.NigoriMessages.AuthenticateRequest.getDefaultInstance();
+      key_ = com.google.protobuf.ByteString.EMPTY;
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+      
+      if (!hasAuth()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasKey()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!getAuth().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      memoizedIsInitialized = 1;
+      return true;
+    }
+    
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeMessage(1, auth_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeBytes(2, key_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+    
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+    
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, auth_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, key_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+    
+    @java.lang.Override
+    protected Object writeReplace() throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+    
+    public static com.google.nigori.common.NigoriMessages.GetRevisions parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static com.google.nigori.common.NigoriMessages.GetRevisions parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.google.nigori.common.NigoriMessages.GetRevisions parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data).buildParsed();
+    }
+    public static com.google.nigori.common.NigoriMessages.GetRevisions parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return newBuilder().mergeFrom(data, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.google.nigori.common.NigoriMessages.GetRevisions parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static com.google.nigori.common.NigoriMessages.GetRevisions parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    public static com.google.nigori.common.NigoriMessages.GetRevisions parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static com.google.nigori.common.NigoriMessages.GetRevisions parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      Builder builder = newBuilder();
+      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
+        return builder.buildParsed();
+      } else {
+        return null;
+      }
+    }
+    public static com.google.nigori.common.NigoriMessages.GetRevisions parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input).buildParsed();
+    }
+    public static com.google.nigori.common.NigoriMessages.GetRevisions parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return newBuilder().mergeFrom(input, extensionRegistry)
+               .buildParsed();
+    }
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(com.google.nigori.common.NigoriMessages.GetRevisions prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+    
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements com.google.nigori.common.NigoriMessages.GetRevisionsOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.google.nigori.common.NigoriMessages.internal_static_nigori_GetRevisions_descriptor;
+      }
+      
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.google.nigori.common.NigoriMessages.internal_static_nigori_GetRevisions_fieldAccessorTable;
+      }
+      
+      // Construct using com.google.nigori.common.NigoriMessages.GetRevisions.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+      
+      private Builder(BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getAuthFieldBuilder();
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+      
+      public Builder clear() {
+        super.clear();
+        if (authBuilder_ == null) {
+          auth_ = com.google.nigori.common.NigoriMessages.AuthenticateRequest.getDefaultInstance();
+        } else {
+          authBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        key_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+      
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+      
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.google.nigori.common.NigoriMessages.GetRevisions.getDescriptor();
+      }
+      
+      public com.google.nigori.common.NigoriMessages.GetRevisions getDefaultInstanceForType() {
+        return com.google.nigori.common.NigoriMessages.GetRevisions.getDefaultInstance();
+      }
+      
+      public com.google.nigori.common.NigoriMessages.GetRevisions build() {
+        com.google.nigori.common.NigoriMessages.GetRevisions result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+      
+      private com.google.nigori.common.NigoriMessages.GetRevisions buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        com.google.nigori.common.NigoriMessages.GetRevisions result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(
+            result).asInvalidProtocolBufferException();
+        }
+        return result;
+      }
+      
+      public com.google.nigori.common.NigoriMessages.GetRevisions buildPartial() {
+        com.google.nigori.common.NigoriMessages.GetRevisions result = new com.google.nigori.common.NigoriMessages.GetRevisions(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        if (authBuilder_ == null) {
+          result.auth_ = auth_;
+        } else {
+          result.auth_ = authBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.key_ = key_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+      
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.google.nigori.common.NigoriMessages.GetRevisions) {
+          return mergeFrom((com.google.nigori.common.NigoriMessages.GetRevisions)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+      
+      public Builder mergeFrom(com.google.nigori.common.NigoriMessages.GetRevisions other) {
+        if (other == com.google.nigori.common.NigoriMessages.GetRevisions.getDefaultInstance()) return this;
         if (other.hasAuth()) {
           mergeAuth(other.getAuth());
         }
@@ -1054,75 +2659,91 @@ public final class NigoriMessages {
         return this;
       }
       
-      // @@protoc_insertion_point(builder_scope:nigori.GetRequest)
+      // @@protoc_insertion_point(builder_scope:nigori.GetRevisions)
     }
     
     static {
-      defaultInstance = new GetRequest(true);
+      defaultInstance = new GetRevisions(true);
       defaultInstance.initFields();
     }
     
-    // @@protoc_insertion_point(class_scope:nigori.GetRequest)
+    // @@protoc_insertion_point(class_scope:nigori.GetRevisions)
   }
   
-  public interface GetResponseOrBuilder
+  public interface GetRevisionsResponseOrBuilder
       extends com.google.protobuf.MessageOrBuilder {
     
-    // required bytes value = 1;
-    boolean hasValue();
-    com.google.protobuf.ByteString getValue();
+    // repeated bytes revisions = 1;
+    java.util.List<com.google.protobuf.ByteString> getRevisionsList();
+    int getRevisionsCount();
+    com.google.protobuf.ByteString getRevisions(int index);
+    
+    // optional bytes key = 2;
+    boolean hasKey();
+    com.google.protobuf.ByteString getKey();
   }
-  public static final class GetResponse extends
+  public static final class GetRevisionsResponse extends
       com.google.protobuf.GeneratedMessage
-      implements GetResponseOrBuilder {
-    // Use GetResponse.newBuilder() to construct.
-    private GetResponse(Builder builder) {
+      implements GetRevisionsResponseOrBuilder {
+    // Use GetRevisionsResponse.newBuilder() to construct.
+    private GetRevisionsResponse(Builder builder) {
       super(builder);
     }
-    private GetResponse(boolean noInit) {}
+    private GetRevisionsResponse(boolean noInit) {}
     
-    private static final GetResponse defaultInstance;
-    public static GetResponse getDefaultInstance() {
+    private static final GetRevisionsResponse defaultInstance;
+    public static GetRevisionsResponse getDefaultInstance() {
       return defaultInstance;
     }
     
-    public GetResponse getDefaultInstanceForType() {
+    public GetRevisionsResponse getDefaultInstanceForType() {
       return defaultInstance;
     }
     
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.google.nigori.common.NigoriMessages.internal_static_nigori_GetResponse_descriptor;
+      return com.google.nigori.common.NigoriMessages.internal_static_nigori_GetRevisionsResponse_descriptor;
     }
     
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.google.nigori.common.NigoriMessages.internal_static_nigori_GetResponse_fieldAccessorTable;
+      return com.google.nigori.common.NigoriMessages.internal_static_nigori_GetRevisionsResponse_fieldAccessorTable;
     }
     
     private int bitField0_;
-    // required bytes value = 1;
-    public static final int VALUE_FIELD_NUMBER = 1;
-    private com.google.protobuf.ByteString value_;
-    public boolean hasValue() {
+    // repeated bytes revisions = 1;
+    public static final int REVISIONS_FIELD_NUMBER = 1;
+    private java.util.List<com.google.protobuf.ByteString> revisions_;
+    public java.util.List<com.google.protobuf.ByteString>
+        getRevisionsList() {
+      return revisions_;
+    }
+    public int getRevisionsCount() {
+      return revisions_.size();
+    }
+    public com.google.protobuf.ByteString getRevisions(int index) {
+      return revisions_.get(index);
+    }
+    
+    // optional bytes key = 2;
+    public static final int KEY_FIELD_NUMBER = 2;
+    private com.google.protobuf.ByteString key_;
+    public boolean hasKey() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
-    public com.google.protobuf.ByteString getValue() {
-      return value_;
+    public com.google.protobuf.ByteString getKey() {
+      return key_;
     }
     
     private void initFields() {
-      value_ = com.google.protobuf.ByteString.EMPTY;
+      revisions_ = java.util.Collections.emptyList();;
+      key_ = com.google.protobuf.ByteString.EMPTY;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
       
-      if (!hasValue()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -1130,8 +2751,11 @@ public final class NigoriMessages {
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
+      for (int i = 0; i < revisions_.size(); i++) {
+        output.writeBytes(1, revisions_.get(i));
+      }
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, value_);
+        output.writeBytes(2, key_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -1142,9 +2766,18 @@ public final class NigoriMessages {
       if (size != -1) return size;
     
       size = 0;
+      {
+        int dataSize = 0;
+        for (int i = 0; i < revisions_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeBytesSizeNoTag(revisions_.get(i));
+        }
+        size += dataSize;
+        size += 1 * getRevisionsList().size();
+      }
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, value_);
+          .computeBytesSize(2, key_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1156,41 +2789,41 @@ public final class NigoriMessages {
       return super.writeReplace();
     }
     
-    public static com.google.nigori.common.NigoriMessages.GetResponse parseFrom(
+    public static com.google.nigori.common.NigoriMessages.GetRevisionsResponse parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-    public static com.google.nigori.common.NigoriMessages.GetResponse parseFrom(
+    public static com.google.nigori.common.NigoriMessages.GetRevisionsResponse parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
                .buildParsed();
     }
-    public static com.google.nigori.common.NigoriMessages.GetResponse parseFrom(byte[] data)
+    public static com.google.nigori.common.NigoriMessages.GetRevisionsResponse parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-    public static com.google.nigori.common.NigoriMessages.GetResponse parseFrom(
+    public static com.google.nigori.common.NigoriMessages.GetRevisionsResponse parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
                .buildParsed();
     }
-    public static com.google.nigori.common.NigoriMessages.GetResponse parseFrom(java.io.InputStream input)
+    public static com.google.nigori.common.NigoriMessages.GetRevisionsResponse parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-    public static com.google.nigori.common.NigoriMessages.GetResponse parseFrom(
+    public static com.google.nigori.common.NigoriMessages.GetRevisionsResponse parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input, extensionRegistry)
                .buildParsed();
     }
-    public static com.google.nigori.common.NigoriMessages.GetResponse parseDelimitedFrom(java.io.InputStream input)
+    public static com.google.nigori.common.NigoriMessages.GetRevisionsResponse parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       Builder builder = newBuilder();
       if (builder.mergeDelimitedFrom(input)) {
@@ -1199,7 +2832,7 @@ public final class NigoriMessages {
         return null;
       }
     }
-    public static com.google.nigori.common.NigoriMessages.GetResponse parseDelimitedFrom(
+    public static com.google.nigori.common.NigoriMessages.GetRevisionsResponse parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -1210,12 +2843,12 @@ public final class NigoriMessages {
         return null;
       }
     }
-    public static com.google.nigori.common.NigoriMessages.GetResponse parseFrom(
+    public static com.google.nigori.common.NigoriMessages.GetRevisionsResponse parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-    public static com.google.nigori.common.NigoriMessages.GetResponse parseFrom(
+    public static com.google.nigori.common.NigoriMessages.GetRevisionsResponse parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -1225,7 +2858,7 @@ public final class NigoriMessages {
     
     public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(com.google.nigori.common.NigoriMessages.GetResponse prototype) {
+    public static Builder newBuilder(com.google.nigori.common.NigoriMessages.GetRevisionsResponse prototype) {
       return newBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() { return newBuilder(this); }
@@ -1238,18 +2871,18 @@ public final class NigoriMessages {
     }
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements com.google.nigori.common.NigoriMessages.GetResponseOrBuilder {
+       implements com.google.nigori.common.NigoriMessages.GetRevisionsResponseOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.google.nigori.common.NigoriMessages.internal_static_nigori_GetResponse_descriptor;
+        return com.google.nigori.common.NigoriMessages.internal_static_nigori_GetRevisionsResponse_descriptor;
       }
       
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.google.nigori.common.NigoriMessages.internal_static_nigori_GetResponse_fieldAccessorTable;
+        return com.google.nigori.common.NigoriMessages.internal_static_nigori_GetRevisionsResponse_fieldAccessorTable;
       }
       
-      // Construct using com.google.nigori.common.NigoriMessages.GetResponse.newBuilder()
+      // Construct using com.google.nigori.common.NigoriMessages.GetRevisionsResponse.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -1268,8 +2901,10 @@ public final class NigoriMessages {
       
       public Builder clear() {
         super.clear();
-        value_ = com.google.protobuf.ByteString.EMPTY;
+        revisions_ = java.util.Collections.emptyList();;
         bitField0_ = (bitField0_ & ~0x00000001);
+        key_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000002);
         return this;
       }
       
@@ -1279,24 +2914,24 @@ public final class NigoriMessages {
       
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.google.nigori.common.NigoriMessages.GetResponse.getDescriptor();
+        return com.google.nigori.common.NigoriMessages.GetRevisionsResponse.getDescriptor();
       }
       
-      public com.google.nigori.common.NigoriMessages.GetResponse getDefaultInstanceForType() {
-        return com.google.nigori.common.NigoriMessages.GetResponse.getDefaultInstance();
+      public com.google.nigori.common.NigoriMessages.GetRevisionsResponse getDefaultInstanceForType() {
+        return com.google.nigori.common.NigoriMessages.GetRevisionsResponse.getDefaultInstance();
       }
       
-      public com.google.nigori.common.NigoriMessages.GetResponse build() {
-        com.google.nigori.common.NigoriMessages.GetResponse result = buildPartial();
+      public com.google.nigori.common.NigoriMessages.GetRevisionsResponse build() {
+        com.google.nigori.common.NigoriMessages.GetRevisionsResponse result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
       
-      private com.google.nigori.common.NigoriMessages.GetResponse buildParsed()
+      private com.google.nigori.common.NigoriMessages.GetRevisionsResponse buildParsed()
           throws com.google.protobuf.InvalidProtocolBufferException {
-        com.google.nigori.common.NigoriMessages.GetResponse result = buildPartial();
+        com.google.nigori.common.NigoriMessages.GetRevisionsResponse result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(
             result).asInvalidProtocolBufferException();
@@ -1304,42 +2939,53 @@ public final class NigoriMessages {
         return result;
       }
       
-      public com.google.nigori.common.NigoriMessages.GetResponse buildPartial() {
-        com.google.nigori.common.NigoriMessages.GetResponse result = new com.google.nigori.common.NigoriMessages.GetResponse(this);
+      public com.google.nigori.common.NigoriMessages.GetRevisionsResponse buildPartial() {
+        com.google.nigori.common.NigoriMessages.GetRevisionsResponse result = new com.google.nigori.common.NigoriMessages.GetRevisionsResponse(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          revisions_ = java.util.Collections.unmodifiableList(revisions_);
+          bitField0_ = (bitField0_ & ~0x00000001);
+        }
+        result.revisions_ = revisions_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
           to_bitField0_ |= 0x00000001;
         }
-        result.value_ = value_;
+        result.key_ = key_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
       
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof com.google.nigori.common.NigoriMessages.GetResponse) {
-          return mergeFrom((com.google.nigori.common.NigoriMessages.GetResponse)other);
+        if (other instanceof com.google.nigori.common.NigoriMessages.GetRevisionsResponse) {
+          return mergeFrom((com.google.nigori.common.NigoriMessages.GetRevisionsResponse)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
       
-      public Builder mergeFrom(com.google.nigori.common.NigoriMessages.GetResponse other) {
-        if (other == com.google.nigori.common.NigoriMessages.GetResponse.getDefaultInstance()) return this;
-        if (other.hasValue()) {
-          setValue(other.getValue());
+      public Builder mergeFrom(com.google.nigori.common.NigoriMessages.GetRevisionsResponse other) {
+        if (other == com.google.nigori.common.NigoriMessages.GetRevisionsResponse.getDefaultInstance()) return this;
+        if (!other.revisions_.isEmpty()) {
+          if (revisions_.isEmpty()) {
+            revisions_ = other.revisions_;
+            bitField0_ = (bitField0_ & ~0x00000001);
+          } else {
+            ensureRevisionsIsMutable();
+            revisions_.addAll(other.revisions_);
+          }
+          onChanged();
+        }
+        if (other.hasKey()) {
+          setKey(other.getKey());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
       
       public final boolean isInitialized() {
-        if (!hasValue()) {
-          
-          return false;
-        }
         return true;
       }
       
@@ -1367,8 +3013,13 @@ public final class NigoriMessages {
               break;
             }
             case 10: {
-              bitField0_ |= 0x00000001;
-              value_ = input.readBytes();
+              ensureRevisionsIsMutable();
+              revisions_.add(input.readBytes());
+              break;
+            }
+            case 18: {
+              bitField0_ |= 0x00000002;
+              key_ = input.readBytes();
               break;
             }
           }
@@ -1377,39 +3028,90 @@ public final class NigoriMessages {
       
       private int bitField0_;
       
-      // required bytes value = 1;
-      private com.google.protobuf.ByteString value_ = com.google.protobuf.ByteString.EMPTY;
-      public boolean hasValue() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+      // repeated bytes revisions = 1;
+      private java.util.List<com.google.protobuf.ByteString> revisions_ = java.util.Collections.emptyList();;
+      private void ensureRevisionsIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          revisions_ = new java.util.ArrayList<com.google.protobuf.ByteString>(revisions_);
+          bitField0_ |= 0x00000001;
+         }
       }
-      public com.google.protobuf.ByteString getValue() {
-        return value_;
+      public java.util.List<com.google.protobuf.ByteString>
+          getRevisionsList() {
+        return java.util.Collections.unmodifiableList(revisions_);
       }
-      public Builder setValue(com.google.protobuf.ByteString value) {
+      public int getRevisionsCount() {
+        return revisions_.size();
+      }
+      public com.google.protobuf.ByteString getRevisions(int index) {
+        return revisions_.get(index);
+      }
+      public Builder setRevisions(
+          int index, com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
-        value_ = value;
+  ensureRevisionsIsMutable();
+        revisions_.set(index, value);
         onChanged();
         return this;
       }
-      public Builder clearValue() {
+      public Builder addRevisions(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureRevisionsIsMutable();
+        revisions_.add(value);
+        onChanged();
+        return this;
+      }
+      public Builder addAllRevisions(
+          java.lang.Iterable<? extends com.google.protobuf.ByteString> values) {
+        ensureRevisionsIsMutable();
+        super.addAll(values, revisions_);
+        onChanged();
+        return this;
+      }
+      public Builder clearRevisions() {
+        revisions_ = java.util.Collections.emptyList();;
         bitField0_ = (bitField0_ & ~0x00000001);
-        value_ = getDefaultInstance().getValue();
         onChanged();
         return this;
       }
       
-      // @@protoc_insertion_point(builder_scope:nigori.GetResponse)
+      // optional bytes key = 2;
+      private com.google.protobuf.ByteString key_ = com.google.protobuf.ByteString.EMPTY;
+      public boolean hasKey() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      public com.google.protobuf.ByteString getKey() {
+        return key_;
+      }
+      public Builder setKey(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        key_ = value;
+        onChanged();
+        return this;
+      }
+      public Builder clearKey() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+      
+      // @@protoc_insertion_point(builder_scope:nigori.GetRevisionsResponse)
     }
     
     static {
-      defaultInstance = new GetResponse(true);
+      defaultInstance = new GetRevisionsResponse(true);
       defaultInstance.initFields();
     }
     
-    // @@protoc_insertion_point(class_scope:nigori.GetResponse)
+    // @@protoc_insertion_point(class_scope:nigori.GetRevisionsResponse)
   }
   
   public interface PutRequestOrBuilder
@@ -1424,7 +3126,11 @@ public final class NigoriMessages {
     boolean hasKey();
     com.google.protobuf.ByteString getKey();
     
-    // required bytes value = 3;
+    // required bytes revision = 3;
+    boolean hasRevision();
+    com.google.protobuf.ByteString getRevision();
+    
+    // required bytes value = 4;
     boolean hasValue();
     com.google.protobuf.ByteString getValue();
   }
@@ -1480,11 +3186,21 @@ public final class NigoriMessages {
       return key_;
     }
     
-    // required bytes value = 3;
-    public static final int VALUE_FIELD_NUMBER = 3;
+    // required bytes revision = 3;
+    public static final int REVISION_FIELD_NUMBER = 3;
+    private com.google.protobuf.ByteString revision_;
+    public boolean hasRevision() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    public com.google.protobuf.ByteString getRevision() {
+      return revision_;
+    }
+    
+    // required bytes value = 4;
+    public static final int VALUE_FIELD_NUMBER = 4;
     private com.google.protobuf.ByteString value_;
     public boolean hasValue() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
+      return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     public com.google.protobuf.ByteString getValue() {
       return value_;
@@ -1493,6 +3209,7 @@ public final class NigoriMessages {
     private void initFields() {
       auth_ = com.google.nigori.common.NigoriMessages.AuthenticateRequest.getDefaultInstance();
       key_ = com.google.protobuf.ByteString.EMPTY;
+      revision_ = com.google.protobuf.ByteString.EMPTY;
       value_ = com.google.protobuf.ByteString.EMPTY;
     }
     private byte memoizedIsInitialized = -1;
@@ -1505,6 +3222,10 @@ public final class NigoriMessages {
         return false;
       }
       if (!hasKey()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasRevision()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -1530,7 +3251,10 @@ public final class NigoriMessages {
         output.writeBytes(2, key_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeBytes(3, value_);
+        output.writeBytes(3, revision_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        output.writeBytes(4, value_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -1551,7 +3275,11 @@ public final class NigoriMessages {
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(3, value_);
+          .computeBytesSize(3, revision_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(4, value_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1684,8 +3412,10 @@ public final class NigoriMessages {
         bitField0_ = (bitField0_ & ~0x00000001);
         key_ = com.google.protobuf.ByteString.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000002);
-        value_ = com.google.protobuf.ByteString.EMPTY;
+        revision_ = com.google.protobuf.ByteString.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000004);
+        value_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000008);
         return this;
       }
       
@@ -1739,6 +3469,10 @@ public final class NigoriMessages {
         if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
           to_bitField0_ |= 0x00000004;
         }
+        result.revision_ = revision_;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000008;
+        }
         result.value_ = value_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -1762,6 +3496,9 @@ public final class NigoriMessages {
         if (other.hasKey()) {
           setKey(other.getKey());
         }
+        if (other.hasRevision()) {
+          setRevision(other.getRevision());
+        }
         if (other.hasValue()) {
           setValue(other.getValue());
         }
@@ -1775,6 +3512,10 @@ public final class NigoriMessages {
           return false;
         }
         if (!hasKey()) {
+          
+          return false;
+        }
+        if (!hasRevision()) {
           
           return false;
         }
@@ -1828,6 +3569,11 @@ public final class NigoriMessages {
             }
             case 26: {
               bitField0_ |= 0x00000004;
+              revision_ = input.readBytes();
+              break;
+            }
+            case 34: {
+              bitField0_ |= 0x00000008;
               value_ = input.readBytes();
               break;
             }
@@ -1951,10 +3697,34 @@ public final class NigoriMessages {
         return this;
       }
       
-      // required bytes value = 3;
+      // required bytes revision = 3;
+      private com.google.protobuf.ByteString revision_ = com.google.protobuf.ByteString.EMPTY;
+      public boolean hasRevision() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      public com.google.protobuf.ByteString getRevision() {
+        return revision_;
+      }
+      public Builder setRevision(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        revision_ = value;
+        onChanged();
+        return this;
+      }
+      public Builder clearRevision() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        revision_ = getDefaultInstance().getRevision();
+        onChanged();
+        return this;
+      }
+      
+      // required bytes value = 4;
       private com.google.protobuf.ByteString value_ = com.google.protobuf.ByteString.EMPTY;
       public boolean hasValue() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
+        return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       public com.google.protobuf.ByteString getValue() {
         return value_;
@@ -1963,13 +3733,13 @@ public final class NigoriMessages {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000004;
+  bitField0_ |= 0x00000008;
         value_ = value;
         onChanged();
         return this;
       }
       public Builder clearValue() {
-        bitField0_ = (bitField0_ & ~0x00000004);
+        bitField0_ = (bitField0_ & ~0x00000008);
         value_ = getDefaultInstance().getValue();
         onChanged();
         return this;
@@ -3351,6 +5121,11 @@ public final class NigoriMessages {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_nigori_AuthenticateRequest_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_nigori_RevisionValue_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_nigori_RevisionValue_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_nigori_GetRequest_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -3360,6 +5135,16 @@ public final class NigoriMessages {
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_nigori_GetResponse_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_nigori_GetRevisions_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_nigori_GetRevisions_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_nigori_GetRevisionsResponse_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_nigori_GetRevisionsResponse_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_nigori_PutRequest_descriptor;
   private static
@@ -3392,18 +5177,24 @@ public final class NigoriMessages {
       "\n$src/main/proto/nigori_messages.proto\022\006" +
       "nigori\"^\n\023AuthenticateRequest\022\022\n\npublic_" +
       "key\030\001 \002(\014\022\021\n\tschnorr_s\030\002 \002(\014\022\021\n\tschnorr_" +
-      "e\030\003 \002(\014\022\r\n\005nonce\030\004 \002(\014\"D\n\nGetRequest\022)\n\004" +
-      "auth\030\001 \002(\0132\033.nigori.AuthenticateRequest\022" +
-      "\013\n\003key\030\002 \002(\014\"\034\n\013GetResponse\022\r\n\005value\030\001 \002" +
-      "(\014\"S\n\nPutRequest\022)\n\004auth\030\001 \002(\0132\033.nigori." +
-      "AuthenticateRequest\022\013\n\003key\030\002 \002(\014\022\r\n\005valu" +
-      "e\030\003 \002(\014\"G\n\rDeleteRequest\022)\n\004auth\030\001 \002(\0132\033" +
-      ".nigori.AuthenticateRequest\022\013\n\003key\030\002 \002(\014",
-      "\"4\n\017RegisterRequest\022\022\n\npublic_key\030\001 \002(\014\022" +
-      "\r\n\005token\030\002 \002(\014\">\n\021UnregisterRequest\022)\n\004a" +
-      "uth\030\001 \002(\0132\033.nigori.AuthenticateRequestB*" +
-      "\n\030com.google.nigori.commonB\016NigoriMessag" +
-      "es"
+      "e\030\003 \002(\014\022\r\n\005nonce\030\004 \002(\014\"0\n\rRevisionValue\022" +
+      "\020\n\010revision\030\001 \002(\014\022\r\n\005value\030\002 \002(\014\"V\n\nGetR" +
+      "equest\022)\n\004auth\030\001 \002(\0132\033.nigori.Authentica" +
+      "teRequest\022\013\n\003key\030\002 \002(\014\022\020\n\010revision\030\003 \001(\014" +
+      "\"D\n\013GetResponse\022(\n\trevisions\030\001 \003(\0132\025.nig" +
+      "ori.RevisionValue\022\013\n\003key\030\002 \001(\014\"F\n\014GetRev" +
+      "isions\022)\n\004auth\030\001 \002(\0132\033.nigori.Authentica",
+      "teRequest\022\013\n\003key\030\002 \002(\014\"6\n\024GetRevisionsRe" +
+      "sponse\022\021\n\trevisions\030\001 \003(\014\022\013\n\003key\030\002 \001(\014\"e" +
+      "\n\nPutRequest\022)\n\004auth\030\001 \002(\0132\033.nigori.Auth" +
+      "enticateRequest\022\013\n\003key\030\002 \002(\014\022\020\n\010revision" +
+      "\030\003 \002(\014\022\r\n\005value\030\004 \002(\014\"G\n\rDeleteRequest\022)" +
+      "\n\004auth\030\001 \002(\0132\033.nigori.AuthenticateReques" +
+      "t\022\013\n\003key\030\002 \002(\014\"4\n\017RegisterRequest\022\022\n\npub" +
+      "lic_key\030\001 \002(\014\022\r\n\005token\030\002 \002(\014\">\n\021Unregist" +
+      "erRequest\022)\n\004auth\030\001 \002(\0132\033.nigori.Authent" +
+      "icateRequestB*\n\030com.google.nigori.common",
+      "B\016NigoriMessages"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -3418,32 +5209,56 @@ public final class NigoriMessages {
               new java.lang.String[] { "PublicKey", "SchnorrS", "SchnorrE", "Nonce", },
               com.google.nigori.common.NigoriMessages.AuthenticateRequest.class,
               com.google.nigori.common.NigoriMessages.AuthenticateRequest.Builder.class);
-          internal_static_nigori_GetRequest_descriptor =
+          internal_static_nigori_RevisionValue_descriptor =
             getDescriptor().getMessageTypes().get(1);
+          internal_static_nigori_RevisionValue_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_nigori_RevisionValue_descriptor,
+              new java.lang.String[] { "Revision", "Value", },
+              com.google.nigori.common.NigoriMessages.RevisionValue.class,
+              com.google.nigori.common.NigoriMessages.RevisionValue.Builder.class);
+          internal_static_nigori_GetRequest_descriptor =
+            getDescriptor().getMessageTypes().get(2);
           internal_static_nigori_GetRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_nigori_GetRequest_descriptor,
-              new java.lang.String[] { "Auth", "Key", },
+              new java.lang.String[] { "Auth", "Key", "Revision", },
               com.google.nigori.common.NigoriMessages.GetRequest.class,
               com.google.nigori.common.NigoriMessages.GetRequest.Builder.class);
           internal_static_nigori_GetResponse_descriptor =
-            getDescriptor().getMessageTypes().get(2);
+            getDescriptor().getMessageTypes().get(3);
           internal_static_nigori_GetResponse_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_nigori_GetResponse_descriptor,
-              new java.lang.String[] { "Value", },
+              new java.lang.String[] { "Revisions", "Key", },
               com.google.nigori.common.NigoriMessages.GetResponse.class,
               com.google.nigori.common.NigoriMessages.GetResponse.Builder.class);
+          internal_static_nigori_GetRevisions_descriptor =
+            getDescriptor().getMessageTypes().get(4);
+          internal_static_nigori_GetRevisions_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_nigori_GetRevisions_descriptor,
+              new java.lang.String[] { "Auth", "Key", },
+              com.google.nigori.common.NigoriMessages.GetRevisions.class,
+              com.google.nigori.common.NigoriMessages.GetRevisions.Builder.class);
+          internal_static_nigori_GetRevisionsResponse_descriptor =
+            getDescriptor().getMessageTypes().get(5);
+          internal_static_nigori_GetRevisionsResponse_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_nigori_GetRevisionsResponse_descriptor,
+              new java.lang.String[] { "Revisions", "Key", },
+              com.google.nigori.common.NigoriMessages.GetRevisionsResponse.class,
+              com.google.nigori.common.NigoriMessages.GetRevisionsResponse.Builder.class);
           internal_static_nigori_PutRequest_descriptor =
-            getDescriptor().getMessageTypes().get(3);
+            getDescriptor().getMessageTypes().get(6);
           internal_static_nigori_PutRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_nigori_PutRequest_descriptor,
-              new java.lang.String[] { "Auth", "Key", "Value", },
+              new java.lang.String[] { "Auth", "Key", "Revision", "Value", },
               com.google.nigori.common.NigoriMessages.PutRequest.class,
               com.google.nigori.common.NigoriMessages.PutRequest.Builder.class);
           internal_static_nigori_DeleteRequest_descriptor =
-            getDescriptor().getMessageTypes().get(4);
+            getDescriptor().getMessageTypes().get(7);
           internal_static_nigori_DeleteRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_nigori_DeleteRequest_descriptor,
@@ -3451,7 +5266,7 @@ public final class NigoriMessages {
               com.google.nigori.common.NigoriMessages.DeleteRequest.class,
               com.google.nigori.common.NigoriMessages.DeleteRequest.Builder.class);
           internal_static_nigori_RegisterRequest_descriptor =
-            getDescriptor().getMessageTypes().get(5);
+            getDescriptor().getMessageTypes().get(8);
           internal_static_nigori_RegisterRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_nigori_RegisterRequest_descriptor,
@@ -3459,7 +5274,7 @@ public final class NigoriMessages {
               com.google.nigori.common.NigoriMessages.RegisterRequest.class,
               com.google.nigori.common.NigoriMessages.RegisterRequest.Builder.class);
           internal_static_nigori_UnregisterRequest_descriptor =
-            getDescriptor().getMessageTypes().get(6);
+            getDescriptor().getMessageTypes().get(9);
           internal_static_nigori_UnregisterRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_nigori_UnregisterRequest_descriptor,

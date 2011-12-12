@@ -15,19 +15,34 @@
  */
 package com.google.nigori.server;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.logging.Logger;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 
+import com.google.appengine.api.datastore.Blob;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.Query;
 import com.google.nigori.common.Nonce;
+import com.google.nigori.common.RevValue;
 
 public final class AppEngineDatabase implements Database {
 
+  private static final Logger log = Logger.getLogger(AppEngineDatabase.class.getName());
   protected static final String STORE = "store";
 
   private static final PersistenceManagerFactory pmfInstance = JDOHelper
@@ -71,6 +86,7 @@ public final class AppEngineDatabase implements Database {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {
       if (haveUser(publicKey, pm)) {
+        log.warning("Did not add user as user already existed");
         return false;
       }
       pm.makePersistent(user);
@@ -111,44 +127,61 @@ public final class AppEngineDatabase implements Database {
     }
   }
 
-  private Key getLookupKey(User user, byte[] key) {
+  private Key getLookupKey(User user, byte[] index) {
     if (! (user instanceof AEUser)){
       user = new AEUser(user.getPublicKey(), user.getRegistrationDate());
     }
-    return Lookup.makeKey((AEUser)user, key);
+    return Lookup.makeKey((AEUser)user, index);
   }
+
   @Override
-  public byte[] getRecord(User user, byte[] key) {
+  public Collection<RevValue> getRecord(User user, byte[] index) throws IOException {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
-    try {
-      Key lookupKey = getLookupKey(user,key);
+    try {//TODO(drt24): cleanup this method
+      Key lookupKey = getLookupKey(user,index);
+   // If this doesn't exist there is no key so null gets returned by JDOObjectNotFoundException
       Lookup lookup = pm.getObjectById(Lookup.class, lookupKey);
-      Revision revision = lookup.getCurrentRevision();
-      AppEngineRecord record =
-          pm.getObjectById(AppEngineRecord.class, KeyFactory.createKey(lookup.getKey(),
-              AppEngineRecord.class.getSimpleName(), revision.toString()));
-      return record.getValue();
+      List<RevValue> answer = new ArrayList<RevValue>();
+      Query getRevisionValues = new Query(AppEngineRecord.class.getSimpleName());
+      getRevisionValues.setAncestor(lookupKey);
+      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+      List<Entity> results = datastore.prepare(getRevisionValues).asList(
+          FetchOptions.Builder.withDefaults());
+      for (Entity result : results){
+        ByteArrayInputStream bais = new ByteArrayInputStream(((Blob)result.getProperty("revision")).getBytes());
+        ObjectInputStream ndis = new ObjectInputStream(bais);
+        answer.add(new RevValue(((Revision)ndis.readObject()).getBytes(),
+            ((Blob)result.getProperty("value")).getBytes()));
+      }
+      if (lookup != null) {
+        return answer;
+      } else {
+        return null;
+      }
     } catch (JDOObjectNotFoundException e) {
       return null;
+    } catch (ClassNotFoundException e) {
+      throw new IOException(e);
     } finally {
       pm.close();
     }
   }
 
   @Override
-  public boolean putRecord(User user, byte[] key, byte[] data) {
+  public boolean putRecord(User user, byte[] index, byte[] bRevision, byte[] data) {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
-    //TODO(drt24): Do revisions properly
-    Revision revision = new IntRevision(0);
+    Revision revision = new BytesRevision(bRevision);
     try {
-      Key lookupKey = getLookupKey(user,key);
+      Key lookupKey = getLookupKey(user,index);
       Lookup lookup;
       try {
         lookup = pm.getObjectById(Lookup.class, lookupKey);
       } catch (JDOObjectNotFoundException e) {
-        lookup = new Lookup(lookupKey, revision);
+        lookup = new Lookup(lookupKey);
         pm.makePersistent(lookup);
       }
+    // TODO(drt24): Do revisions properly, need to only add if not already existing.
       AppEngineRecord record =
           new AppEngineRecord(KeyFactory.createKey(lookup.getKey(), AppEngineRecord.class
               .getSimpleName(), revision.toString()), revision, data);
@@ -160,26 +193,31 @@ public final class AppEngineDatabase implements Database {
   }
 
   @Override
-  public boolean updateRecord(User user, byte[] key, byte[] data, Revision expected,
+  public boolean updateRecord(User user, byte[] index, byte[] data, Revision expected,
       Revision dataRevision) {
     // TODO Auto-generated method stub
     return false;
   }
 
   @Override
-  public boolean deleteRecord(User user, byte[] key) {
+  public boolean deleteRecord(User user, byte[] index) {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {
-      Key lookupKey = getLookupKey(user,key);
+      Key lookupKey = getLookupKey(user,index);
       Lookup lookup = pm.getObjectById(Lookup.class, lookupKey);
-      Revision revision = lookup.getCurrentRevision();
       // TODO(drt24) multiple revisions
+      // TODO(drt24) cleanup
       try {
-        AppEngineRecord record =
-            pm.getObjectById(AppEngineRecord.class, KeyFactory.createKey(lookup.getKey(),
-                AppEngineRecord.class.getSimpleName(), revision.toString()));
-        pm.deletePersistent(record);
-      } finally {// even if there is no value the key still needs to be deleted - but we haven't
+        Query getRevisionValues = new Query(AppEngineRecord.class.getSimpleName());
+        getRevisionValues.setAncestor(lookupKey);
+        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+        List<Entity> results = datastore.prepare(getRevisionValues).asList(
+            FetchOptions.Builder.withDefaults());
+        for (Entity entity : results){
+          pm.deletePersistent(pm.getObjectById(AppEngineRecord.class,entity.getKey()));
+        }
+      } finally {// even if there is no value the index still needs to be deleted - but we haven't
                  // actually done a delete
         pm.deletePersistent(lookup);
       }

@@ -15,14 +15,24 @@
  */
 package com.google.nigori.server;
 
-import static org.easymock.EasyMock.*;
-import static org.junit.Assert.*;
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.aryEq;
+import static org.easymock.EasyMock.capture;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.notNull;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletInputStream;
@@ -40,9 +50,11 @@ import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestC
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.nigori.client.KeyManager;
 import com.google.nigori.common.MessageLibrary;
-import com.google.nigori.common.Nonce;
 import com.google.nigori.common.NigoriMessages.GetRequest;
 import com.google.nigori.common.NigoriMessages.GetResponse;
+import com.google.nigori.common.NigoriMessages.RevisionValue;
+import com.google.nigori.common.Nonce;
+import com.google.nigori.common.RevValue;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 
 public class NigoriServletTest {
@@ -174,14 +186,15 @@ public class NigoriServletTest {
 	@Test
 	public void testPutRequest() throws Exception {
 		
-		final byte[] key = "a key".getBytes(MessageLibrary.CHARSET);
+		final byte[] index = "an index".getBytes(MessageLibrary.CHARSET);
+		final byte[] revision = "a revision".getBytes(MessageLibrary.CHARSET);
 		final byte[] value = "a value".getBytes(MessageLibrary.CHARSET);
 		final byte[] publicKey = keyManager.signer().getPublicKey();
 		
-		final String jsonPut = MessageLibrary.putRequestAsJson(keyManager.signer(), key, value);
+		final String jsonPut = MessageLibrary.putRequestAsJson(keyManager.signer(), index, revision, value);
 		expectedCallsForJsonRequest(jsonPut, MessageLibrary.REQUEST_PUT);
 		expectedCallsToAuthenticateUser(publicKey);
-		expect(database.putRecord(eq(user), aryEq(key), aryEq(value))).andReturn(true);
+		expect(database.putRecord(eq(user), aryEq(index), aryEq(revision), aryEq(value))).andReturn(true);
 		expectedCallsToOutputOkay();
 		
 		runReplayVerifyWithDoPost(null);
@@ -191,13 +204,14 @@ public class NigoriServletTest {
 	public void testGetRequestKeyExists() throws Exception {
 
 		final byte[] key = "a key".getBytes(MessageLibrary.CHARSET);
+		final byte[] revision = "a revision".getBytes(MessageLibrary.CHARSET);
 		final byte[] value = "a value".getBytes(MessageLibrary.CHARSET);
 		final byte[] publicKey = keyManager.signer().getPublicKey();
 
 		final String jsonGet = MessageLibrary.getRequestAsJson(keyManager.signer(), key);
 		expectedCallsForJsonRequest(jsonGet, MessageLibrary.REQUEST_GET);
 		expectedCallsToAuthenticateUser(publicKey);
-		expect(database.getRecord(eq(user), aryEq(key))).andReturn(value);
+		expect(database.getRecord(eq(user), aryEq(key))).andReturn(Arrays.asList(new RevValue[]{new RevValue(revision,value)}));
 		ServletOutputStream out = expectedCallsForJsonResponse();
 		Capture<byte[]> result = new Capture<byte[]>();
 		Capture<Integer> size = new Capture<Integer>();
@@ -208,7 +222,13 @@ public class NigoriServletTest {
 		
 		String jsonResponse = new String(result.getValue(), 0, size.getValue(), MessageLibrary.CHARSET);
 		GetResponse response = MessageLibrary.getResponseFromJson(jsonResponse);
-		assertTrue(Arrays.equals(response.getValue().toByteArray(), value));
+
+    List<RevisionValue> revs = response.getRevisionsList();
+    assertEquals(1,revs.size());
+    for (RevisionValue rev : revs) {
+      assertArrayEquals(revision, rev.getRevision().toByteArray());
+      assertArrayEquals(value, rev.getValue().toByteArray());
+    }
 	}
 	
 	@Test
