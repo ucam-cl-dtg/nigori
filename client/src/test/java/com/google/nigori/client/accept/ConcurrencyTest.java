@@ -38,7 +38,7 @@ import com.google.nigori.common.MessageLibrary;
 
 public class ConcurrencyTest {
 
-  private static final int THREADS = 8;
+  private static final int THREADS = 5;
   protected boolean failed = false;
 
   private void startThenJoinThreads(Thread[] threads){
