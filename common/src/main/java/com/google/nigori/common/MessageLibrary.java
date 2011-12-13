@@ -75,22 +75,24 @@ public class MessageLibrary {
 		}
 	}
 
-	public static GetRequest getRequestAsProtobuf(SchnorrSign signer, byte[] index) throws 
+	public static GetRequest getRequestAsProtobuf(SchnorrSign signer, byte[] index, byte[] revision) throws 
 	NoSuchAlgorithmException {
 
 		//TODO sign index and method
 		
-		GetRequest req = GetRequest.newBuilder()
+		GetRequest.Builder reqb = GetRequest.newBuilder()
 		.setAuth(authenticateRequestAsProtobuf(signer))
-		.setKey(ByteString.copyFrom(index))
-		.build();
+		.setKey(ByteString.copyFrom(index));
+		if (revision != null){
+		  reqb.setRevision(ByteString.copyFrom(revision));
+		}
 
-		return req;
+		return reqb.build();
 	}
 
-	public static String getRequestAsJson(SchnorrSign signer, byte[] index) throws
+	public static String getRequestAsJson(SchnorrSign signer, byte[] index, byte[] revision) throws
 	NoSuchAlgorithmException {
-		return gson.toJson(getRequestAsProtobuf(signer, index));
+		return gson.toJson(getRequestAsProtobuf(signer, index, revision));
 	}
 
 	public static GetRequest getRequestFromJson(String json)  throws JsonConversionException {

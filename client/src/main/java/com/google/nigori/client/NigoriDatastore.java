@@ -355,28 +355,52 @@ public class NigoriDatastore {
 	 * data exists.
 	 */
 	public List<RevValue> get(byte[] index) throws IOException,	NigoriCryptographyException {
-		return get(null, index);
+		return get(null, index, null);
 	}
 
 	/**
+   * @param index
+   * @param revision
+   * @return
+	 * @throws NigoriCryptographyException 
+	 * @throws IOException 
+   */
+  public byte[] getRevision(byte[] index, byte[] revision) throws IOException, NigoriCryptographyException {
+    // TODO(drt24) Auto-generated method stub
+    List<RevValue> rev = get(null, index, revision);
+    if (rev != null){
+    return rev.get(0).getValue();
+    } else {
+      return null;
+    }
+  }
+
+  /**
 	 * Retrieve the value associated with {@code index} on the server.
 	 * 
 	 * @param index
 	 * @return a byte array containing the data associated with {@code key} or {@code null} if no
 	 * data exists.
 	 */
-	private List<RevValue> get(byte[] encKey, byte[] index) throws IOException, NigoriCryptographyException {
+	private List<RevValue> get(byte[] encKey, byte[] index, byte[] revision) throws IOException, NigoriCryptographyException {
 
 		byte[] encIndex;
+		byte[] encRevision = null;
 		if (encKey == null) {
 			encIndex = keyManager.encryptDeterministically(index);
+			if (revision != null) {
+			  encRevision = keyManager.encryptDeterministically(index);
+			}
 		} else {
 			encIndex = keyManager.encryptDeterministically(encKey, index);
+			if (revision != null) {
+        encRevision = keyManager.encryptDeterministically(encKey, index);
+      }
 		}
 
 		String jsonRequest;
 		try {
-			jsonRequest = MessageLibrary.getRequestAsJson(keyManager.signer(), encIndex);
+			jsonRequest = MessageLibrary.getRequestAsJson(keyManager.signer(), encIndex, encRevision);
 		} catch (NoSuchAlgorithmException e) {
 			throw new NigoriCryptographyException("Platform does have required crypto support:" +
 					e.getMessage());
@@ -474,22 +498,5 @@ public class NigoriDatastore {
       throw new IOException("Server did not accept request("+ resp.getResponseCode() + "). " + jsonResponse);
     }
     return true;
-  }
-
-	/**
-	 * Creates a new shared key suitable for use with the client-side encryption
-	 */
-	public byte[] generateSessionKey() {
-		return keyManager.generateSessionKey();
-	}
-
-  /**
-   * @param index
-   * @param revision
-   * @return
-   */
-  public byte[] getRevision(byte[] index, byte[] revision) {
-    // TODO(drt24) Auto-generated method stub
-    return null;
   }
 }
