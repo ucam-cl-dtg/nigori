@@ -35,68 +35,78 @@ public class SetGetDeleteTest {
   protected static class IndexValue {
     public final byte[] index;
     public final RevValue revvalue;
+    public final boolean later;
 
-    public IndexValue(String index, String revision, String value) {
+    public IndexValue(String index, String revision, String value, boolean later) {
       this.index = index.getBytes();
       this.revvalue = new RevValue(revision.getBytes(),value.getBytes());
+      this.later = later;
     }
   }
 
   protected static final IndexValue[] testCases =
       {
-          new IndexValue("index", "", "value"),
-          new IndexValue("index", "a", "value"),
-          new IndexValue("", "", "foo"),
-          new IndexValue("", "1", "foo"),
-          new IndexValue("foo", "", ""),
-          new IndexValue("foo", "0", ""),
-          new IndexValue("qwertyuiopasdfghjkl;zxcvbnm,./", "",
-              "jlkvjhskldhjvguyvh78ryfgkjvjhzsahkjrtgagflbakjsdvskjhsjkhdafkjdashlkjajhasfkjsadhf;adshfkjd")};
+          new IndexValue("index", "", "value", false),
+          new IndexValue("index", "a", "value", true),
+          new IndexValue("", " ", "foo", false),
+          new IndexValue("", "1", "foo", true),
+          new IndexValue("foo", "", "", false),
+          new IndexValue("foo", "0", "", true),
+          new IndexValue("qwertyuiopasdfghjkl;zxcvbnm,./", " ",
+              "jlkvjhskldhjvguyvh78ryfgkjvjhzsahkjrtgagflbakjsdvskjhsjkhdafkjdashlkjajhasfkjsadhf;adshfkjd", false)};
 
   @Test
   public void setGetDelete() throws NigoriCryptographyException, IOException {
     NigoriDatastore nigori = AcceptanceTests.getStore();
 
     for (int i = 0; i < AcceptanceTests.REPEAT; ++i) {// check we can do this more than once
-      assertTrue("Not registered" + i, nigori.register());
-      for (IndexValue iv : testCases) {// once round for each
-        final byte[] index = iv.index;
-        final byte[] revision = iv.revvalue.getRevision();
-        final byte[] value = iv.revvalue.getValue();
+      try {
+        assertTrue("Not registered" + i, nigori.register());
 
-        assertTrue("Not put" + i, nigori.put(index, revision, value));
-        List<RevValue> revs = nigori.get(index);
-        assertFalse("Revisions must exist",revs.isEmpty());
-        assertEquals("Not one revision",1,revs.size());
-        RevValue rv = revs.get(0);
-        assertArrayEquals("Got different" + i, value, rv.getValue());
-        assertArrayEquals("Got different" + i, revision, rv.getRevision());
-        assertTrue("Not deleted" + i, nigori.delete(index));
-        assertNull("Not deleted" + i, nigori.get(index));
-        assertFalse("Could redelete",nigori.delete(index));
+        for (IndexValue iv : testCases) {// once round for each
+          final byte[] index = iv.index;
+          final byte[] revision = iv.revvalue.getRevision();
+          final byte[] value = iv.revvalue.getValue();
+
+          assertTrue("Not put" + i, nigori.put(index, revision, value));
+          List<RevValue> revs = nigori.get(index);
+          assertFalse("Revisions must exist", revs.isEmpty());
+          assertEquals("Not one revision", 1, revs.size());
+          RevValue rv = revs.get(0);
+          assertArrayEquals("Got different" + i, value, rv.getValue());
+          assertArrayEquals("Got different" + i, revision, rv.getRevision());
+          assertTrue("Not deleted" + i, nigori.delete(index));
+          assertNull("Not deleted" + i, nigori.get(index));
+          assertFalse("Could redelete", nigori.delete(index));
+        }
+        // allow them to accumulate
+        for (IndexValue iv : testCases) {
+          final byte[] index = iv.index;
+          final byte[] value = iv.revvalue.getValue();
+          final byte[] revision = iv.revvalue.getRevision();
+          assertTrue("Not put" + i, nigori.put(index, revision, value));
+        }
+        for (IndexValue iv : testCases) {
+          final byte[] index = iv.index;
+          final byte[] value = iv.revvalue.getValue();
+          final byte[] revision = iv.revvalue.getRevision();
+          assertArrayEquals("Got different" + i, value, nigori.getRevision(index, revision));
+        }
+        for (IndexValue iv : testCases) {
+          final byte[] index = iv.index;
+          if (!iv.later) {
+            assertTrue("Not deleted" + i, nigori.delete(index));
+          } else {// should have already been deleted
+            assertFalse("Not deleted" + i, nigori.delete(index));
+          }
+        }
+        for (IndexValue iv : testCases) {
+          final byte[] index = iv.index;
+          assertNull("Not deleted" + i, nigori.get(index));
+        }
+      } finally {
+        assertTrue("Not unregistered", nigori.unregister());
       }
-      // allow them to accumulate
-      for (IndexValue iv : testCases) {
-        final byte[] index = iv.index;
-        final byte[] value = iv.revvalue.getValue();
-        final byte[] revision = iv.revvalue.getRevision();
-        assertTrue("Not put" + i, nigori.put(index, revision, value));
-      }
-      for (IndexValue iv : testCases) {
-        final byte[] index = iv.index;
-        final byte[] value = iv.revvalue.getValue();
-        final byte[] revision = iv.revvalue.getRevision();
-        assertArrayEquals("Got different" + i, value, nigori.getRevision(index,revision));
-      }
-      for (IndexValue iv : testCases) {
-        final byte[] index = iv.index;
-        assertTrue("Not deleted" + i, nigori.delete(index));
-      }
-      for (IndexValue iv : testCases) {
-        final byte[] index = iv.index;
-        assertNull("Not deleted" + i, nigori.get(index));
-      }
-      assertTrue("Not unregistered", nigori.unregister());
     }
   }
 
