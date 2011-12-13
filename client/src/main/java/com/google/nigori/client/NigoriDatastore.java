@@ -186,7 +186,7 @@ public class NigoriDatastore {
 			String password) throws NigoriCryptographyException, UnsupportedEncodingException {
 		String servername = server + ":" + port;
 		this.serverUrl = "http://" + server + ":" + port + "/" + serverPrefix + "/";
-		keyManager = new KeyManager(servername.getBytes(MessageLibrary.CHARSET),
+		keyManager = new RealKeyManager(servername.getBytes(MessageLibrary.CHARSET),
 				username.getBytes(MessageLibrary.CHARSET),
 				password.getBytes(MessageLibrary.CHARSET));
 	}
@@ -208,7 +208,7 @@ public class NigoriDatastore {
 		String servername = server + ":" + port;
 		this.serverUrl = "http://" + server + ":" + port + "/" + serverPrefix + "/";
 
-		keyManager = new KeyManager(servername.getBytes(MessageLibrary.CHARSET));
+		keyManager = new RealKeyManager(servername.getBytes(MessageLibrary.CHARSET));
 	}
 
 	/**

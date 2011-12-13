@@ -48,7 +48,7 @@ import org.junit.Test;
 
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
-import com.google.nigori.client.KeyManager;
+import com.google.nigori.client.RealKeyManager;
 import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.NigoriMessages.GetRequest;
 import com.google.nigori.common.NigoriMessages.GetResponse;
@@ -64,7 +64,7 @@ public class NigoriServletTest {
 	NigoriServlet servlet;
 	HttpServletRequest request;
 	HttpServletResponse response;
-	KeyManager keyManager;
+	RealKeyManager keyManager;
 	User user;
 	
 	@BeforeClass
@@ -78,7 +78,7 @@ public class NigoriServletTest {
 		request = createMock(HttpServletRequest.class);
 		response = createMock(HttpServletResponse.class);
 		servlet = new NigoriServlet(database);
-		keyManager = new KeyManager("localhost:8888".getBytes(MessageLibrary.CHARSET),
+		keyManager = new RealKeyManager("localhost:8888".getBytes(MessageLibrary.CHARSET),
 				"username".getBytes(MessageLibrary.CHARSET),
 				"password".getBytes(MessageLibrary.CHARSET));
 		//TODO need to correctly create user
@@ -174,7 +174,7 @@ public class NigoriServletTest {
 		final byte[] key = "a key".getBytes(MessageLibrary.CHARSET);
 		final byte[] publicKey = keyManager.signer().getPublicKey();
 		
-		final String json = MessageLibrary.getRequestAsJson(keyManager.signer(), key);
+		final String json = MessageLibrary.getRequestAsJson(keyManager.signer(), key, null);
 		expectedCallsForJsonRequest(json, MessageLibrary.REQUEST_GET);
 		expectedCallsToAuthenticateUser(publicKey);
 		expect(database.getRecord(eq(user), aryEq(key))).andReturn(null);
@@ -208,7 +208,7 @@ public class NigoriServletTest {
 		final byte[] value = "a value".getBytes(MessageLibrary.CHARSET);
 		final byte[] publicKey = keyManager.signer().getPublicKey();
 
-		final String jsonGet = MessageLibrary.getRequestAsJson(keyManager.signer(), key);
+		final String jsonGet = MessageLibrary.getRequestAsJson(keyManager.signer(), key, null);
 		expectedCallsForJsonRequest(jsonGet, MessageLibrary.REQUEST_GET);
 		expectedCallsToAuthenticateUser(publicKey);
 		expect(database.getRecord(eq(user), aryEq(key))).andReturn(Arrays.asList(new RevValue[]{new RevValue(revision,value)}));
@@ -256,7 +256,7 @@ public class NigoriServletTest {
 
 		//Build a broken version of the JSON request which has valid keys but invalid values
 		byte[] key = "a key".getBytes(MessageLibrary.CHARSET);
-		GetRequest get = MessageLibrary.getRequestAsProtobuf(keyManager.signer(), key);
+		GetRequest get = MessageLibrary.getRequestAsProtobuf(keyManager.signer(), key, null);
 		Map<FieldDescriptor, Object> fieldMap = get.getAllFields();
 		
 		StringBuilder json = new StringBuilder();

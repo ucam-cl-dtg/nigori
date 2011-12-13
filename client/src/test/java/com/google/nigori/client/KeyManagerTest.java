@@ -26,38 +26,41 @@ import org.junit.Test;
 
 import com.google.nigori.common.MessageLibrary;
 
-public class KeyManagerTest {
+public abstract class KeyManagerTest {
+
+  protected abstract KeyManager getKeyManager(byte[] serverName, byte[] userName, byte[] password) throws NigoriCryptographyException;
+  protected abstract KeyManager getKeyManager(byte[] serverName) throws NigoriCryptographyException;
 
   @Test
   public void getUsernameAndPassword() throws NigoriCryptographyException, UnsupportedEncodingException {
     byte[] serverName = "serverName".getBytes(MessageLibrary.CHARSET);
     byte[] userName = "userName".getBytes(MessageLibrary.CHARSET);
     byte[] password = "password".getBytes(MessageLibrary.CHARSET);
-    KeyManager keyManger = new KeyManager(serverName, userName, password);
+    KeyManager keyManger = getKeyManager(serverName, userName, password);
     assertArrayEquals("Username different",userName,keyManger.getUsername());
     assertArrayEquals("Username different",password,keyManger.getPassword());
   }
   @Test
   public void decryptReversesEncrypt() throws UnsupportedEncodingException, NigoriCryptographyException {
-    KeyManager keyManager = new KeyManager("server".getBytes(MessageLibrary.CHARSET));
+    KeyManager keyManager = getKeyManager("server".getBytes(MessageLibrary.CHARSET));
     byte[] plaintext = "plaintext".getBytes(MessageLibrary.CHARSET);
     assertArrayEquals(plaintext,keyManager.decrypt(keyManager.encrypt(plaintext)));
   }
   @Test
   public void encryptNotIdentity() throws UnsupportedEncodingException, NigoriCryptographyException{
-    KeyManager keyManager = new KeyManager("server".getBytes(MessageLibrary.CHARSET));
+    KeyManager keyManager = getKeyManager("server".getBytes(MessageLibrary.CHARSET));
     byte[] plaintext = "plaintext".getBytes(MessageLibrary.CHARSET);
     assertThat(plaintext, not(equalTo(keyManager.encrypt(plaintext))));
   }
   @Test
   public void encryptSameValueGivesDifferentAnswers() throws UnsupportedEncodingException, NigoriCryptographyException{
-    KeyManager keyManager = new KeyManager("server".getBytes(MessageLibrary.CHARSET));
+    KeyManager keyManager = getKeyManager("server".getBytes(MessageLibrary.CHARSET));
     byte[] plaintext = "plaintext".getBytes(MessageLibrary.CHARSET);
     assertThat(keyManager.encrypt(plaintext), not(equalTo(keyManager.encrypt(plaintext))));
   }
   @Test
   public void encryptDeterministicallySameValueGivesSameAnswer() throws UnsupportedEncodingException, NigoriCryptographyException{
-    KeyManager keyManager = new KeyManager("server".getBytes(MessageLibrary.CHARSET));
+    KeyManager keyManager = getKeyManager("server".getBytes(MessageLibrary.CHARSET));
     byte[] plaintext = "plaintext".getBytes(MessageLibrary.CHARSET);
     assertThat(keyManager.encryptDeterministically(plaintext), equalTo(keyManager.encryptDeterministically(plaintext)));
   }

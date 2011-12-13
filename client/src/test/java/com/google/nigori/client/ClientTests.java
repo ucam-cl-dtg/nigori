@@ -27,7 +27,8 @@ import com.google.nigori.client.accept.AcceptanceTests;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses ({
-  KeyManagerTest.class,
+  RealKeyManagerTest.class,
+  DummyKeyManagerTest.class,
   AcceptanceTests.class
   })
 public class ClientTests {

@@ -15,25 +15,20 @@
  */
 package com.google.nigori.client;
 
-import com.google.nigori.common.SchnorrSign;
-
 /**
  * @author drt24
  *
  */
-interface KeyManager {
-  byte[] getUsername();
-  
-  byte[] getPassword();
-  
-  byte[] decrypt(byte[] ciphertext) throws NigoriCryptographyException;
-  byte[] decrypt(byte[] encryptionKey, byte[] ciphertext) throws NigoriCryptographyException;
+public class RealKeyManagerTest extends KeyManagerTest {
 
-  byte[] encrypt(byte[] plaintext) throws NigoriCryptographyException;  
-  byte[] encrypt(byte[] key, byte[] plaintext) throws NigoriCryptographyException;
+  @Override
+  protected KeyManager getKeyManager(byte[] serverName, byte[] userName, byte[] password) throws NigoriCryptographyException {
+    return new RealKeyManager(serverName, userName, password);
+  }
 
-  byte[] encryptDeterministically(byte[] plaintext) throws NigoriCryptographyException;
-  byte[] encryptDeterministically(byte[] key, byte[] plaintext) throws NigoriCryptographyException;
+  @Override
+  protected KeyManager getKeyManager(byte[] serverName) throws NigoriCryptographyException {
+    return new RealKeyManager(serverName);
+  }
 
-  SchnorrSign signer();
 }
