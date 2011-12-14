@@ -35,6 +35,7 @@ import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.NigoriMessages.AuthenticateRequest;
 import com.google.nigori.common.NigoriMessages.DeleteRequest;
 import com.google.nigori.common.NigoriMessages.GetRequest;
+import com.google.nigori.common.NigoriMessages.GetRevisions;
 import com.google.nigori.common.NigoriMessages.PutRequest;
 import com.google.nigori.common.NigoriMessages.RegisterRequest;
 import com.google.nigori.common.NigoriMessages.UnregisterRequest;
@@ -248,6 +249,41 @@ public class NigoriServlet extends HttpServlet {
 			}
 		}
 	}
+	private class JsonGetRevisionsHandler implements RequestHandler {
+
+    public void handle(HttpServletRequest req, HttpServletResponse resp) 
+    throws ServletException {
+
+      String json = getJsonAsString(req, maxJsonQueryLength);
+      Collection<byte[]> value;
+
+      try {
+        GetRevisions request = MessageLibrary.getRevisionsFromJson(json);
+        byte[] key = request.getKey().toByteArray();
+        AuthenticateRequest auth = request.getAuth();
+        User user = authenticateUser(auth);
+
+        value = database.getRevisions(user, key);
+
+        if (value == null) {
+          throw new ServletException(HttpServletResponse.SC_NOT_FOUND, "Cannot find requested key");
+        }
+
+        String response = MessageLibrary.getRevisionsResponseAsJson(value);
+        resp.setContentType(MessageLibrary.MIMETYPE_JSON);
+        resp.setCharacterEncoding(MessageLibrary.CHARSET);
+        resp.setStatus(HttpServletResponse.SC_OK);
+        BufferedWriter w = new BufferedWriter(new OutputStreamWriter(resp.getOutputStream()));
+        w.write(response);
+        w.flush();
+      } catch(IOException ioe) {
+        throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal error sending data to client");
+      } catch (MessageLibrary.JsonConversionException jce) {
+        throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, "JSON format error: " + 
+            jce.getMessage());
+      }
+    }
+  }
 
 	private class JsonPutRequestHandler implements RequestHandler {
 
@@ -397,6 +433,8 @@ public class NigoriServlet extends HttpServlet {
 			new HashMap<RequestHandlerType, RequestHandler>();
 		h.put(new RequestHandlerType(MessageLibrary.MIMETYPE_JSON, MessageLibrary.REQUEST_GET), 
 				new JsonGetRequestHandler());
+		h.put(new RequestHandlerType(MessageLibrary.MIMETYPE_JSON, MessageLibrary.REQUEST_GET_REVISIONS), 
+        new JsonGetRevisionsHandler());
 		h.put(new RequestHandlerType(MessageLibrary.MIMETYPE_JSON, MessageLibrary.REQUEST_PUT), 
 				new JsonPutRequestHandler());
 		h.put(new RequestHandlerType(MessageLibrary.MIMETYPE_JSON, MessageLibrary.REQUEST_DELETE), 

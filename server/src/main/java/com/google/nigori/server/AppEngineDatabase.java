@@ -169,6 +169,40 @@ public final class AppEngineDatabase implements Database {
   }
 
   @Override
+  public Collection<byte[]> getRevisions(User user, byte[] index) throws IOException {
+    PersistenceManager pm = pmfInstance.getPersistenceManager();
+    try {//TODO(drt24): cleanup this method
+      // TODO(drt24): we can do this faster with a key only lookup
+      Key lookupKey = getLookupKey(user,index);
+   // If this doesn't exist there is no key so null gets returned by JDOObjectNotFoundException
+      Lookup lookup = pm.getObjectById(Lookup.class, lookupKey);
+      List<byte[]> answer = new ArrayList<byte[]>();
+      Query getRevisionValues = new Query(AppEngineRecord.class.getSimpleName());
+      getRevisionValues.setAncestor(lookupKey);
+      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+      List<Entity> results = datastore.prepare(getRevisionValues).asList(
+          FetchOptions.Builder.withDefaults());
+      for (Entity result : results){
+        ByteArrayInputStream bais = new ByteArrayInputStream(((Blob)result.getProperty("revision")).getBytes());
+        ObjectInputStream ndis = new ObjectInputStream(bais);
+        answer.add(((Revision)ndis.readObject()).getBytes());
+      }
+      if (lookup != null) {
+        return answer;
+      } else {
+        return null;
+      }
+    } catch (JDOObjectNotFoundException e) {
+      return null;
+    } catch (ClassNotFoundException e) {
+      throw new IOException(e);
+    } finally {
+      pm.close();
+    }
+  }
+
+  @Override
   public boolean putRecord(User user, byte[] index, byte[] bRevision, byte[] data) {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     Revision revision = new BytesRevision(bRevision);

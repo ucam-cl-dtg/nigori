@@ -28,6 +28,8 @@ import com.google.nigori.common.NigoriMessages.AuthenticateRequest;
 import com.google.nigori.common.NigoriMessages.DeleteRequest;
 import com.google.nigori.common.NigoriMessages.GetRequest;
 import com.google.nigori.common.NigoriMessages.GetResponse;
+import com.google.nigori.common.NigoriMessages.GetRevisions;
+import com.google.nigori.common.NigoriMessages.GetRevisionsResponse;
 import com.google.nigori.common.NigoriMessages.PutRequest;
 import com.google.nigori.common.NigoriMessages.RegisterRequest;
 import com.google.nigori.common.NigoriMessages.RevisionValue;
@@ -44,6 +46,7 @@ public class MessageLibrary {
 	public static final String MIMETYPE_PROTOBUF = "application/x-google-protobuf";
 
 	public static final String REQUEST_GET = "get";
+	public static final String REQUEST_GET_REVISIONS = "get-revisions";
 	public static final String REQUEST_PUT = "put";
 	public static final String REQUEST_DELETE = "delete";
 	public static final String REQUEST_UPDATE = "update";
@@ -58,6 +61,8 @@ public class MessageLibrary {
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(GetRequest.class, new TypeAdapterProtobuf());
 		gsonBuilder.registerTypeAdapter(GetResponse.class, new TypeAdapterProtobuf());
+		gsonBuilder.registerTypeAdapter(GetRevisions.class, new TypeAdapterProtobuf());
+		gsonBuilder.registerTypeAdapter(GetRevisionsResponse.class, new TypeAdapterProtobuf());
 		gsonBuilder.registerTypeAdapter(PutRequest.class, new TypeAdapterProtobuf());
 		gsonBuilder.registerTypeAdapter(DeleteRequest.class, new TypeAdapterProtobuf());
 		gsonBuilder.registerTypeAdapter(RegisterRequest.class, new TypeAdapterProtobuf());
@@ -133,7 +138,52 @@ public class MessageLibrary {
 		}
 	}
 
-	public static PutRequest putRequestAsProtobuf(SchnorrSign signer, byte[] index, byte[] revision, byte[] value) throws NoSuchAlgorithmException {
+	public static GetRevisions getRevisionsAsProtobuf(SchnorrSign signer, byte[] index) throws NoSuchAlgorithmException {
+	  // TODO(drt24) add index
+    return GetRevisions.newBuilder()
+        .setAuth(authenticateRequestAsProtobuf(signer))
+        .setKey(ByteString.copyFrom(index)).build();
+  }
+
+  public static String getRevisionsAsJson(SchnorrSign signer, byte[] encIndex)
+      throws NoSuchAlgorithmException {
+    return gson.toJson(getRevisionsAsProtobuf(signer, encIndex));
+  }
+
+  public static GetRevisions getRevisionsFromJson(String json) throws JsonConversionException{
+    try {
+      return gson.fromJson(json, GetRevisions.class);
+    } catch (JsonSyntaxException jse) {
+      throw new JsonConversionException("Invalid JSON syntax");
+    } catch (JsonParseException jse) {
+      throw new JsonConversionException("Unable to parse JSON fields into correct message format");
+    }
+  }
+
+  public static GetRevisionsResponse getRevisionsResponseAsProtobuf(Collection<byte[]> value) {
+    List<ByteString> values = new ArrayList<ByteString>(value.size());
+    for (byte[] valueA : value){
+      values.add(ByteString.copyFrom(valueA));
+    }
+    return GetRevisionsResponse.newBuilder().addAllRevisions(values).build();
+  }
+
+  public static String getRevisionsResponseAsJson(Collection<byte[]> value){
+    return gson.toJson(getRevisionsResponseAsProtobuf(value));
+  }
+
+  public static GetRevisionsResponse getRevisionsResponseFromJson(String json)
+      throws JsonConversionException {
+    try {
+      return gson.fromJson(json, GetRevisionsResponse.class);
+    } catch (JsonSyntaxException jse) {
+      throw new JsonConversionException("Invalid JSON syntax");
+    } catch (JsonParseException jse) {
+      throw new JsonConversionException("Unable to parse JSON fields into correct message format");
+    }
+  }
+
+  public static PutRequest putRequestAsProtobuf(SchnorrSign signer, byte[] index, byte[] revision, byte[] value) throws NoSuchAlgorithmException {
 
 	  //TODO sign method index, revision and value
 	  PutRequest.Builder reqBuilder = PutRequest.newBuilder()

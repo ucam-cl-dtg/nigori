@@ -16,8 +16,11 @@ package com.google.nigori.server;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -112,5 +115,29 @@ public abstract class AbstractDatabaseTest {
     Nonce nonce = new Nonce();
     assertTrue(database.checkAndAddNonce(nonce,publicKey));
     assertFalse(database.checkAndAddNonce(nonce,publicKey));
+  }
+
+  @Test
+  public void getRevisions() throws UserNotFoundException, IOException {
+    User user = null;
+    try {
+      assertTrue(database.addUser(publicKey));
+      user = database.getUser(publicKey);
+      final byte[] index = "index".getBytes(MessageLibrary.CHARSET);
+      final byte[] revisiona = "revisiona".getBytes(MessageLibrary.CHARSET);
+      final byte[] revisionb = "revisionb".getBytes(MessageLibrary.CHARSET);
+      final byte[] a = "a".getBytes(MessageLibrary.CHARSET);
+      final byte[] b = "b".getBytes(MessageLibrary.CHARSET);
+      assertTrue(database.putRecord(user, index, revisiona, a));
+      assertTrue(database.putRecord(user, index, revisionb, b));
+      Collection<byte[]> revisions = database.getRevisions(user, index);
+      assertNotNull("No revisions",revisions);
+      assertEquals(2, revisions.size());
+      assertThat(revisions,hasItem(revisiona));
+      assertThat(revisions,hasItem(revisionb));
+      assertTrue(database.deleteRecord(user, index));
+    } finally {
+      assertTrue(database.deleteUser(user));
+    }
   }
 }

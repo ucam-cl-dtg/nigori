@@ -100,6 +100,26 @@ public class TestDatabase implements Database {
 	}
 
 	@Override
+  public Collection<byte[]> getRevisions(User user, byte[] key) {
+ // TODO(beresford): check authority to carry out action
+    if (key == null) {
+      return null;
+    }
+
+    Map<ByteString, ByteString> revisions = stores.get(user).get(ByteString.copyFrom(key));
+    if (revisions != null) {
+      List<byte[]> answer = new ArrayList<byte[]>(revisions.size());
+      for (ByteString rev : revisions.keySet()) {
+        answer.add(rev.toByteArray());
+      }
+
+      return answer;
+    } else {
+      return null;
+    }
+  }
+
+  @Override
   public boolean putRecord(User user, byte[] key, byte[] revision, byte[] value) {
     // TODO(beresford): check authority to carry out action
     if (key == null || revision == null || value == null) {
