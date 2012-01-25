@@ -48,11 +48,11 @@ public final class AppEngineDatabase implements Database {
   private static final PersistenceManagerFactory pmfInstance = JDOHelper
       .getPersistenceManagerFactory("transactions-optional");
 
-  private AEUser getUser(byte[] publicKey, PersistenceManager pm) throws JDOObjectNotFoundException {
+  private static AEUser getUser(byte[] publicKey, PersistenceManager pm) throws JDOObjectNotFoundException {
     return pm.getObjectById(AEUser.class, AEUser.keyForUser(publicKey));
   }
 
-  private boolean haveUser(byte[] existingUser, PersistenceManager pm) {
+  private static boolean haveUser(byte[] existingUser, PersistenceManager pm) {
     assert pm != null;
     assert existingUser != null;
     try {
@@ -127,7 +127,7 @@ public final class AppEngineDatabase implements Database {
     }
   }
 
-  private Key getLookupKey(User user, byte[] index) {
+  private static Key getLookupKey(User user, byte[] index) {
     if (! (user instanceof AEUser)){
       user = new AEUser(user.getPublicKey(), user.getRegistrationDate());
     }
@@ -251,6 +251,7 @@ public final class AppEngineDatabase implements Database {
         for (Entity entity : results){
           pm.deletePersistent(pm.getObjectById(AppEngineRecord.class,entity.getKey()));
         }
+        
       } finally {// even if there is no value the index still needs to be deleted - but we haven't
                  // actually done a delete
         pm.deletePersistent(lookup);
