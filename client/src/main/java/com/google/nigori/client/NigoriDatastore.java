@@ -370,9 +370,10 @@ public class NigoriDatastore {
   public byte[] getRevision(byte[] index, byte[] revision) throws IOException, NigoriCryptographyException {
     // TODO(drt24) Auto-generated method stub
     List<RevValue> rev = get(null, index, revision);
-    if (rev != null){
+    if (rev != null && rev.size() == 1){
     return rev.get(0).getValue();
     } else {
+      assert rev == null || rev.size() == 0;
       return null;
     }
   }
