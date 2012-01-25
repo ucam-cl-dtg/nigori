@@ -3767,6 +3767,10 @@ public final class NigoriMessages {
     // required bytes key = 2;
     boolean hasKey();
     com.google.protobuf.ByteString getKey();
+    
+    // optional bytes revision = 3;
+    boolean hasRevision();
+    com.google.protobuf.ByteString getRevision();
   }
   public static final class DeleteRequest extends
       com.google.protobuf.GeneratedMessage
@@ -3820,9 +3824,20 @@ public final class NigoriMessages {
       return key_;
     }
     
+    // optional bytes revision = 3;
+    public static final int REVISION_FIELD_NUMBER = 3;
+    private com.google.protobuf.ByteString revision_;
+    public boolean hasRevision() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    public com.google.protobuf.ByteString getRevision() {
+      return revision_;
+    }
+    
     private void initFields() {
       auth_ = com.google.nigori.common.NigoriMessages.AuthenticateRequest.getDefaultInstance();
       key_ = com.google.protobuf.ByteString.EMPTY;
+      revision_ = com.google.protobuf.ByteString.EMPTY;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -3854,6 +3869,9 @@ public final class NigoriMessages {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeBytes(2, key_);
       }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeBytes(3, revision_);
+      }
       getUnknownFields().writeTo(output);
     }
     
@@ -3870,6 +3888,10 @@ public final class NigoriMessages {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(2, key_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(3, revision_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -4002,6 +4024,8 @@ public final class NigoriMessages {
         bitField0_ = (bitField0_ & ~0x00000001);
         key_ = com.google.protobuf.ByteString.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000002);
+        revision_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
       
@@ -4052,6 +4076,10 @@ public final class NigoriMessages {
           to_bitField0_ |= 0x00000002;
         }
         result.key_ = key_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.revision_ = revision_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -4073,6 +4101,9 @@ public final class NigoriMessages {
         }
         if (other.hasKey()) {
           setKey(other.getKey());
+        }
+        if (other.hasRevision()) {
+          setRevision(other.getRevision());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -4129,6 +4160,11 @@ public final class NigoriMessages {
             case 18: {
               bitField0_ |= 0x00000002;
               key_ = input.readBytes();
+              break;
+            }
+            case 26: {
+              bitField0_ |= 0x00000004;
+              revision_ = input.readBytes();
               break;
             }
           }
@@ -4247,6 +4283,30 @@ public final class NigoriMessages {
       public Builder clearKey() {
         bitField0_ = (bitField0_ & ~0x00000002);
         key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+      
+      // optional bytes revision = 3;
+      private com.google.protobuf.ByteString revision_ = com.google.protobuf.ByteString.EMPTY;
+      public boolean hasRevision() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      public com.google.protobuf.ByteString getRevision() {
+        return revision_;
+      }
+      public Builder setRevision(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        revision_ = value;
+        onChanged();
+        return this;
+      }
+      public Builder clearRevision() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        revision_ = getDefaultInstance().getRevision();
         onChanged();
         return this;
       }
@@ -5188,13 +5248,13 @@ public final class NigoriMessages {
       "sponse\022\021\n\trevisions\030\001 \003(\014\022\013\n\003key\030\002 \001(\014\"e" +
       "\n\nPutRequest\022)\n\004auth\030\001 \002(\0132\033.nigori.Auth" +
       "enticateRequest\022\013\n\003key\030\002 \002(\014\022\020\n\010revision" +
-      "\030\003 \002(\014\022\r\n\005value\030\004 \002(\014\"G\n\rDeleteRequest\022)" +
+      "\030\003 \002(\014\022\r\n\005value\030\004 \002(\014\"Y\n\rDeleteRequest\022)" +
       "\n\004auth\030\001 \002(\0132\033.nigori.AuthenticateReques" +
-      "t\022\013\n\003key\030\002 \002(\014\"4\n\017RegisterRequest\022\022\n\npub" +
-      "lic_key\030\001 \002(\014\022\r\n\005token\030\002 \002(\014\">\n\021Unregist" +
-      "erRequest\022)\n\004auth\030\001 \002(\0132\033.nigori.Authent" +
-      "icateRequestB*\n\030com.google.nigori.common",
-      "B\016NigoriMessages"
+      "t\022\013\n\003key\030\002 \002(\014\022\020\n\010revision\030\003 \001(\014\"4\n\017Regi" +
+      "sterRequest\022\022\n\npublic_key\030\001 \002(\014\022\r\n\005token" +
+      "\030\002 \002(\014\">\n\021UnregisterRequest\022)\n\004auth\030\001 \002(" +
+      "\0132\033.nigori.AuthenticateRequestB*\n\030com.go",
+      "ogle.nigori.commonB\016NigoriMessages"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -5262,7 +5322,7 @@ public final class NigoriMessages {
           internal_static_nigori_DeleteRequest_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_nigori_DeleteRequest_descriptor,
-              new java.lang.String[] { "Auth", "Key", },
+              new java.lang.String[] { "Auth", "Key", "Revision", },
               com.google.nigori.common.NigoriMessages.DeleteRequest.class,
               com.google.nigori.common.NigoriMessages.DeleteRequest.Builder.class);
           internal_static_nigori_RegisterRequest_descriptor =

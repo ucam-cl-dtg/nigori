@@ -61,6 +61,7 @@ message PutRequest {
 message DeleteRequest {
   required AuthenticateRequest auth = 1;
   required bytes key = 2;
+  optional bytes revision = 3;
 }
 
 message RegisterRequest {
