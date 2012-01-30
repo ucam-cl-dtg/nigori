@@ -227,13 +227,6 @@ public final class AppEngineDatabase implements Database {
   }
 
   @Override
-  public boolean updateRecord(User user, byte[] index, byte[] data, Revision expected,
-      Revision dataRevision) {
-    // TODO Auto-generated method stub
-    return false;
-  }
-
-  @Override
   public boolean deleteRecord(User user, byte[] index) {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {

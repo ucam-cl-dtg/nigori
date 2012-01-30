@@ -65,6 +65,5 @@ interface Database {
 	public Collection<RevValue> getRecord(User user, byte[] key) throws IOException;
 	public Collection<byte[]> getRevisions(User user, byte[] key) throws IOException;
 	public boolean putRecord(User user, byte[] key, byte[] revision, byte[] data);
-	public boolean updateRecord(User user, byte[] key, byte[] data, Revision expected, Revision dataRevision);
 	public boolean deleteRecord(User user, byte[] key);
 }

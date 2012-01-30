@@ -140,13 +140,6 @@ public class TestDatabase implements Database {
     }
     return true;
   }
-
-	@Override
-	public boolean updateRecord(User user, byte[] key, byte[] value, Revision expected, Revision dataRevision) {
-		//TODO(beresford): check authority to carry out action
-		//TODO(beresford): provide appropriate implementation
-		return false;
-	}
 	
 	@Override
 	public boolean deleteRecord(User user, byte[] key) {
