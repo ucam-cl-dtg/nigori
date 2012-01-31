@@ -86,25 +86,6 @@ public abstract class AbstractDatabaseTest {
   }
 
   @Test
-  public void setGetDelete() throws UserNotFoundException, IOException {
-    assertTrue(database.addUser(publicKey));
-    User user = database.getUser(publicKey);
-    byte[] index = "index".getBytes();
-    byte[] revision = "revision".getBytes();
-    byte[] value = "value".getBytes();
-    assertTrue(database.putRecord(user, index, revision, value));
-    Collection<RevValue> revs = database.getRecord(user, index);
-    assertEquals(1, revs.size());
-    for (RevValue rv : revs) {
-      assertArrayEquals(revision, rv.getRevision());
-      assertArrayEquals(value, rv.getValue());
-    }
-    assertTrue(database.deleteRecord(user, index));
-    assertNull(database.getRecord(user, index));
-    assertFalse(database.deleteRecord(user, index));
-    assertTrue(database.deleteUser(user));
-  }
-  @Test
   public void newNoncePasses() {
     Nonce nonce = new Nonce();
     assertTrue(database.checkAndAddNonce(nonce,publicKey));
@@ -117,6 +98,28 @@ public abstract class AbstractDatabaseTest {
     assertFalse(database.checkAndAddNonce(nonce,publicKey));
   }
 
+  @Test
+  public void setGetDelete() throws UserNotFoundException, IOException {
+    database.addUser(publicKey);
+    User user = database.getUser(publicKey);
+    try {
+      byte[] index = "index".getBytes();
+      byte[] revision = "revision".getBytes();
+      byte[] value = "value".getBytes();
+      assertTrue(database.putRecord(user, index, revision, value));
+      Collection<RevValue> revs = database.getRecord(user, index);
+      assertEquals(1, revs.size());
+      for (RevValue rv : revs) {
+        assertArrayEquals(revision, rv.getRevision());
+        assertArrayEquals(value, rv.getValue());
+      }
+      assertTrue(database.deleteRecord(user, index));
+      assertNull(database.getRecord(user, index));
+      assertFalse(database.deleteRecord(user, index));
+    } finally {
+      assertTrue(database.deleteUser(user));
+    }
+  }
   @Test
   public void getRevisions() throws UserNotFoundException, IOException {
     User user = null;
