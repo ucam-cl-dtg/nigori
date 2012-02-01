@@ -30,7 +30,7 @@ import java.util.List;
 import org.junit.Test;
 
 import com.google.nigori.client.NigoriCryptographyException;
-import com.google.nigori.client.NigoriDatastore;
+import com.google.nigori.client.HTTPNigoriDatastore;
 import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.RevValue;
 
@@ -61,7 +61,7 @@ public class SetGetDeleteTest {
 
   @Test
   public void setGetDelete() throws NigoriCryptographyException, IOException {
-    NigoriDatastore nigori = AcceptanceTests.getStore();
+    HTTPNigoriDatastore nigori = AcceptanceTests.getStore();
 
     for (int i = 0; i < AcceptanceTests.REPEAT; ++i) {// check we can do this more than once
       try {
@@ -119,7 +119,7 @@ public class SetGetDeleteTest {
 
   @Test
   public void getRevisions() throws IOException, NigoriCryptographyException {
-    NigoriDatastore nigori = AcceptanceTests.getStore();
+    HTTPNigoriDatastore nigori = AcceptanceTests.getStore();
     try {
       assertTrue("Not registered", nigori.register());
       final byte[] index = "index".getBytes(MessageLibrary.CHARSET);

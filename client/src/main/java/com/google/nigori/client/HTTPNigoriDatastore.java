@@ -47,7 +47,7 @@ import com.google.protobuf.ByteString;
  * It is worth looking at {@link java.util.Collection} but we can't implement that or most of the methods in it until we have a "list indexes" method which at least for now we don't intend to do.
  * putAll from {@link java.util.Map} might be worth implementing
  */
-public class NigoriDatastore {
+public class HTTPNigoriDatastore {
 
 	private final String serverUrl;
 	private final KeyManager keyManager;
@@ -184,7 +184,7 @@ public class NigoriDatastore {
 	 * @throws UnsupportedEncodingException if UTF-8 is unavailable on this platform.
 	 * @throws NigoriCryptographyException if appropriate cryptography libraries are unavailable.
 	 */
-	public NigoriDatastore(String server, int port, String serverPrefix, String username,
+	public HTTPNigoriDatastore(String server, int port, String serverPrefix, String username,
 			String password) throws NigoriCryptographyException, UnsupportedEncodingException {
 		String servername = server + ":" + port;
 		this.serverUrl = "http://" + server + ":" + port + "/" + serverPrefix + "/";
@@ -205,7 +205,7 @@ public class NigoriDatastore {
 	 * @throws UnsupportedEncodingException if MessageLibrary.CHARSET is unavailable on this platform.
 	 * @throws NigoriCryptographyException if appropriate cryptography libraries are unavailable.
 	 */
-	public NigoriDatastore(String server, int port, String serverPrefix) throws 
+	public HTTPNigoriDatastore(String server, int port, String serverPrefix) throws 
 	NigoriCryptographyException, UnsupportedEncodingException {
 		String servername = server + ":" + port;
 		this.serverUrl = "http://" + server + ":" + port + "/" + serverPrefix + "/";
