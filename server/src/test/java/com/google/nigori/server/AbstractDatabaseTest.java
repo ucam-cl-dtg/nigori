@@ -138,6 +138,8 @@ public abstract class AbstractDatabaseTest {
       assertEquals(2, revisions.size());
       assertThat(revisions,hasItem(revisiona));
       assertThat(revisions,hasItem(revisionb));
+      assertArrayEquals(a,database.getRevision(user, index, revisiona).getValue());
+      assertArrayEquals(b,database.getRevision(user, index, revisionb).getValue());
       assertTrue(database.deleteRecord(user, index));
     } finally {
       assertTrue(database.deleteUser(user));

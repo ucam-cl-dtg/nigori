@@ -204,6 +204,12 @@ public class SQLDatabase implements Database {
   }
 
   @Override
+  public RevValue getRevision(User user, byte[] key, byte[] revision) throws IOException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
   public Collection<byte[]> getRevisions(User user, byte[] key) throws IOException {
     try {
       PreparedStatement queryStatement = con.prepareStatement("SELECT rev FROM revisions, lookups, stores WHERE revisions.lid = lookups.lid AND lookups.lookup = ? AND lookups.sid = stores.sid AND stores.pk = ?");

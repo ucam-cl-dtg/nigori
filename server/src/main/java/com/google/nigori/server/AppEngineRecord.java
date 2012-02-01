@@ -22,6 +22,7 @@ import javax.jdo.annotations.PrimaryKey;
 
 import com.google.appengine.api.datastore.Blob;
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 
 /**
  * Record represents a single key-value pair in the Datastore.
@@ -50,8 +51,12 @@ class AppEngineRecord {
 	@Persistent(serialized = "true",types={com.google.nigori.server.IntRevision.class, com.google.nigori.server.BytesRevision.class})
   private Revision revision;
 	
+	static Key makeKey(Key lookup, Revision revision) {
+	  return KeyFactory.createKey(lookup, AppEngineRecord.class.getSimpleName(), revision.toString());
+	}
+
 	AppEngineRecord(Key lookup, Revision revision, byte[] value) {
-	  this.key = lookup;
+	  this.key = makeKey(lookup, revision);
 	  this.revision = revision;
 		this.value = new Blob(value);
 	}

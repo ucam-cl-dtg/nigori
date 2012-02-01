@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.logging.Logger;
@@ -228,11 +229,22 @@ public class NigoriServlet extends HttpServlet {
 				AuthenticateRequest auth = request.getAuth();
 				User user = authenticateUser(auth);
 
-				value = database.getRecord(user, key);
+        if (request.hasRevision()) {
+          byte[] revision = request.getRevision().toByteArray();
+          value = new ArrayList<RevValue>(1);
+          RevValue revVal = database.getRevision(user, key, revision);
+          if (revVal == null) {
+            throw new ServletException(HttpServletResponse.SC_NOT_FOUND,
+                "Cannot find requested key with revision");
+          }
+          value.add(revVal);
+        } else {
+          value = database.getRecord(user, key);
+        }
 
-				if (value == null) {
-					throw new ServletException(HttpServletResponse.SC_NOT_FOUND, "Cannot find requested key");
-				}
+        if (value == null) {
+          throw new ServletException(HttpServletResponse.SC_NOT_FOUND, "Cannot find requested key");
+        }
 
 				String response = MessageLibrary.getResponseAsJson(value);
 				resp.setContentType(MessageLibrary.MIMETYPE_JSON);

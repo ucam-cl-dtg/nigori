@@ -15,6 +15,7 @@
  */
 package com.google.nigori.server;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -100,7 +101,23 @@ public class TestDatabase implements Database {
     }
 	}
 
-	@Override
+  @Override
+  public RevValue getRevision(User user, byte[] key, byte[] revision) throws IOException {
+    if (key == null) {
+      return null;
+    }
+
+    Map<ByteString, ByteString> revisions = stores.get(user).get(ByteString.copyFrom(key));
+    if (revisions != null) {
+      ByteString value = revisions.get(ByteString.copyFrom(revision));
+      if (value != null) {
+        return new RevValue(revision, value.toByteArray());
+      }
+    }
+    return null;
+  }
+
+  @Override
   public Collection<byte[]> getRevisions(User user, byte[] key) {
  // TODO(beresford): check authority to carry out action
     if (key == null) {

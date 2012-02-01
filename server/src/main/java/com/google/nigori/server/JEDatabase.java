@@ -251,6 +251,10 @@ public class JEDatabase implements Database {
     return makeBytes("stores/".getBytes(), user.getPublicKey(), SEPARATOR, lookup);
   }
 
+  private DatabaseEntry makeValueKey(byte[] lookup, byte[] revision){
+    return new DatabaseEntry(makeBytes(lookup, SEPARATOR, revision));
+  }
+
   @Override
   public Collection<RevValue> getRecord(User user, byte[] key) throws IOException {
     Transaction txn = null;
@@ -273,7 +277,7 @@ public class JEDatabase implements Database {
         OperationStatus status = cursor.getSearchKey(lookupKey, revision, null);
         for (; OperationStatus.SUCCESS == status; status =
             cursor.getNextDup(lookupKey, revision, null)) {
-          revisionKey = new DatabaseEntry(makeBytes(lookup, SEPARATOR, revision.getData()));
+          revisionKey = makeValueKey(lookup, revision.getData());
           OperationStatus valStatus = db.get(txn, revisionKey, value, null);
           if (OperationStatus.SUCCESS == valStatus) {
             collection.add(new RevValue(revision.getData(), value.getData()));
@@ -295,6 +299,20 @@ public class JEDatabase implements Database {
       } catch (DatabaseException e1) {
         // we already had a failure, ignore this one.
       }
+      throw new IOException(e);
+    }
+  }
+
+  @Override
+  public RevValue getRevision(User user, byte[] key, byte[] revision) throws IOException {
+    try {
+      DatabaseEntry value = new DatabaseEntry();
+      OperationStatus status = db.get(null, makeValueKey(makeLookupBytes(user, key), revision), value, null);
+      if (OperationStatus.SUCCESS == status) {
+        return new RevValue(revision, value.getData());
+      }
+      return null;
+    } catch (DatabaseException e) {
       throw new IOException(e);
     }
   }

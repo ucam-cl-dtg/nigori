@@ -59,10 +59,19 @@ interface Database {
 	 * 
 	 * @param user
 	 * @param key
-	 * @return the record for the key or null if there is no record for that key
+	 * @return the records for the key or null if there are no records for that key
 	 * @throws IOException 
 	 */
 	public Collection<RevValue> getRecord(User user, byte[] key) throws IOException;
+	/**
+	 * 
+	 * @param user
+	 * @param key
+	 * @param revision
+	 * @return the value for the lookup and revision if it exists or null otherwise
+	 * @throws IOException
+	 */
+	public RevValue getRevision(User user, byte[] key, byte[] revision) throws IOException;
 	public Collection<byte[]> getRevisions(User user, byte[] key) throws IOException;
 	/**
 	 * 

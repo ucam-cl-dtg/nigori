@@ -35,7 +35,6 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
 import com.google.nigori.common.Nonce;
 import com.google.nigori.common.RevValue;
@@ -169,6 +168,22 @@ public final class AppEngineDatabase implements Database {
   }
 
   @Override
+  public RevValue getRevision(User user, byte[] index, byte[] revision) throws IOException {
+    PersistenceManager pm = pmfInstance.getPersistenceManager();
+    try {
+      Key lookupKey = getLookupKey(user, index);
+      Key revisionKey = AppEngineRecord.makeKey(lookupKey, new BytesRevision(revision));
+      // If this doesn't exist there is no key so null gets returned by JDOObjectNotFoundException
+      AppEngineRecord record = pm.getObjectById(AppEngineRecord.class, revisionKey);
+      return new RevValue(revision, record.getValue());
+    } catch (JDOObjectNotFoundException e) {
+      return null;
+    } finally {
+      pm.close();
+    }
+  }
+
+  @Override
   public Collection<byte[]> getRevisions(User user, byte[] index) throws IOException {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {//TODO(drt24): cleanup this method
@@ -216,9 +231,7 @@ public final class AppEngineDatabase implements Database {
         pm.makePersistent(lookup);
       }
     // TODO(drt24): Do revisions properly, need to only add if not already existing.
-      AppEngineRecord record =
-          new AppEngineRecord(KeyFactory.createKey(lookup.getKey(), AppEngineRecord.class
-              .getSimpleName(), revision.toString()), revision, data);
+      AppEngineRecord record = new AppEngineRecord(lookup.getKey(), revision, data);
       pm.makePersistent(record);
       return true;
     } finally {
@@ -289,30 +302,4 @@ public final class AppEngineDatabase implements Database {
     
   }
 
-  	/**
-  	 * Given a NewRequest object, insert data into the datastore and report status back to client
-  	 *
-  	 * @param resp
-  	 * @param r
-  	private void handleNewRecord(HttpServletResponse resp, NewRequest r) {
-
-  		PersistenceManager pm = PMF.get().getPersistenceManager();
-  		try {
-  			Record old = new Record("old record".getBytes(), null, null);
-  			Record new1 = new Record("...split into two parts".getBytes(), null, old);
-  			Record new2 = new Record("a new record which is ...".getBytes(), new1, old);
-
-  			//Recursively writes out new1 and old since these are referenced as children inside new2
-  			pm.makePersistentAll(new2);
-
-  			System.out.println("Check: " + new2.getKey().getId() +
-  					" == "+ new1.getKey().getParent().getId());
-
-  			//return ""+new2.getKey().getId();
-
-  		} finally {
-  			pm.close();
-  		}		
-  	}
-  	 */
 }

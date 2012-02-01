@@ -19,6 +19,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 
 import com.google.appengine.api.datastore.Key;
@@ -43,6 +44,6 @@ public class Lookup {
   }
 
   public static Key makeKey(AEUser user, byte[] key){
-    return KeyFactory.createKey(KeyFactory.createKey(user.getKey(),AppEngineDatabase.STORE,AppEngineDatabase.STORE),Lookup.class.getSimpleName(),Hex.encodeHexString(key));
+    return KeyFactory.createKey(KeyFactory.createKey(user.getKey(),AppEngineDatabase.STORE,AppEngineDatabase.STORE),Lookup.class.getSimpleName(),Base64.encodeBase64String(key));
   }
 }
