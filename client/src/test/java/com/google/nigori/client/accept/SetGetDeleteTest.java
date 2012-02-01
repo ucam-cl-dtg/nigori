@@ -90,18 +90,21 @@ public class SetGetDeleteTest {
           final byte[] revision = iv.revvalue.getRevision();
           assertTrue("Not put" + i, nigori.put(index, revision, value));
         }
-        for (IndexValue iv : testCases) {
-          final byte[] index = iv.index;
-          final byte[] value = iv.revvalue.getValue();
-          final byte[] revision = iv.revvalue.getRevision();
-          assertArrayEquals("Got different" + i, value, nigori.getRevision(index, revision));
-        }
-        for (IndexValue iv : testCases) {
-          final byte[] index = iv.index;
-          if (!iv.later) {
-            assertTrue("Not deleted" + i, nigori.delete(index));
-          } else {// should have already been deleted
-            assertFalse("Not deleted" + i, nigori.delete(index));
+        try {
+          for (IndexValue iv : testCases) {
+            final byte[] index = iv.index;
+            final byte[] value = iv.revvalue.getValue();
+            final byte[] revision = iv.revvalue.getRevision();
+            assertArrayEquals("Got different" + i, value, nigori.getRevision(index, revision));
+          }
+        } finally {
+          for (IndexValue iv : testCases) {
+            final byte[] index = iv.index;
+            if (!iv.later) {
+              assertTrue("Not deleted" + i, nigori.delete(index));
+            } else {// should have already been deleted
+              assertFalse("Not deleted" + i, nigori.delete(index));
+            }
           }
         }
         for (IndexValue iv : testCases) {
@@ -129,6 +132,7 @@ public class SetGetDeleteTest {
       assertEquals("Not correct number of revisions", 2,revisions.size());
       assertThat(revisions,hasItem(a));
       assertThat(revisions,hasItem(b));
+      nigori.delete(index);
     } finally {
       assertTrue("Not unregistered", nigori.unregister());
     }

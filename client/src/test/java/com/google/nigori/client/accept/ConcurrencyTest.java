@@ -125,40 +125,47 @@ public class ConcurrencyTest {
 
     final NigoriDatastore nigori = AcceptanceTests.getStore();
     assertTrue("Not registered", nigori.register());
-    final List<Throwable> exceptionList = Collections.synchronizedList(new LinkedList<Throwable>());
-    for (int j = 0; j < THREADS; ++j) {
-      threads[j] = new Thread() {
-        public void run() {
-          boolean succeeded = false;
-          try {
-            Random r = new Random();
-            for (int i = 0; i < AcceptanceTests.REPEAT * 10; ++i) {// check we can do this more than
-                                                                   // once
-              for (IndexValue iv : SetGetDeleteTest.testCases) {// once round for each
-                final byte[] index = new byte[16];
-                r.nextBytes(index);// need to generate some different indices
-                final byte[] value = iv.revvalue.getValue();
-                final byte[] revision = iv.revvalue.getRevision();
-                assertTrue("Not put" + i, nigori.put(index, revision, value));
-                assertArrayEquals("Got different" + i, value, nigori.getRevision(index,revision));
-                assertTrue("Not deleted" + i, nigori.delete(index));
-                assertNull("Not deleted" + i, nigori.get(index));
+    try {
+      final List<Throwable> exceptionList = Collections.synchronizedList(new LinkedList<Throwable>());
+      for (int j = 0; j < THREADS; ++j) {
+        threads[j] = new Thread() {
+          public void run() {
+            boolean succeeded = false;
+            try {
+              Random r = new Random();
+              for (int i = 0; i < AcceptanceTests.REPEAT * 10; ++i) {// check we can do this more than
+                // once
+                for (IndexValue iv : SetGetDeleteTest.testCases) {// once round for each
+                  final byte[] index = new byte[16];
+                  r.nextBytes(index);// need to generate some different indices
+                  final byte[] value = iv.revvalue.getValue();
+                  final byte[] revision = iv.revvalue.getRevision();
+                  assertTrue("Not put" + i, nigori.put(index, revision, value));
+                  try {
+                    assertArrayEquals("Got different" + i, value, nigori.getRevision(index,revision));
+                  } finally {
+                    assertTrue("Not deleted" + i, nigori.delete(index));
+                  }
+                  assertNull("Not deleted" + i, nigori.get(index));
+                }
+              }
+              succeeded = true;
+            } catch (Throwable e) {
+              exceptionList.add(e);
+            } finally {
+              if (!succeeded && !failed ){
+                failed = true;
               }
             }
-            succeeded = true;
-          } catch (Throwable e) {
-            exceptionList.add(e);
-          } finally {
-            if (!succeeded && !failed ){
-              failed = true;
-            }
           }
-        }
-      };
+        };
+      }
+      startThenJoinThreads(threads);
+
+      ifFailedPrintFailures(failed,exceptionList);
+    } finally {
+      assertTrue(nigori.unregister());
     }
-    startThenJoinThreads(threads);
-    assertTrue(nigori.unregister());
-    ifFailedPrintFailures(failed,exceptionList);
   }
 
   //TODO(drt24) once we have versioning then test that concurrent execution on the same keys works. 

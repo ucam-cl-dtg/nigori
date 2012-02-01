@@ -35,7 +35,7 @@ import com.google.nigori.client.NigoriDatastore;
   SetGetDeleteTest.class,
   ConcurrencyTest.class,
   CommandLineExampleTest.class,
-  TwoUserDemoTest.class,
+  TwoUserDemoTest.class
   })
 public class AcceptanceTests {
 
@@ -90,6 +90,7 @@ public class AcceptanceTests {
       }
     }
   }
+
   @BeforeClass
   public static void startDevServer() throws Exception {
     startTime = System.currentTimeMillis();

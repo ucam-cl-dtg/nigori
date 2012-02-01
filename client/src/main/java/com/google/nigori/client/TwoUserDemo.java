@@ -109,5 +109,13 @@ public class TwoUserDemo {
 				e.printStackTrace();
 			}
 		}
-	}
+    try {
+      secondUser.join();
+    } catch (InterruptedException e) {
+    }
+    // Clean up
+    sharedStore.delete(sharedIndex);
+    sharedStore.unregister();
+
+  }
 }
