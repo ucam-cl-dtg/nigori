@@ -47,7 +47,7 @@ import com.google.protobuf.ByteString;
  * It is worth looking at {@link java.util.Collection} but we can't implement that or most of the methods in it until we have a "list indexes" method which at least for now we don't intend to do.
  * putAll from {@link java.util.Map} might be worth implementing
  */
-public class HTTPNigoriDatastore {
+public class HTTPNigoriDatastore implements NigoriDatastore {
 
 	private final String serverUrl;
 	private final KeyManager keyManager;
@@ -248,11 +248,6 @@ public class HTTPNigoriDatastore {
 		return keyManager.signer().getPublicKey();
 	}
 
-	/**
-	 * Register the username and password details with the server.
-	 * 
-	 * @return true if the registration was successful; false otherwise.
-	 */
 	public boolean register() throws IOException, NigoriCryptographyException {
 
 		try{
@@ -266,11 +261,7 @@ public class HTTPNigoriDatastore {
 					e.getMessage());
 		}
 	}
-	/**
-   * Unregister the username and password details with the server.
-   * 
-   * @return true if the unregistration was successful; false otherwise.
-   */
+
   public boolean unregister() throws IOException, NigoriCryptographyException {
 
     try{
@@ -284,11 +275,6 @@ public class HTTPNigoriDatastore {
     }
   }
 
-	/**
-	 * Evaluate whether the current username and password represent a valid account on the server.
-	 * 
-	 * @return true if the account is valid; false otherwise.
-	 */
 	public boolean authenticate() throws IOException, NigoriCryptographyException {
 
 		try {
@@ -302,14 +288,6 @@ public class HTTPNigoriDatastore {
 		}
 	}
 
-	/**
-	 * Insert a new key-value pair into the datastore of the server; only current user may read/write.
-	 * 
-	 * @param key the key
-	 * @param value the data value associated with the key.
-	 * @return true if the data was successfully inserted; false otherwise.
-	 * @throws NigoriCryptographyException 
-	 */
 	public boolean put(byte[] index, byte[] revision, byte[] value)  throws IOException, NigoriCryptographyException {
 		return put(null, index, revision, value);
 	}
@@ -349,13 +327,6 @@ public class HTTPNigoriDatastore {
 		}
 	}
 
-	/**
-	 * Retrieve the value associated with {@code index} on the server.
-	 * 
-	 * @param index
-	 * @return a byte array containing the data associated with {@code key} or {@code null} if no
-	 * data exists.
-	 */
 	public List<RevValue> get(byte[] index) throws IOException,	NigoriCryptographyException {
 		return get(null, index, null);
 	}
@@ -364,8 +335,8 @@ public class HTTPNigoriDatastore {
    * @param index
    * @param revision
    * @return
-	 * @throws NigoriCryptographyException 
-	 * @throws IOException 
+   * @throws NigoriCryptographyException 
+   * @throws IOException 
    */
   public byte[] getRevision(byte[] index, byte[] revision) throws IOException, NigoriCryptographyException {
     // TODO(drt24) Auto-generated method stub
@@ -494,15 +465,7 @@ public class HTTPNigoriDatastore {
       throw new IOException("Error reading JSON sent by server: "+ jce.getMessage());
     }
 	}
-	/**
-	 * Delete the key (and associated value) on the server
-	 * @param key
-	 * @return true if the deletion was successful; false if no such key was found or a server error
-	 * occurred.
-	 * @throws IOException 
-	 * @throws NigoriCryptographyException 
-	 * @throws UnsupportedEncodingException 
-	 */
+
   public boolean delete(byte[] index) throws UnsupportedEncodingException, NigoriCryptographyException, IOException {
     return delete(null, index);
   }
