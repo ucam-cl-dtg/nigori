@@ -370,10 +370,10 @@ public class NigoriDatastore {
   public byte[] getRevision(byte[] index, byte[] revision) throws IOException, NigoriCryptographyException {
     // TODO(drt24) Auto-generated method stub
     List<RevValue> rev = get(null, index, revision);
-    if (rev != null && rev.size() == 1){
-    return rev.get(0).getValue();
+    if (rev != null && rev.size() == 1) {
+      return rev.get(0).getValue();
     } else {
-      assert rev == null || rev.size() == 0;
+      assert rev == null || rev.size() == 0 : "Rev size: " + rev.size();
       return null;
     }
   }
@@ -387,19 +387,19 @@ public class NigoriDatastore {
 	 */
 	private List<RevValue> get(byte[] encKey, byte[] index, byte[] revision) throws IOException, NigoriCryptographyException {
 
-		byte[] encIndex;
-		byte[] encRevision = null;
-		if (encKey == null) {
-			encIndex = keyManager.encryptDeterministically(index);
-			if (revision != null) {
-			  encRevision = keyManager.encryptDeterministically(index);
-			}
-		} else {
-			encIndex = keyManager.encryptDeterministically(encKey, index);
-			if (revision != null) {
-        encRevision = keyManager.encryptDeterministically(encKey, index);
-      }
-		}
+	  byte[] encIndex;
+	  byte[] encRevision = null;
+	  if (encKey == null) {
+	    encIndex = keyManager.encryptDeterministically(index);
+	    if (revision != null) {
+	      encRevision = keyManager.encryptDeterministically(revision);
+	    }
+	  } else {
+	    encIndex = keyManager.encryptDeterministically(encKey, index);
+	    if (revision != null) {
+	      encRevision = keyManager.encryptDeterministically(encKey, revision);
+	    }
+	  }
 
 		String jsonRequest;
 		try {
