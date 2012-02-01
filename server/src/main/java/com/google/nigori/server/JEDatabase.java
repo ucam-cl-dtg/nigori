@@ -46,6 +46,9 @@ public class JEDatabase implements Database {
   private final Environment env;
 
   private static final Logger log = Logger.getLogger(JEDatabase.class.getSimpleName());
+  static {
+    //log.addHandler(new ConsoleHandler());
+  }
   private static final DatabaseEntry USERS = new DatabaseEntry("users".getBytes());
   private static final byte[] SEPARATOR = "/".getBytes();
   
@@ -154,7 +157,7 @@ public class JEDatabase implements Database {
 
   @Override
   public boolean deleteUser(User existingUser) {
-    try {// TODO delete user data
+    try {
       final Transaction txn = env.beginTransaction(null, null);
       db.delete(txn, makeRegKey(existingUser.getPublicKey()));
       Cursor cursor = db.openCursor(txn, null);
@@ -163,6 +166,7 @@ public class JEDatabase implements Database {
             cursor.getSearchBoth(USERS, new DatabaseEntry(existingUser.getPublicKey()), null);
         if (status == OperationStatus.SUCCESS) {
           cursor.delete();
+          deleteUserData(existingUser, txn);
           return true;
         } else {
           return false;
@@ -174,6 +178,20 @@ public class JEDatabase implements Database {
     } catch (DatabaseException e) {
       log.severe("Exception while adding user" + e);
       return false;
+    }
+  }
+
+  private void deleteUserData(User user, Transaction txn) {
+    Cursor cursor = db.openCursor(txn, null);
+    try {
+      DatabaseEntry lookup = new DatabaseEntry();
+      DatabaseEntry storesKey = makeStoresKey(user);
+      for (OperationStatus lookupStatus = cursor.getSearchKey(storesKey, lookup, null); OperationStatus.SUCCESS == lookupStatus;
+          cursor.getNextDup(storesKey, lookup, null)) {
+        deleteRecord(user, lookup.getData(), txn);
+      }
+    } finally {
+      cursor.close();
     }
   }
 
@@ -238,8 +256,13 @@ public class JEDatabase implements Database {
     Transaction txn = null;
     try {
       txn = env.beginTransaction(null, null);
-      Cursor cursor = db.openCursor(txn, null);
+      OperationStatus lookupExists = db.getSearchBoth(txn, makeStoresKey(user), new DatabaseEntry(key), null);
+      if (OperationStatus.SUCCESS != lookupExists){
+        txn.commit();
+        return null;
+      }
       Collection<RevValue> collection = new ArrayList<RevValue>();
+      Cursor cursor = db.openCursor(txn, null);
       try {
         byte[] lookup = makeLookupBytes(user, key);
         DatabaseEntry lookupKey = new DatabaseEntry(lookup);
@@ -278,8 +301,38 @@ public class JEDatabase implements Database {
 
   @Override
   public Collection<byte[]> getRevisions(User user, byte[] key) throws IOException {
-    // TODO Auto-generated method stub
-    return null;
+    Transaction txn = null;
+    try {
+      txn = env.beginTransaction(null, null);
+      DatabaseEntry lookup = new DatabaseEntry(makeLookupBytes(user, key));
+      DatabaseEntry revision = new DatabaseEntry();
+
+      Collection<byte[]> revisions = new ArrayList<byte[]>();
+      Cursor cursor = db.openCursor(txn, null);
+      try {
+        for (OperationStatus revisionStatus = cursor.getSearchKey(lookup, revision, null); OperationStatus.SUCCESS == revisionStatus;
+            revisionStatus = cursor.getNextDup(lookup, revision, null)) {
+          revisions.add(revision.getData());
+        }
+      } finally {
+        cursor.close();
+      }
+      txn.commit();
+      return revisions;
+    } catch (DatabaseException e) {
+      if (txn != null) {
+        try {
+          txn.abort();
+        } catch (DatabaseException e1) {
+          // we already had a failure, ignore this one.
+        }
+      }
+      throw new IOException(e);
+    }
+  }
+
+  private DatabaseEntry makeStoresKey(User user) {
+    return new DatabaseEntry(makeBytes("stores/".getBytes(), user.getPublicKey()));
   }
 
   @Override
@@ -287,7 +340,7 @@ public class JEDatabase implements Database {
     Transaction txn = null;
     try {
       txn = env.beginTransaction(null, null);
-      DatabaseEntry storesKey = new DatabaseEntry(makeBytes("stores/".getBytes(), user.getPublicKey()));
+      DatabaseEntry storesKey = makeStoresKey(user);
       DatabaseEntry lookup = new DatabaseEntry(key);
       OperationStatus lookupExists = db.getSearchBoth(txn, storesKey, lookup, null);
       if (OperationStatus.NOTFOUND == lookupExists){
@@ -333,10 +386,59 @@ public class JEDatabase implements Database {
     }
   }
 
+  private boolean deleteRecord(User user, byte[] key, Transaction txn) {
+    Cursor cursor = null;
+
+    boolean didWork = false;
+
+    cursor = db.openCursor(txn, null);
+    try {
+      OperationStatus lookupStatus =
+          cursor.getSearchBoth(makeStoresKey(user), new DatabaseEntry(key), null);
+      if (OperationStatus.SUCCESS == lookupStatus) {
+        OperationStatus lookupDelete = cursor.delete();
+        if (OperationStatus.SUCCESS == lookupDelete) {
+          didWork = true;
+        }
+      }
+      DatabaseEntry revision = new DatabaseEntry();
+      byte[] lookup = makeLookupBytes(user, key);
+      DatabaseEntry lookupKey = new DatabaseEntry(lookup);
+      DatabaseEntry revisionKey;
+      for (OperationStatus revisionStatus = cursor.getSearchKey(lookupKey, revision, null); OperationStatus.SUCCESS == revisionStatus;
+          revisionStatus = cursor.getNextDup(lookupKey, revision, null)) {
+        revisionKey = new DatabaseEntry(makeBytes(lookup, SEPARATOR, revision.getData()));
+        OperationStatus valueDelete = db.delete(txn, revisionKey);
+        OperationStatus revisionDelete = cursor.delete();
+        if (OperationStatus.SUCCESS == valueDelete || OperationStatus.SUCCESS == revisionDelete) {
+          didWork = true;
+        }
+      }
+    } finally {
+      cursor.close();
+    }
+    return didWork;
+
+  }
+
   @Override
   public boolean deleteRecord(User user, byte[] key) {
-    // TODO Auto-generated method stub
-    return false;
+    Transaction txn = null;
+    try {
+      txn = env.beginTransaction(null, null);
+      boolean result = deleteRecord(user, key, txn);
+      txn.commit();
+      return result;
+    } catch (DatabaseException e) {
+      log.severe("Exception while adding user" + e);
+      try {
+        if (txn != null)
+          txn.abort();
+      } catch (DatabaseException e1) {
+        // we already had a failure, ignore this one.
+      }
+      return false;
+    }
   }
 
 }
