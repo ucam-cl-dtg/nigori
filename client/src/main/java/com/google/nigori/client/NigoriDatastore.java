@@ -20,6 +20,7 @@ import com.google.nigori.common.RevValue;
 
 /**
  * Nigori datastore which performs the relevant encryption and communicates with nigori server(s) which store the data.
+ * TODO(drt24) need to wrap up byte[] for revision and value so that .equals() can work correctly.
  * @author drt24
  * 
  */
@@ -57,6 +58,11 @@ public interface NigoriDatastore {
    */
   public boolean put(byte[] index, byte[] revision, byte[] value) throws IOException,
       NigoriCryptographyException;
+
+  /**
+   * @return
+   */
+  List<byte[]> getIndices();
 
   /**
    * Retrieve the revision-values associated with {@code index} on the server.

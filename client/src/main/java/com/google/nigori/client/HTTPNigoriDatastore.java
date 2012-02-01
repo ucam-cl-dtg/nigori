@@ -508,4 +508,10 @@ public class HTTPNigoriDatastore implements NigoriDatastore {
     }
     return true;
   }
+
+  @Override
+  public List<byte[]> getIndices() {
+    // TODO(drt24) Auto-generated method stub
+    return null;
+  }
 }
