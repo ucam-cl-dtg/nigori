@@ -53,7 +53,7 @@ public class CommandLineExample {
 		final String username = args[3];
 		final String password = args[4];
 
-		HTTPNigoriDatastore nigori = new HTTPNigoriDatastore(server, port, "nigori", username, password);
+		NigoriDatastore nigori = new HTTPNigoriDatastore(server, port, "nigori", username, password);
 		
 		if (action.equals("register")) {
 			boolean success = nigori.register();

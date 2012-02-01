@@ -32,7 +32,7 @@ import java.util.Random;
 import org.junit.Test;
 
 import com.google.nigori.client.NigoriCryptographyException;
-import com.google.nigori.client.HTTPNigoriDatastore;
+import com.google.nigori.client.NigoriDatastore;
 import com.google.nigori.client.accept.SetGetDeleteTest.IndexValue;
 import com.google.nigori.common.MessageLibrary;
 
@@ -80,7 +80,7 @@ public class ConcurrencyTest {
         public void run() {
           boolean succeeded = false;
           try {
-            HTTPNigoriDatastore nigori = AcceptanceTests.getStore();
+            NigoriDatastore nigori = AcceptanceTests.getStore();
 
             for (int i = 0; i < AcceptanceTests.REPEAT * 10; ++i) {// check we can do this more than
                                                                    // once
@@ -123,7 +123,7 @@ public class ConcurrencyTest {
     failed = false;
     Thread[] threads = new Thread[THREADS];
 
-    final HTTPNigoriDatastore nigori = AcceptanceTests.getStore();
+    final NigoriDatastore nigori = AcceptanceTests.getStore();
     assertTrue("Not registered", nigori.register());
     try {
       final List<Throwable> exceptionList = Collections.synchronizedList(new LinkedList<Throwable>());

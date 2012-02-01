@@ -21,7 +21,7 @@ import java.io.IOException;
 import org.junit.Test;
 
 import com.google.nigori.client.NigoriCryptographyException;
-import com.google.nigori.client.HTTPNigoriDatastore;
+import com.google.nigori.client.NigoriDatastore;
 
 /**
  * @author drt24
@@ -31,7 +31,7 @@ public class RegistrationTest {
 
   @Test
   public void test() throws NigoriCryptographyException, IOException {
-    HTTPNigoriDatastore nigori = AcceptanceTests.getStore();
+    NigoriDatastore nigori = AcceptanceTests.getStore();
     for (int i = 0; i < AcceptanceTests.REPEAT; ++i) {// check we can do this more than once
       assertTrue("Not registered", nigori.register());
       assertTrue("Can't authenticate",nigori.authenticate());

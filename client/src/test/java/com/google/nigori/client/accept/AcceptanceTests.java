@@ -27,6 +27,7 @@ import org.junit.runners.Suite;
 
 import com.google.nigori.client.NigoriCryptographyException;
 import com.google.nigori.client.HTTPNigoriDatastore;
+import com.google.nigori.client.NigoriDatastore;
 
 
 @RunWith(Suite.class)
@@ -109,7 +110,7 @@ public class AcceptanceTests {
     System.out.println("Total time (ms): " + ((System.currentTimeMillis() - startTime)));
   }
 
-  public static HTTPNigoriDatastore getStore() throws UnsupportedEncodingException, NigoriCryptographyException {
+  public static NigoriDatastore getStore() throws UnsupportedEncodingException, NigoriCryptographyException {
     return new HTTPNigoriDatastore(HOST, PORT, "nigori");
   }
 }

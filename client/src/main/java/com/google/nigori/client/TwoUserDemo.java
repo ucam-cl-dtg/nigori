@@ -49,7 +49,7 @@ public class TwoUserDemo {
 		public void run() {
 			byte count = 0;
 			try {
-				HTTPNigoriDatastore sharedStore = new HTTPNigoriDatastore(HOST, PORT, "nigori", username,
+				NigoriDatastore sharedStore = new HTTPNigoriDatastore(HOST, PORT, "nigori", username,
 						password);
 				for(int i = 0; i < ITERATIONS; ++i) {
 					sharedStore.put(sharedIndex, new byte[]{}, new byte[]{count++});
