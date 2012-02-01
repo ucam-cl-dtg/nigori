@@ -307,4 +307,10 @@ public class SQLDatabase implements Database {
     }
   }
 
+  @Override
+  public void clearOldNonces() {
+    // TODO Auto-generated method stub
+    
+  }
+
 }

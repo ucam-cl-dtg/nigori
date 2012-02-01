@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -169,6 +170,20 @@ public class TestDatabase implements Database {
     else {
       nonceSet.add(nonce);
       return true;
+    }
+  }
+
+  @Override
+  public void clearOldNonces() {
+    for (Set<Nonce> nonceSet : nonces.values()){
+      Iterator<Nonce> nonceIterator = nonceSet.iterator();
+      Nonce nonce;
+      while (nonceIterator.hasNext()){
+        nonce = nonceIterator.next();
+        if (!nonce.isRecent()){
+          nonceIterator.remove();
+        }
+      }
     }
   }
 }

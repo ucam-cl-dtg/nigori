@@ -283,6 +283,12 @@ public final class AppEngineDatabase implements Database {
     }
   }
 
+  @Override
+  public void clearOldNonces() {
+    // TODO Auto-generated method stub
+    
+  }
+
   	/**
   	 * Given a NewRequest object, insert data into the datastore and report status back to client
   	 *

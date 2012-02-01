@@ -441,4 +441,10 @@ public class JEDatabase implements Database {
     }
   }
 
+  @Override
+  public void clearOldNonces() {
+    // TODO Auto-generated method stub
+    
+  }
+
 }

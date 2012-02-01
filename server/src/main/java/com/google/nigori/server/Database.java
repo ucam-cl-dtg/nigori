@@ -64,6 +64,19 @@ interface Database {
 	 */
 	public Collection<RevValue> getRecord(User user, byte[] key) throws IOException;
 	public Collection<byte[]> getRevisions(User user, byte[] key) throws IOException;
+	/**
+	 * 
+	 * @param user
+	 * @param key
+	 * @param revision
+	 * @param data
+	 * @return whether this succeeded
+	 */
 	public boolean putRecord(User user, byte[] key, byte[] revision, byte[] data);
 	public boolean deleteRecord(User user, byte[] key);
+
+	/**
+	 * Clear out old nonces which are now too old to be considered.
+	 */
+	public void clearOldNonces();
 }
