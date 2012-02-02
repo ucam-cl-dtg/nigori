@@ -32,7 +32,7 @@ import com.google.nigori.common.Nonce;
 import com.google.nigori.common.RevValue;
 
 /**
- * TODO(drt24) plumb this in, test it and comment it
+ * TODO(drt24) finish, plumb this in, test it and comment it
  * @author drt24
  *
  */
@@ -205,6 +205,12 @@ public class SQLDatabase implements Database {
 
   @Override
   public RevValue getRevision(User user, byte[] key, byte[] revision) throws IOException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Collection<byte[]> getIndices(User user) {
     // TODO Auto-generated method stub
     return null;
   }

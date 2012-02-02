@@ -412,7 +412,7 @@ public class HTTPNigoriDatastore implements NigoriDatastore {
 	  byte[] encIndex = keyManager.encryptDeterministically(index);
 	  Response response;
     try {
-      response = postResponse(MessageLibrary.REQUEST_GET_REVISIONS, MessageLibrary.getRevisionsAsJson(keyManager.signer(), encIndex));
+      response = postResponse(MessageLibrary.REQUEST_GET_REVISIONS, MessageLibrary.getRevisionsRequestAsJson(keyManager.signer(), encIndex));
     } catch (NoSuchAlgorithmException e) {
       throw new NigoriCryptographyException("Platform does have required crypto support:" +
           e.getMessage());
@@ -471,7 +471,13 @@ public class HTTPNigoriDatastore implements NigoriDatastore {
 
   @Override
   public List<byte[]> getIndices() throws NigoriCryptographyException, IOException {
-    Response response = postResponse(MessageLibrary.REQUEST_GET_INDICES,MessageLibrary.getIndicesAsJson(keyManager.signer()));
+    Response response;
+    try {
+      response = postResponse(MessageLibrary.REQUEST_GET_INDICES,MessageLibrary.getIndicesRequestAsJson(keyManager.signer()));
+    } catch (NoSuchAlgorithmException e) {
+      throw new NigoriCryptographyException("Platform does have required crypto support:" +
+          e.getMessage());
+    }
 
     if (response.notFound()) {
       return null; //request was successful, but no data key by that name was found.

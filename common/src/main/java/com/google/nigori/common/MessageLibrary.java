@@ -26,6 +26,8 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import com.google.nigori.common.NigoriMessages.AuthenticateRequest;
 import com.google.nigori.common.NigoriMessages.DeleteRequest;
+import com.google.nigori.common.NigoriMessages.GetIndicesRequest;
+import com.google.nigori.common.NigoriMessages.GetIndicesResponse;
 import com.google.nigori.common.NigoriMessages.GetRequest;
 import com.google.nigori.common.NigoriMessages.GetResponse;
 import com.google.nigori.common.NigoriMessages.GetRevisionsRequest;
@@ -62,6 +64,8 @@ public class MessageLibrary {
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(GetRequest.class, new TypeAdapterProtobuf());
 		gsonBuilder.registerTypeAdapter(GetResponse.class, new TypeAdapterProtobuf());
+		gsonBuilder.registerTypeAdapter(GetIndicesRequest.class, new TypeAdapterProtobuf());
+    gsonBuilder.registerTypeAdapter(GetIndicesResponse.class, new TypeAdapterProtobuf());
 		gsonBuilder.registerTypeAdapter(GetRevisionsRequest.class, new TypeAdapterProtobuf());
 		gsonBuilder.registerTypeAdapter(GetRevisionsResponse.class, new TypeAdapterProtobuf());
 		gsonBuilder.registerTypeAdapter(PutRequest.class, new TypeAdapterProtobuf());
@@ -80,6 +84,7 @@ public class MessageLibrary {
 			super(msg);
 		}
 	}
+	// TODO(drt24) add fromGson method
 
 	public static GetRequest getRequestAsProtobuf(SchnorrSign signer, byte[] index, byte[] revision) throws 
 	NoSuchAlgorithmException {
@@ -139,24 +144,50 @@ public class MessageLibrary {
 		}
 	}
 
-	public static String getIndicesAsJson(SchnorrSign signer) {
-	  // TODO Auto-generated method stub
-	  return null;
-	}
+	public static GetIndicesRequest getIndicesRequestAsProtobuf(SchnorrSign signer) throws NoSuchAlgorithmException {
+    // TODO sign method
+    return GetIndicesRequest.newBuilder().setAuth(authenticateRequestAsProtobuf(signer)).build();
+  }
 
-  public static GetRevisionsRequest getRevisionsAsProtobuf(SchnorrSign signer, byte[] index) throws NoSuchAlgorithmException {
+  public static String getIndicesRequestAsJson(SchnorrSign signer) throws NoSuchAlgorithmException {
+    return gson.toJson(getIndicesRequestAsProtobuf(signer));
+  }
+
+  public static GetIndicesRequest getIndicesRequestFromJson(String json) throws JsonConversionException {
+    try {
+      return gson.fromJson(json, GetIndicesRequest.class);
+    } catch (JsonSyntaxException jse) {
+      throw new JsonConversionException("Invalid JSON syntax");
+    } catch (JsonParseException jse) {
+      throw new JsonConversionException("Unable to parse JSON fields into correct message format");
+    }
+  }
+
+  private static GetIndicesResponse getIndicesResponseAsProtobuf(Collection<byte[]> value) {
+    List<ByteString> values = new ArrayList<ByteString>(value.size());
+    for (byte[] valueA : value){
+      values.add(ByteString.copyFrom(valueA));
+    }
+    return GetIndicesResponse.newBuilder().addAllIndices(values).build();
+  }
+
+  public static String getIndicesResponseAsJson(Collection<byte[]> value) {
+    return gson.toJson(getIndicesResponseAsProtobuf(value));
+  }
+
+  public static GetRevisionsRequest getRevisionsRequestAsProtobuf(SchnorrSign signer, byte[] index) throws NoSuchAlgorithmException {
 	  // TODO(drt24) add index
     return GetRevisionsRequest.newBuilder()
         .setAuth(authenticateRequestAsProtobuf(signer))
         .setKey(ByteString.copyFrom(index)).build();
   }
 
-  public static String getRevisionsAsJson(SchnorrSign signer, byte[] encIndex)
+  public static String getRevisionsRequestAsJson(SchnorrSign signer, byte[] encIndex)
       throws NoSuchAlgorithmException {
-    return gson.toJson(getRevisionsAsProtobuf(signer, encIndex));
+    return gson.toJson(getRevisionsRequestAsProtobuf(signer, encIndex));
   }
 
-  public static GetRevisionsRequest getRevisionsFromJson(String json) throws JsonConversionException{
+  public static GetRevisionsRequest getRevisionsRequestFromJson(String json) throws JsonConversionException{
     try {
       return gson.fromJson(json, GetRevisionsRequest.class);
     } catch (JsonSyntaxException jse) {

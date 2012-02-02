@@ -145,4 +145,49 @@ public abstract class AbstractDatabaseTest {
       assertTrue(database.deleteUser(user));
     }
   }
+  @Test
+  public void userDataDeletion() throws UserNotFoundException, IOException {
+    User user = null;
+    try {
+      assertTrue(database.addUser(publicKey));
+      user = database.getUser(publicKey);
+      assertTrue(database.putRecord(user, "foo".getBytes(), "bar".getBytes(), "baz".getBytes()));
+    } finally {
+      if (user != null)
+        database.deleteUser(user);
+    }
+    try {
+      assertTrue(database.addUser(publicKey));
+      user = database.getUser(publicKey);
+      assertNull(database.getRevision(user, "foo".getBytes(), "bar".getBytes()));
+    } finally {
+      if (user != null)
+        database.deleteUser(user);
+    }
+  }
+  @Test
+  public void getIndices() throws UserNotFoundException, IOException {
+    User user = null;
+    try {
+      assertTrue(database.addUser(publicKey));
+      user = database.getUser(publicKey);
+      final byte[] indexa = "indexa".getBytes(MessageLibrary.CHARSET);
+      final byte[] indexb = "indexb".getBytes(MessageLibrary.CHARSET);
+      final byte[] revisiona = "revisiona".getBytes(MessageLibrary.CHARSET);
+      final byte[] revisionb = "revisionb".getBytes(MessageLibrary.CHARSET);
+      final byte[] a = "a".getBytes(MessageLibrary.CHARSET);
+      final byte[] b = "b".getBytes(MessageLibrary.CHARSET);
+      assertTrue(database.putRecord(user, indexa, revisiona, a));
+      assertTrue(database.putRecord(user, indexb, revisionb, b));
+      Collection<byte[]> indices = database.getIndices(user);
+      assertNotNull("No indices",indices);
+      assertEquals(2, indices.size());
+      assertThat(indices,hasItem(indexa));
+      assertThat(indices,hasItem(indexb));
+      assertTrue(database.deleteRecord(user, indexa));
+      assertTrue(database.deleteRecord(user, indexb));
+    } finally {
+      assertTrue(database.deleteUser(user));
+    }
+  }
 }

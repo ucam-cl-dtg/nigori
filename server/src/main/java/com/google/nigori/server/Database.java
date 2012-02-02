@@ -88,4 +88,12 @@ interface Database {
 	 * Clear out old nonces which are now too old to be considered.
 	 */
 	public void clearOldNonces();
+
+  /**
+   * Get all the indices for the user
+   * @param user the user to get the indices for
+   * @return the indices for the user
+   * @throws IOException 
+   */
+  Collection<byte[]> getIndices(User user) throws IOException;
 }

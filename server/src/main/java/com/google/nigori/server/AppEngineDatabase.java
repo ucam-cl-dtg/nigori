@@ -36,6 +36,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.ShortBlob;
 import com.google.nigori.common.Nonce;
 import com.google.nigori.common.RevValue;
 
@@ -126,11 +127,15 @@ public final class AppEngineDatabase implements Database {
     }
   }
 
-  private static Key getLookupKey(User user, byte[] index) {
+  private static AEUser castUser(User user){
     if (! (user instanceof AEUser)){
       user = new AEUser(user.getPublicKey(), user.getRegistrationDate());
     }
-    return Lookup.makeKey((AEUser)user, index);
+    return (AEUser) user;
+  }
+
+  private static Key getLookupKey(User user, byte[] index) {
+    return Lookup.makeKey(castUser(user), index);
   }
 
   @Override
@@ -184,12 +189,38 @@ public final class AppEngineDatabase implements Database {
   }
 
   @Override
+  public Collection<byte[]> getIndices(User user) {
+    PersistenceManager pm = pmfInstance.getPersistenceManager();
+    try {
+      Query getIndices = new Query(Lookup.class.getSimpleName());
+      getIndices.setAncestor(castUser(user).getKey());
+      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+      List<Entity> results = datastore.prepare(getIndices).asList(
+          FetchOptions.Builder.withDefaults());
+      List<byte[]> answer = new ArrayList<byte[]>();
+      for (Entity result : results){
+        Object index = result.getProperty("index");
+        if (index instanceof ShortBlob){
+        answer.add(((ShortBlob)index).getBytes());
+        } else if (index instanceof Blob){
+          answer.add(((Blob)index).getBytes());
+        } else throw new ClassCastException("Could not transform to byte[] via a (Short)Blob: " +index.getClass().getSimpleName());
+      }
+      return answer;
+    } catch (JDOObjectNotFoundException e) {
+      return null;
+    } finally {
+      pm.close();
+    }
+  }
+
+  @Override
   public Collection<byte[]> getRevisions(User user, byte[] index) throws IOException {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {//TODO(drt24): cleanup this method
       // TODO(drt24): we can do this faster with a key only lookup
       Key lookupKey = getLookupKey(user,index);
-   // If this doesn't exist there is no key so null gets returned by JDOObjectNotFoundException
+      // If this doesn't exist there is no key so null gets returned by JDOObjectNotFoundException
       Lookup lookup = pm.getObjectById(Lookup.class, lookupKey);
       List<byte[]> answer = new ArrayList<byte[]>();
       Query getRevisionValues = new Query(AppEngineRecord.class.getSimpleName());
@@ -227,7 +258,7 @@ public final class AppEngineDatabase implements Database {
       try {
         lookup = pm.getObjectById(Lookup.class, lookupKey);
       } catch (JDOObjectNotFoundException e) {
-        lookup = new Lookup(lookupKey);
+        lookup = new Lookup(lookupKey, index);
         pm.makePersistent(lookup);
       }
     // TODO(drt24): Do revisions properly, need to only add if not already existing.

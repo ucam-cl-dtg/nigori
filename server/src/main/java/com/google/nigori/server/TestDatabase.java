@@ -118,6 +118,16 @@ public class TestDatabase implements Database {
   }
 
   @Override
+  public Collection<byte[]> getIndices(User user) {
+    Set<ByteString> indices = stores.get(user).keySet();
+    List<byte[]> answer = new ArrayList<byte[]>(indices.size());
+    for (ByteString index : indices){
+      answer.add(index.toByteArray());
+    }
+    return answer;
+  }
+
+  @Override
   public Collection<byte[]> getRevisions(User user, byte[] key) {
  // TODO(beresford): check authority to carry out action
     if (key == null) {

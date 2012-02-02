@@ -35,6 +35,7 @@ import org.apache.commons.codec.binary.Base64;
 import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.NigoriMessages.AuthenticateRequest;
 import com.google.nigori.common.NigoriMessages.DeleteRequest;
+import com.google.nigori.common.NigoriMessages.GetIndicesRequest;
 import com.google.nigori.common.NigoriMessages.GetRequest;
 import com.google.nigori.common.NigoriMessages.GetRevisionsRequest;
 import com.google.nigori.common.NigoriMessages.PutRequest;
@@ -261,7 +262,8 @@ public class NigoriServlet extends HttpServlet {
 			}
 		}
 	}
-	private class JsonGetRevisionsHandler implements RequestHandler {
+
+	private class JsonGetIndicesRequestHandler implements RequestHandler {
 
     public void handle(HttpServletRequest req, HttpServletResponse resp) 
     throws ServletException {
@@ -270,7 +272,42 @@ public class NigoriServlet extends HttpServlet {
       Collection<byte[]> value;
 
       try {
-        GetRevisionsRequest request = MessageLibrary.getRevisionsFromJson(json);
+        GetIndicesRequest request = MessageLibrary.getIndicesRequestFromJson(json);
+        AuthenticateRequest auth = request.getAuth();
+        User user = authenticateUser(auth);
+
+        value = database.getIndices(user);
+
+        if (value == null) {
+          throw new ServletException(HttpServletResponse.SC_NOT_FOUND, "Cannot find indices");
+        }
+
+        String response = MessageLibrary.getIndicesResponseAsJson(value);
+        resp.setContentType(MessageLibrary.MIMETYPE_JSON);
+        resp.setCharacterEncoding(MessageLibrary.CHARSET);
+        resp.setStatus(HttpServletResponse.SC_OK);
+        BufferedWriter w = new BufferedWriter(new OutputStreamWriter(resp.getOutputStream()));
+        w.write(response);
+        w.flush();
+      } catch(IOException ioe) {
+        throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal error sending data to client");
+      } catch (MessageLibrary.JsonConversionException jce) {
+        throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, "JSON format error: " + 
+            jce.getMessage());
+      }
+    }
+  }
+
+	private class JsonGetRevisionsRequestHandler implements RequestHandler {
+
+    public void handle(HttpServletRequest req, HttpServletResponse resp) 
+    throws ServletException {
+
+      String json = getJsonAsString(req, maxJsonQueryLength);
+      Collection<byte[]> value;
+
+      try {
+        GetRevisionsRequest request = MessageLibrary.getRevisionsRequestFromJson(json);
         byte[] key = request.getKey().toByteArray();
         AuthenticateRequest auth = request.getAuth();
         User user = authenticateUser(auth);
@@ -413,6 +450,7 @@ public class NigoriServlet extends HttpServlet {
 			}
 		}
 	}
+
 	private class JsonUnregisterRequestHandler implements RequestHandler {
 
     public void handle(HttpServletRequest req, HttpServletResponse resp)
@@ -445,8 +483,10 @@ public class NigoriServlet extends HttpServlet {
 			new HashMap<RequestHandlerType, RequestHandler>();
 		h.put(new RequestHandlerType(MessageLibrary.MIMETYPE_JSON, MessageLibrary.REQUEST_GET), 
 				new JsonGetRequestHandler());
+		h.put(new RequestHandlerType(MessageLibrary.MIMETYPE_JSON, MessageLibrary.REQUEST_GET_INDICES), 
+        new JsonGetIndicesRequestHandler());
 		h.put(new RequestHandlerType(MessageLibrary.MIMETYPE_JSON, MessageLibrary.REQUEST_GET_REVISIONS), 
-        new JsonGetRevisionsHandler());
+        new JsonGetRevisionsRequestHandler());
 		h.put(new RequestHandlerType(MessageLibrary.MIMETYPE_JSON, MessageLibrary.REQUEST_PUT), 
 				new JsonPutRequestHandler());
 		h.put(new RequestHandlerType(MessageLibrary.MIMETYPE_JSON, MessageLibrary.REQUEST_DELETE), 

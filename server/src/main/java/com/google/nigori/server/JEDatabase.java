@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import com.google.nigori.common.Nonce;
@@ -38,7 +39,6 @@ import com.sleepycat.je.Transaction;
 /**
  * @author drt24
  *
- * TODO: need to periodically clear out old nonces
  */
 public class JEDatabase implements Database {
 
@@ -314,6 +314,43 @@ public class JEDatabase implements Database {
       }
       return null;
     } catch (DatabaseException e) {
+      throw new IOException(e);
+    }
+  }
+
+  @Override
+  public Collection<byte[]> getIndices(User user) throws IOException {
+    Transaction txn = null;
+    Cursor cursor = null;
+    try {
+      txn = env.beginTransaction(null, null);
+      Collection<byte[]> indices = new ArrayList<byte[]>();
+      cursor = db.openCursor(txn, null);
+      try {
+        DatabaseEntry storeKey = makeStoresKey(user);
+        DatabaseEntry index = new DatabaseEntry();
+        for (OperationStatus indexStatus = cursor.getSearchKey(storeKey, index, null); OperationStatus.SUCCESS == indexStatus;
+            indexStatus = cursor.getNextDup(storeKey, index, null)) {
+          indices.add(index.getData());
+        }
+      } finally {
+        cursor.close();
+      }
+      txn.commit();
+      return indices;
+    } catch (DatabaseException e) {
+      try {
+        if (cursor != null)
+          cursor.close();
+      } catch (DatabaseException e1) {
+        // already caught one so ignore this one
+      }
+      try {
+        if (txn != null)
+          txn.abort();
+      } catch (DatabaseException e1) {
+        // already caught one so ignore this one
+      }
       throw new IOException(e);
     }
   }
