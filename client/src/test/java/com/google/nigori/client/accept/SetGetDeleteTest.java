@@ -127,12 +127,40 @@ public class SetGetDeleteTest {
       final byte[] b = "b".getBytes(MessageLibrary.CHARSET);
       assertTrue("Not put", nigori.put(index, a, "aa".getBytes(MessageLibrary.CHARSET)));
       assertTrue("Not put", nigori.put(index, b, "bb".getBytes(MessageLibrary.CHARSET)));
-      List<byte[]> revisions = nigori.getRevisions(index);
-      assertNotNull("No revisions", revisions);
-      assertEquals("Not correct number of revisions", 2,revisions.size());
-      assertThat(revisions,hasItem(a));
-      assertThat(revisions,hasItem(b));
-      nigori.delete(index);
+      try {
+        List<byte[]> revisions = nigori.getRevisions(index);
+        assertNotNull("No revisions", revisions);
+        assertEquals("Not correct number of revisions", 2,revisions.size());
+        assertThat(revisions,hasItem(a));
+        assertThat(revisions,hasItem(b));
+      } finally {
+        nigori.delete(index);
+      }
+    } finally {
+      assertTrue("Not unregistered", nigori.unregister());
+    }
+  }
+
+  @Test
+  public void getIndices() throws IOException, NigoriCryptographyException {
+    NigoriDatastore nigori = AcceptanceTests.getStore();
+    try {
+      assertTrue("Not registered", nigori.register());
+      final byte[] indexa = "indexa".getBytes(MessageLibrary.CHARSET);
+      final byte[] indexb = "indexb".getBytes(MessageLibrary.CHARSET);
+      final byte[] revision = "a".getBytes(MessageLibrary.CHARSET);
+      assertTrue("Not put", nigori.put(indexa, revision, "aa".getBytes(MessageLibrary.CHARSET)));
+      assertTrue("Not put", nigori.put(indexa, revision, "bb".getBytes(MessageLibrary.CHARSET)));
+      try {
+        List<byte[]> indices = nigori.getIndices();
+        assertNotNull("No indices", indices);
+        assertEquals("Not correct number of indices", 2, indices.size());
+        assertThat(indices, hasItem(indexa));
+        assertThat(indices, hasItem(indexb));
+      } finally {
+        nigori.delete(indexa);
+        nigori.delete(indexb);
+      }
     } finally {
       assertTrue("Not unregistered", nigori.unregister());
     }
