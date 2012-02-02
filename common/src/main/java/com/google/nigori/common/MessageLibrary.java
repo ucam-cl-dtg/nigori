@@ -46,6 +46,7 @@ public class MessageLibrary {
 	public static final String MIMETYPE_PROTOBUF = "application/x-google-protobuf";
 
 	public static final String REQUEST_GET = "get";
+	public static final String REQUEST_GET_INDICES = "get-indices";
 	public static final String REQUEST_GET_REVISIONS = "get-revisions";
 	public static final String REQUEST_PUT = "put";
 	public static final String REQUEST_DELETE = "delete";
@@ -138,7 +139,12 @@ public class MessageLibrary {
 		}
 	}
 
-	public static GetRevisions getRevisionsAsProtobuf(SchnorrSign signer, byte[] index) throws NoSuchAlgorithmException {
+	public static String getIndicesAsJson(SchnorrSign signer) {
+	  // TODO Auto-generated method stub
+	  return null;
+	}
+
+  public static GetRevisions getRevisionsAsProtobuf(SchnorrSign signer, byte[] index) throws NoSuchAlgorithmException {
 	  // TODO(drt24) add index
     return GetRevisions.newBuilder()
         .setAuth(authenticateRequestAsProtobuf(signer))

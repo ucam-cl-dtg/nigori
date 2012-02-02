@@ -61,8 +61,10 @@ public interface NigoriDatastore {
 
   /**
    * @return
+   * @throws NigoriCryptographyException 
+   * @throws IOException 
    */
-  List<byte[]> getIndices();
+  List<byte[]> getIndices() throws NigoriCryptographyException, IOException;
 
   /**
    * Retrieve the revision-values associated with {@code index} on the server.

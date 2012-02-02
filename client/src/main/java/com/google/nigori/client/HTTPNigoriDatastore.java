@@ -32,11 +32,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.nigori.common.MessageLibrary;
-import com.google.nigori.common.NigoriMessages.GetRevisionsResponse;
-import com.google.nigori.common.RevValue;
 import com.google.nigori.common.MessageLibrary.JsonConversionException;
 import com.google.nigori.common.NigoriMessages.GetResponse;
+import com.google.nigori.common.NigoriMessages.GetRevisionsResponse;
 import com.google.nigori.common.NigoriMessages.RevisionValue;
+import com.google.nigori.common.RevValue;
 import com.google.protobuf.ByteString;
 
 /**
@@ -510,8 +510,42 @@ public class HTTPNigoriDatastore implements NigoriDatastore {
   }
 
   @Override
-  public List<byte[]> getIndices() {
-    // TODO(drt24) Auto-generated method stub
-    return null;
+  public List<byte[]> getIndices() throws NigoriCryptographyException, IOException {
+    String jsonRequest;
+
+    jsonRequest = MessageLibrary.getIndicesAsJson(keyManager.signer());
+
+    HttpResponse resp = post(MessageLibrary.REQUEST_GET_INDICES, 
+        jsonRequest.getBytes(MessageLibrary.CHARSET));
+    
+    BufferedInputStream in = new BufferedInputStream(resp.getInputStream());
+    StringBuilder jsonResponse = new StringBuilder();
+    //TODO(beresford): optimise this buffer size
+    byte[] buffer = new byte[1024];
+    int bytesRead;
+    while((bytesRead = in.read(buffer)) != -1) {
+      jsonResponse.append(new String(buffer, 0, bytesRead, MessageLibrary.CHARSET));
+    }
+
+    if (resp.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
+      return null; //request was successful, but no data key by that name was found.
+    }
+
+    success(resp);
+    if (resp.getResponseCode() != HttpURLConnection.HTTP_OK) {
+      throw new IOException("Server did not accept request. " + jsonResponse);
+    }
+
+    try {
+      GetRevisionsResponse getResponse = MessageLibrary.getRevisionsResponseFromJson(jsonResponse.toString());
+      List<ByteString> revisions = getResponse.getRevisionsList();
+      List<byte[]> answer = new ArrayList<byte[]>(revisions.size());
+      for (ByteString revision : revisions) {
+          answer.add(keyManager.decrypt(revision.toByteArray()));
+      }
+      return answer;
+    } catch(JsonConversionException jce) {
+      throw new IOException("Error reading JSON sent by server: "+ jce.getMessage());
+    }
   }
 }
