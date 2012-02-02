@@ -33,6 +33,7 @@ import java.util.List;
 
 import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.MessageLibrary.JsonConversionException;
+import com.google.nigori.common.NigoriMessages.GetIndicesResponse;
 import com.google.nigori.common.NigoriMessages.GetResponse;
 import com.google.nigori.common.NigoriMessages.GetRevisionsResponse;
 import com.google.nigori.common.NigoriMessages.RevisionValue;
@@ -488,10 +489,10 @@ public class HTTPNigoriDatastore implements NigoriDatastore {
     }
 
     try {
-      GetRevisionsResponse getResponse = MessageLibrary.getRevisionsResponseFromJson(response.jsonResponse);
-      List<ByteString> revisions = getResponse.getRevisionsList();
-      List<byte[]> answer = new ArrayList<byte[]>(revisions.size());
-      for (ByteString revision : revisions) {
+      GetIndicesResponse getResponse = MessageLibrary.getIndicesResponseFromJson(response.jsonResponse);
+      List<ByteString> indices = getResponse.getIndicesList();
+      List<byte[]> answer = new ArrayList<byte[]>(indices.size());
+      for (ByteString revision : indices) {
           answer.add(keyManager.decrypt(revision.toByteArray()));
       }
       return answer;

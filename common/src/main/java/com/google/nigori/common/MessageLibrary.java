@@ -175,6 +175,16 @@ public class MessageLibrary {
     return gson.toJson(getIndicesResponseAsProtobuf(value));
   }
 
+  public static GetIndicesResponse getIndicesResponseFromJson(String json) throws JsonConversionException {
+    try {
+      return gson.fromJson(json, GetIndicesResponse.class);
+    } catch (JsonSyntaxException jse) {
+      throw new JsonConversionException("Invalid JSON syntax");
+    } catch (JsonParseException jse) {
+      throw new JsonConversionException("Unable to parse JSON fields into correct message format");
+    }
+  }
+
   public static GetRevisionsRequest getRevisionsRequestAsProtobuf(SchnorrSign signer, byte[] index) throws NoSuchAlgorithmException {
 	  // TODO(drt24) add index
     return GetRevisionsRequest.newBuilder()
