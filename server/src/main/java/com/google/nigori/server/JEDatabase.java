@@ -187,8 +187,9 @@ public class JEDatabase implements Database {
       DatabaseEntry lookup = new DatabaseEntry();
       DatabaseEntry storesKey = makeStoresKey(user);
       for (OperationStatus lookupStatus = cursor.getSearchKey(storesKey, lookup, null); OperationStatus.SUCCESS == lookupStatus;
-          cursor.getNextDup(storesKey, lookup, null)) {
-        deleteRecord(user, lookup.getData(), txn);
+          lookupStatus = cursor.getNextDup(storesKey, lookup, null)) {
+        deleteRevisions(user, lookup.getData(), txn);
+        cursor.delete();
       }
     } finally {
       cursor.close();
@@ -404,21 +405,11 @@ public class JEDatabase implements Database {
     }
   }
 
-  private boolean deleteRecord(User user, byte[] key, Transaction txn) {
-    Cursor cursor = null;
-
+  private boolean deleteRevisions(User user, byte[] key, Transaction txn) {
     boolean didWork = false;
 
-    cursor = db.openCursor(txn, null);
+    Cursor cursor = db.openCursor(txn, null);
     try {
-      OperationStatus lookupStatus =
-          cursor.getSearchBoth(makeStoresKey(user), new DatabaseEntry(key), null);
-      if (OperationStatus.SUCCESS == lookupStatus) {
-        OperationStatus lookupDelete = cursor.delete();
-        if (OperationStatus.SUCCESS == lookupDelete) {
-          didWork = true;
-        }
-      }
       DatabaseEntry revision = new DatabaseEntry();
       byte[] lookup = makeLookupBytes(user, key);
       DatabaseEntry lookupKey = new DatabaseEntry(lookup);
@@ -444,7 +435,21 @@ public class JEDatabase implements Database {
     Transaction txn = null;
     try {
       txn = env.beginTransaction(null, null);
-      boolean result = deleteRecord(user, key, txn);
+      boolean result = false;
+      Cursor cursor = db.openCursor(txn, null);
+      try {
+      OperationStatus lookupStatus =
+          cursor.getSearchBoth(makeStoresKey(user), new DatabaseEntry(key), null);
+      if (OperationStatus.SUCCESS == lookupStatus) {
+        OperationStatus lookupDelete = cursor.delete();
+        if (OperationStatus.SUCCESS == lookupDelete) {
+          result = true;
+        }
+      }
+      } finally {
+        cursor.close();
+      }
+      result |= deleteRevisions(user, key, txn);
       txn.commit();
       return result;
     } catch (DatabaseException e) {
