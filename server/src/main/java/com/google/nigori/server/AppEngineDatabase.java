@@ -103,7 +103,7 @@ public final class AppEngineDatabase implements Database {
       AEUser existing = pm.getObjectById(AEUser.class, AEUser.keyForUser(existingUser.getPublicKey()));
       if (existing != null) {
         pm.deletePersistent(existing);
-        return true;
+        return deleteUserData(existing);
       } else {
         return true;
       }
@@ -112,6 +112,15 @@ public final class AppEngineDatabase implements Database {
     } finally {
       pm.close();
     }
+  }
+
+  private boolean deleteUserData(AEUser existing) {
+    Collection<byte[]> indices = getIndices(existing);
+    boolean success = true;
+    for (byte[] index : indices) {
+      success &= deleteRecord(existing, index);
+    }
+    return success;
   }
 
   @Override
