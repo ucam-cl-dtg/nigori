@@ -36,7 +36,7 @@ import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.NigoriMessages.AuthenticateRequest;
 import com.google.nigori.common.NigoriMessages.DeleteRequest;
 import com.google.nigori.common.NigoriMessages.GetRequest;
-import com.google.nigori.common.NigoriMessages.GetRevisions;
+import com.google.nigori.common.NigoriMessages.GetRevisionsRequest;
 import com.google.nigori.common.NigoriMessages.PutRequest;
 import com.google.nigori.common.NigoriMessages.RegisterRequest;
 import com.google.nigori.common.NigoriMessages.UnregisterRequest;
@@ -270,7 +270,7 @@ public class NigoriServlet extends HttpServlet {
       Collection<byte[]> value;
 
       try {
-        GetRevisions request = MessageLibrary.getRevisionsFromJson(json);
+        GetRevisionsRequest request = MessageLibrary.getRevisionsFromJson(json);
         byte[] key = request.getKey().toByteArray();
         AuthenticateRequest auth = request.getAuth();
         User user = authenticateUser(auth);

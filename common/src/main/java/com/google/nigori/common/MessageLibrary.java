@@ -28,7 +28,7 @@ import com.google.nigori.common.NigoriMessages.AuthenticateRequest;
 import com.google.nigori.common.NigoriMessages.DeleteRequest;
 import com.google.nigori.common.NigoriMessages.GetRequest;
 import com.google.nigori.common.NigoriMessages.GetResponse;
-import com.google.nigori.common.NigoriMessages.GetRevisions;
+import com.google.nigori.common.NigoriMessages.GetRevisionsRequest;
 import com.google.nigori.common.NigoriMessages.GetRevisionsResponse;
 import com.google.nigori.common.NigoriMessages.PutRequest;
 import com.google.nigori.common.NigoriMessages.RegisterRequest;
@@ -62,7 +62,7 @@ public class MessageLibrary {
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(GetRequest.class, new TypeAdapterProtobuf());
 		gsonBuilder.registerTypeAdapter(GetResponse.class, new TypeAdapterProtobuf());
-		gsonBuilder.registerTypeAdapter(GetRevisions.class, new TypeAdapterProtobuf());
+		gsonBuilder.registerTypeAdapter(GetRevisionsRequest.class, new TypeAdapterProtobuf());
 		gsonBuilder.registerTypeAdapter(GetRevisionsResponse.class, new TypeAdapterProtobuf());
 		gsonBuilder.registerTypeAdapter(PutRequest.class, new TypeAdapterProtobuf());
 		gsonBuilder.registerTypeAdapter(DeleteRequest.class, new TypeAdapterProtobuf());
@@ -144,9 +144,9 @@ public class MessageLibrary {
 	  return null;
 	}
 
-  public static GetRevisions getRevisionsAsProtobuf(SchnorrSign signer, byte[] index) throws NoSuchAlgorithmException {
+  public static GetRevisionsRequest getRevisionsAsProtobuf(SchnorrSign signer, byte[] index) throws NoSuchAlgorithmException {
 	  // TODO(drt24) add index
-    return GetRevisions.newBuilder()
+    return GetRevisionsRequest.newBuilder()
         .setAuth(authenticateRequestAsProtobuf(signer))
         .setKey(ByteString.copyFrom(index)).build();
   }
@@ -156,9 +156,9 @@ public class MessageLibrary {
     return gson.toJson(getRevisionsAsProtobuf(signer, encIndex));
   }
 
-  public static GetRevisions getRevisionsFromJson(String json) throws JsonConversionException{
+  public static GetRevisionsRequest getRevisionsFromJson(String json) throws JsonConversionException{
     try {
-      return gson.fromJson(json, GetRevisions.class);
+      return gson.fromJson(json, GetRevisionsRequest.class);
     } catch (JsonSyntaxException jse) {
       throw new JsonConversionException("Invalid JSON syntax");
     } catch (JsonParseException jse) {

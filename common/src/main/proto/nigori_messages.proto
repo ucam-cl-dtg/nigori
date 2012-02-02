@@ -42,7 +42,15 @@ message GetResponse {
   optional bytes key = 2;// optional as may want to keep packet size down.
 }
 
-message GetRevisions {
+message GetIndicesRequest {
+  required AuthenticateRequest auth = 1;
+}
+
+message GetIndicesResponse {
+  repeated bytes indices = 1;
+}
+
+message GetRevisionsRequest {
   required AuthenticateRequest auth = 1;
   required bytes key = 2;
 }
