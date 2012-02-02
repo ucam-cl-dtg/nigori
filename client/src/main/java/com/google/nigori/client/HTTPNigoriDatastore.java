@@ -339,7 +339,6 @@ public class HTTPNigoriDatastore implements NigoriDatastore {
    * @throws IOException 
    */
   public byte[] getRevision(byte[] index, byte[] revision) throws IOException, NigoriCryptographyException {
-    // TODO(drt24) Auto-generated method stub
     List<RevValue> rev = get(null, index, revision);
     if (rev != null && rev.size() == 1) {
       return rev.get(0).getValue();
@@ -372,37 +371,24 @@ public class HTTPNigoriDatastore implements NigoriDatastore {
 	    }
 	  }
 
-		String jsonRequest;
+		Response response;
 		try {
-			jsonRequest = MessageLibrary.getRequestAsJson(keyManager.signer(), encIndex, encRevision);
+		  response = postResponse(MessageLibrary.REQUEST_GET,MessageLibrary.getRequestAsJson(keyManager.signer(), encIndex, encRevision));
 		} catch (NoSuchAlgorithmException e) {
 			throw new NigoriCryptographyException("Platform does have required crypto support:" +
 					e.getMessage());
 		}
 
-		HttpResponse resp = post(MessageLibrary.REQUEST_GET, 
-				jsonRequest.getBytes(MessageLibrary.CHARSET));
-
-		BufferedInputStream in = new BufferedInputStream(resp.getInputStream());
-		StringBuilder jsonResponse = new StringBuilder();
-		//TODO(beresford): optimise this buffer size
-		byte[] buffer = new byte[1024];
-		int bytesRead;
-		while((bytesRead = in.read(buffer)) != -1) {
-			jsonResponse.append(new String(buffer, 0, bytesRead, MessageLibrary.CHARSET));
-		}
-
-		if (resp.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
+		if (response.notFound()) {
 			return null; //request was successful, but no data key by that name was found.
 		}
 
-		success(resp);
-		if (resp.getResponseCode() != HttpURLConnection.HTTP_OK) {
-			throw new IOException("Server did not accept request. " + jsonResponse);
+		if (!success(response.resp)) {
+			throw new IOException("Server did not accept request. " + response.jsonResponse);
 		}
 
 		try {
-			GetResponse getResponse = MessageLibrary.getResponseFromJson(jsonResponse.toString());
+			GetResponse getResponse = MessageLibrary.getResponseFromJson(response.jsonResponse);
 			List<RevisionValue> revisions = getResponse.getRevisionsList();
 			List<RevValue> answer = new ArrayList<RevValue>(revisions.size());
       for (RevisionValue revisionValue : revisions) {
@@ -424,37 +410,24 @@ public class HTTPNigoriDatastore implements NigoriDatastore {
 
 	public List<byte[]> getRevisions(byte[] index) throws NigoriCryptographyException, UnsupportedEncodingException, IOException{
 	  byte[] encIndex = keyManager.encryptDeterministically(index);
-	  String jsonRequest;
+	  Response response;
     try {
-      jsonRequest = MessageLibrary.getRevisionsAsJson(keyManager.signer(), encIndex);
+      response = postResponse(MessageLibrary.REQUEST_GET_REVISIONS, MessageLibrary.getRevisionsAsJson(keyManager.signer(), encIndex));
     } catch (NoSuchAlgorithmException e) {
       throw new NigoriCryptographyException("Platform does have required crypto support:" +
           e.getMessage());
     }
-    
-    HttpResponse resp = post(MessageLibrary.REQUEST_GET_REVISIONS, 
-        jsonRequest.getBytes(MessageLibrary.CHARSET));
-    
-    BufferedInputStream in = new BufferedInputStream(resp.getInputStream());
-    StringBuilder jsonResponse = new StringBuilder();
-    //TODO(beresford): optimise this buffer size
-    byte[] buffer = new byte[1024];
-    int bytesRead;
-    while((bytesRead = in.read(buffer)) != -1) {
-      jsonResponse.append(new String(buffer, 0, bytesRead, MessageLibrary.CHARSET));
-    }
 
-    if (resp.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
+    if (response.notFound()) {
       return null; //request was successful, but no data key by that name was found.
     }
 
-    success(resp);
-    if (resp.getResponseCode() != HttpURLConnection.HTTP_OK) {
-      throw new IOException("Server did not accept request. " + jsonResponse);
+    if (!success(response.resp)) {
+      throw new IOException("Server did not accept request. " + response.jsonResponse);
     }
 
     try {
-      GetRevisionsResponse getResponse = MessageLibrary.getRevisionsResponseFromJson(jsonResponse.toString());
+      GetRevisionsResponse getResponse = MessageLibrary.getRevisionsResponseFromJson(response.jsonResponse);
       List<ByteString> revisions = getResponse.getRevisionsList();
       List<byte[]> answer = new ArrayList<byte[]>(revisions.size());
       for (ByteString revision : revisions) {
@@ -477,67 +450,39 @@ public class HTTPNigoriDatastore implements NigoriDatastore {
     } else {
       encIndex = keyManager.encryptDeterministically(encKey, index);
     }
+    Response response;
 
-    String jsonRequest;
     try {
-      jsonRequest = MessageLibrary.deleteRequestAsJson(keyManager.signer(), encIndex);
+      response = postResponse(MessageLibrary.REQUEST_DELETE,MessageLibrary.deleteRequestAsJson(keyManager.signer(), encIndex));
     } catch (NoSuchAlgorithmException e) {
       throw new NigoriCryptographyException("Platform does have required crypto support:" +
           e.getMessage());
     }
 
-    HttpResponse resp = post(MessageLibrary.REQUEST_DELETE,
-        jsonRequest.getBytes(MessageLibrary.CHARSET));
-
-    BufferedInputStream in = new BufferedInputStream(resp.getInputStream());
-    StringBuilder jsonResponse = new StringBuilder();
-    //TODO(beresford): optimise this buffer size
-    byte[] buffer = new byte[1024];
-    int bytesRead;
-    while((bytesRead = in.read(buffer)) != -1) {
-      jsonResponse.append(new String(buffer, 0, bytesRead, MessageLibrary.CHARSET));
-    }
-
-    if (resp.getResponseCode() ==  HttpURLConnection.HTTP_NOT_FOUND) {
+    if (response.notFound()) {
       return false; //request was successful, but no data key by that name was found.
     }
 
-    success(resp);
-    if (resp.getResponseCode() !=  HttpURLConnection.HTTP_OK) {
-      throw new IOException("Server did not accept request("+ resp.getResponseCode() + "). " + jsonResponse);
+    if (!success(response.resp)) {
+      throw new IOException("Server did not accept request("+ response.resp.getResponseCode() + "). " + response.jsonResponse);
     }
     return true;
   }
 
   @Override
   public List<byte[]> getIndices() throws NigoriCryptographyException, IOException {
-    String jsonRequest;
+    Response response = postResponse(MessageLibrary.REQUEST_GET_INDICES,MessageLibrary.getIndicesAsJson(keyManager.signer()));
 
-    jsonRequest = MessageLibrary.getIndicesAsJson(keyManager.signer());
-
-    HttpResponse resp = post(MessageLibrary.REQUEST_GET_INDICES, 
-        jsonRequest.getBytes(MessageLibrary.CHARSET));
-    
-    BufferedInputStream in = new BufferedInputStream(resp.getInputStream());
-    StringBuilder jsonResponse = new StringBuilder();
-    //TODO(beresford): optimise this buffer size
-    byte[] buffer = new byte[1024];
-    int bytesRead;
-    while((bytesRead = in.read(buffer)) != -1) {
-      jsonResponse.append(new String(buffer, 0, bytesRead, MessageLibrary.CHARSET));
-    }
-
-    if (resp.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
+    if (response.notFound()) {
       return null; //request was successful, but no data key by that name was found.
     }
 
-    success(resp);
-    if (resp.getResponseCode() != HttpURLConnection.HTTP_OK) {
-      throw new IOException("Server did not accept request. " + jsonResponse);
+    if (!success(response.resp)) {
+      throw new IOException("Server did not accept request. " + response.jsonResponse);
     }
 
     try {
-      GetRevisionsResponse getResponse = MessageLibrary.getRevisionsResponseFromJson(jsonResponse.toString());
+      GetRevisionsResponse getResponse = MessageLibrary.getRevisionsResponseFromJson(response.jsonResponse);
       List<ByteString> revisions = getResponse.getRevisionsList();
       List<byte[]> answer = new ArrayList<byte[]>(revisions.size());
       for (ByteString revision : revisions) {
@@ -546,6 +491,36 @@ public class HTTPNigoriDatastore implements NigoriDatastore {
       return answer;
     } catch(JsonConversionException jce) {
       throw new IOException("Error reading JSON sent by server: "+ jce.getMessage());
+    }
+  }
+
+  private Response postResponse(String request, String jsonRequest)
+      throws UnsupportedEncodingException, IOException {
+
+    HttpResponse resp = post(request, jsonRequest.getBytes(MessageLibrary.CHARSET));
+
+    BufferedInputStream in = new BufferedInputStream(resp.getInputStream());
+    StringBuilder jsonResponse = new StringBuilder();
+    // TODO(beresford): optimise this buffer size
+    byte[] buffer = new byte[1024];
+    int bytesRead;
+    while ((bytesRead = in.read(buffer)) != -1) {
+      jsonResponse.append(new String(buffer, 0, bytesRead, MessageLibrary.CHARSET));
+    }
+    return new Response(resp, jsonResponse.toString());
+  }
+
+  private static class Response {
+    public final HttpResponse resp;
+    public final String jsonResponse;
+
+    public Response(HttpResponse resp, String jsonResponse) {
+      this.resp = resp;
+      this.jsonResponse = jsonResponse;
+    }
+
+    public boolean notFound() {
+      return (resp.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND);
     }
   }
 }
