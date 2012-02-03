@@ -37,7 +37,7 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
     }
     this.first = first;
     this.second = second;
-    syncAll();
+    //syncAll();
   }
   
   /**
