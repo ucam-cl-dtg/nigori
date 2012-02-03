@@ -18,8 +18,10 @@ package com.google.nigori.client;
 import java.io.IOException;
 import java.util.List;
 
+import com.google.nigori.common.Index;
 import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.RevValue;
+import com.google.nigori.common.Revision;
 
 /**
  * Create two threads which communicate by placing encrypted data in the Nigori datastore.
@@ -52,7 +54,7 @@ public class TwoUserDemo {
 				NigoriDatastore sharedStore = new HTTPNigoriDatastore(HOST, PORT, "nigori", username,
 						password);
 				for(int i = 0; i < ITERATIONS; ++i) {
-					sharedStore.put(sharedIndex, new byte[]{}, new byte[]{count++});
+					sharedStore.put(sharedIndex, Revision.EMPTY, new byte[]{count++});
 					sleep(DELAY * 2);
 				}
 			} catch (IOException ioe) {
@@ -99,7 +101,7 @@ public class TwoUserDemo {
             System.out.println("No valid data held for " + rv.getRevision());
           } else {
             System.out.println("Count has the value " + result[0] + " for revision "
-                + new String(rv.getRevision(), MessageLibrary.CHARSET));
+                + new String(rv.getRevision().getBytes(), MessageLibrary.CHARSET));
           }
         }
       }

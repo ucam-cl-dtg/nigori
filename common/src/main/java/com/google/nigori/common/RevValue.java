@@ -21,16 +21,23 @@ package com.google.nigori.common;
  */
 public class RevValue {
 
-  private final byte[] revision;
+  private final Revision revision;
   private final byte[] value;
-  public RevValue(byte[] revision, byte[] value) {
+
+  public RevValue(Revision revision, byte[] value) {
     this.revision = revision;
     this.value = value;
   }
+
+  public RevValue(byte[] revision, byte[] value) {
+    this.revision = new Revision(revision);
+    this.value = value;
+  }
+
   /**
    * @return the revision
    */
-  public byte[] getRevision() {
+  public Revision getRevision() {
     return revision;
   }
   /**

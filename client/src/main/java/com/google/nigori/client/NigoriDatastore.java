@@ -16,7 +16,9 @@ package com.google.nigori.client;
 import java.io.IOException;
 import java.util.List;
 
+import com.google.nigori.common.Index;
 import com.google.nigori.common.RevValue;
+import com.google.nigori.common.Revision;
 
 /**
  * Nigori datastore which performs the relevant encryption and communicates with nigori server(s) which store the data.
@@ -56,7 +58,7 @@ public interface NigoriDatastore {
    * @return true if the data was successfully inserted; false otherwise.
    * @throws NigoriCryptographyException
    */
-  public boolean put(Index index, byte[] revision, byte[] value) throws IOException,
+  public boolean put(Index index, Revision revision, byte[] value) throws IOException,
       NigoriCryptographyException;
 
   /**
@@ -83,7 +85,7 @@ public interface NigoriDatastore {
    * @throws NigoriCryptographyException
    * @throws IOException
    */
-  public byte[] getRevision(Index index, byte[] revision) throws IOException,
+  public byte[] getRevision(Index index, Revision revision) throws IOException,
       NigoriCryptographyException;
 
   /**
@@ -93,7 +95,7 @@ public interface NigoriDatastore {
    * @throws NigoriCryptographyException
    * @throws IOException
    */
-  public List<byte[]> getRevisions(Index index) throws NigoriCryptographyException, IOException;
+  public List<Revision> getRevisions(Index index) throws NigoriCryptographyException, IOException;
 
   /**
    * Delete the index (and associated revisions and values) on the server

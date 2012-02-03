@@ -31,11 +31,12 @@ import java.util.Random;
 
 import org.junit.Test;
 
-import com.google.nigori.client.Index;
 import com.google.nigori.client.NigoriCryptographyException;
 import com.google.nigori.client.NigoriDatastore;
 import com.google.nigori.client.accept.SetGetDeleteTest.IndexValue;
+import com.google.nigori.common.Index;
 import com.google.nigori.common.MessageLibrary;
+import com.google.nigori.common.Revision;
 
 public class ConcurrencyTest extends AcceptanceTest {
 
@@ -93,7 +94,7 @@ public class ConcurrencyTest extends AcceptanceTest {
                 for (IndexValue iv : SetGetDeleteTest.testCases) {// once round for each
                   final Index index = iv.index;
                   final byte[] value = iv.revvalue.getValue();
-                  final byte[] revision = iv.revvalue.getRevision();
+                  final Revision revision = iv.revvalue.getRevision();
                   assertTrue("Not put" + i, nigori.put(index, revision, value));
                   assertArrayEquals("Got different" + i, value, nigori.getRevision(index, revision));
                   assertTrue("Not deleted" + i, nigori.delete(index,NULL_DELETE_TOKEN));
@@ -143,7 +144,7 @@ public class ConcurrencyTest extends AcceptanceTest {
                   final Index index = new Index(new byte[16]);
                   r.nextBytes(index.getBytes());// need to generate some different indices
                   final byte[] value = iv.revvalue.getValue();
-                  final byte[] revision = iv.revvalue.getRevision();
+                  final Revision revision = iv.revvalue.getRevision();
                   assertTrue("Not put" + i, nigori.put(index, revision, value));
                   try {
                     assertArrayEquals("Got different" + i, value, nigori.getRevision(index,revision));

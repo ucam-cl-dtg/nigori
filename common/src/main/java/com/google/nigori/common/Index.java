@@ -11,8 +11,9 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.google.nigori.client;
+package com.google.nigori.common;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 /**
@@ -42,6 +43,30 @@ public class Index {
     token = null;
     isdeleted = false;
   }
+  
+  /**
+   * This methods exists as a convenience for when writing tests, use is not encouraged in general.
+   * 
+   * @param index
+   */
+  public Index(String index) {
+    byte[] temp;
+
+    try {
+      if (index != null) {
+        temp = index.getBytes(MessageLibrary.CHARSET);
+      } else {
+        temp = null;
+      }
+    } catch (UnsupportedEncodingException e) {
+      temp = null;
+      throw new RuntimeException(e);
+    }
+    this.index = temp;
+    this.token = null;
+    this.isdeleted = false;
+  }
+
   public Index(byte[] index, byte[] token){
     this.index = index;
     this.token = token;

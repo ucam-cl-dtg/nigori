@@ -19,7 +19,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.nigori.common.Index;
 import com.google.nigori.common.RevValue;
+import com.google.nigori.common.Revision;
 
 /**
  * @author drt24
@@ -72,14 +74,14 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
    * @throws NigoriCryptographyException 
    */
   private void syncRevisions(Index index) throws NigoriCryptographyException, IOException {
-    List<byte[]> firstRevisions = first.getRevisions(index);
-    List<byte[]> secondRevisions = second.getRevisions(index);
+    List<Revision> firstRevisions = first.getRevisions(index);
+    List<Revision> secondRevisions = second.getRevisions(index);
     if (!(firstRevisions.containsAll(secondRevisions) && secondRevisions.containsAll(firstRevisions))){
       // revisions not already synced
-      List<byte[]> firstMSecond = new ArrayList<byte[]>(firstRevisions);
+      List<Revision> firstMSecond = new ArrayList<Revision>(firstRevisions);
       firstMSecond.removeAll(secondRevisions);
       addAllRevisions(index, firstMSecond, first, second);
-      List<byte[]> secondMFirst = new ArrayList<byte[]>(secondRevisions);
+      List<Revision> secondMFirst = new ArrayList<Revision>(secondRevisions);
       secondMFirst.removeAll(firstRevisions);
       addAllRevisions(index, secondMFirst, second, first);
     }    
@@ -91,9 +93,9 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
    * @throws NigoriCryptographyException 
    * @throws IOException 
    */
-  private void addAllRevisions(Index index, List<byte[]> revisions, NigoriDatastore from,
+  private void addAllRevisions(Index index, List<Revision> revisions, NigoriDatastore from,
       NigoriDatastore to) throws IOException, NigoriCryptographyException {
-    for (byte[] revision : revisions){
+    for (Revision revision : revisions){
       to.put(index, revision, from.getRevision(index, revision));
     }    
   }
@@ -145,7 +147,7 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
   }
 
   @Override
-  public boolean put(Index index, byte[] revision, byte[] value) throws IOException,
+  public boolean put(Index index, Revision revision, byte[] value) throws IOException,
       NigoriCryptographyException {
     boolean firstPut = first.put(index, revision, value);
     boolean secondPut = second.put(index, revision, value);
@@ -179,7 +181,7 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
   }
 
   @Override
-  public byte[] getRevision(Index index, byte[] revision) throws IOException,
+  public byte[] getRevision(Index index, Revision revision) throws IOException,
       NigoriCryptographyException {
     byte[] firstRevision = first.getRevision(index, revision);
     byte[] secondRevision = second.getRevision(index, revision);
@@ -190,9 +192,9 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
   }
 
   @Override
-  public List<byte[]> getRevisions(Index index) throws NigoriCryptographyException, IOException {
-    List<byte[]> firstRevisions = first.getRevisions(index);
-    List<byte[]> secondRevisions = second.getRevisions(index);
+  public List<Revision> getRevisions(Index index) throws NigoriCryptographyException, IOException {
+    List<Revision> firstRevisions = first.getRevisions(index);
+    List<Revision> secondRevisions = second.getRevisions(index);
     if (firstRevisions == null){
       if (secondRevisions == null){
         return null;

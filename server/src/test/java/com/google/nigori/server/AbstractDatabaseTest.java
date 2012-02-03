@@ -110,7 +110,7 @@ public abstract class AbstractDatabaseTest {
       Collection<RevValue> revs = database.getRecord(user, index);
       assertEquals(1, revs.size());
       for (RevValue rv : revs) {
-        assertArrayEquals(revision, rv.getRevision());
+        assertArrayEquals(revision, rv.getRevision().getBytes());
         assertArrayEquals(value, rv.getValue());
       }
       assertTrue(database.deleteRecord(user, index));

@@ -121,7 +121,7 @@ public class MessageLibrary {
 	  // TODO(drt24) add index
 	  List<RevisionValue> protoRevisions = new ArrayList<RevisionValue>(revisions.size());
 	  for (RevValue rv : revisions){
-	    protoRevisions.add(RevisionValue.newBuilder().setRevision(ByteString.copyFrom(rv.getRevision())).setValue(ByteString.copyFrom(rv.getValue())).build());
+	    protoRevisions.add(RevisionValue.newBuilder().setRevision(ByteString.copyFrom(rv.getRevision().getBytes())).setValue(ByteString.copyFrom(rv.getValue())).build());
 	  }
 	  GetResponse resp = GetResponse.newBuilder()
 	      .addAllRevisions(protoRevisions)

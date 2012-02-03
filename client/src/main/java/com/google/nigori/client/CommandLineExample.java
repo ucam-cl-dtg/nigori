@@ -19,8 +19,10 @@ package com.google.nigori.client;
 import java.io.IOException;
 import java.util.List;
 
+import com.google.nigori.common.Index;
 import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.RevValue;
+import com.google.nigori.common.Revision;
 
 /**
  * 
@@ -72,7 +74,7 @@ public class CommandLineExample {
 				usage();
 				return;
 			}
-			boolean success = nigori.put(new Index(args[5].getBytes(MessageLibrary.CHARSET)), args[6].getBytes(MessageLibrary.CHARSET),
+			boolean success = nigori.put(new Index(args[5]), new Revision(args[6]),
 					args[7].getBytes(MessageLibrary.CHARSET));
 			System.out.println("Success: " + success);
 		}
@@ -83,9 +85,9 @@ public class CommandLineExample {
 				return;
 			}
 			try {
-				List<RevValue> data = nigori.get(new Index(args[5].getBytes(MessageLibrary.CHARSET)));
+				List<RevValue> data = nigori.get(new Index(args[5]));
         for (RevValue datum : data) {
-          System.out.println(new String(datum.getRevision()) + new String(datum.getValue()));
+          System.out.println(new String(datum.getRevision().getBytes()) + new String(datum.getValue()));
         }
 			} catch (IOException ioe) {
 				System.out.println(ioe.getMessage());
@@ -97,7 +99,7 @@ public class CommandLineExample {
 				usage();
 				return;
 			}
-			boolean success = nigori.delete(new Index(args[5].getBytes(MessageLibrary.CHARSET)),new byte[]{});
+			boolean success = nigori.delete(new Index(args[5]),new byte[]{});
 			System.out.println("Success: " + success);
 		}
 		else {

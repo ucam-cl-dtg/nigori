@@ -29,11 +29,12 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.google.nigori.client.Index;
 import com.google.nigori.client.NigoriCryptographyException;
 import com.google.nigori.client.NigoriDatastore;
+import com.google.nigori.common.Index;
 import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.RevValue;
+import com.google.nigori.common.Revision;
 
 public class SetGetDeleteTest extends AcceptanceTest {
 
@@ -47,7 +48,7 @@ public class SetGetDeleteTest extends AcceptanceTest {
     public final boolean later;
 
     public IndexValue(String index, String revision, String value, boolean later) {
-      this.index = new Index(index.getBytes());
+      this.index = new Index(index);
       this.revvalue = new RevValue(revision.getBytes(),value.getBytes());
       this.later = later;
     }
@@ -74,7 +75,7 @@ public class SetGetDeleteTest extends AcceptanceTest {
 
         for (IndexValue iv : testCases) {// once round for each
           final Index index = iv.index;
-          final byte[] revision = iv.revvalue.getRevision();
+          final Revision revision = iv.revvalue.getRevision();
           final byte[] value = iv.revvalue.getValue();
 
           assertTrue("Not put" + i, nigori.put(index, revision, value));
@@ -83,7 +84,7 @@ public class SetGetDeleteTest extends AcceptanceTest {
           assertEquals("Not one revision", 1, revs.size());
           RevValue rv = revs.get(0);
           assertArrayEquals("Got different" + i, value, rv.getValue());
-          assertArrayEquals("Got different" + i, revision, rv.getRevision());
+          assertEquals("Got different" + i, revision, rv.getRevision());
           assertTrue("Not deleted" + i, nigori.delete(index,NULL_DELETE_TOKEN));
           assertNull("Not deleted" + i, nigori.get(index));
           assertFalse("Could redelete", nigori.delete(index,NULL_DELETE_TOKEN));
@@ -92,14 +93,14 @@ public class SetGetDeleteTest extends AcceptanceTest {
         for (IndexValue iv : testCases) {
           final Index index = iv.index;
           final byte[] value = iv.revvalue.getValue();
-          final byte[] revision = iv.revvalue.getRevision();
+          final Revision revision = iv.revvalue.getRevision();
           assertTrue("Not put" + i, nigori.put(index, revision, value));
         }
         try {
           for (IndexValue iv : testCases) {
             final Index index = iv.index;
             final byte[] value = iv.revvalue.getValue();
-            final byte[] revision = iv.revvalue.getRevision();
+            final Revision revision = iv.revvalue.getRevision();
             assertArrayEquals("Got different" + i, value, nigori.getRevision(index, revision));
           }
         } finally {
@@ -127,13 +128,13 @@ public class SetGetDeleteTest extends AcceptanceTest {
     NigoriDatastore nigori = getStore();
     try {
       assertTrue("Not registered", nigori.register());
-      final Index index = new Index("index".getBytes(MessageLibrary.CHARSET));
-      final byte[] a = "a".getBytes(MessageLibrary.CHARSET);
-      final byte[] b = "b".getBytes(MessageLibrary.CHARSET);
+      final Index index = new Index("index");
+      final Revision a = new Revision("a");
+      final Revision b = new Revision("b");
       assertTrue("Not put", nigori.put(index, a, "aa".getBytes(MessageLibrary.CHARSET)));
       assertTrue("Not put", nigori.put(index, b, "bb".getBytes(MessageLibrary.CHARSET)));
       try {
-        List<byte[]> revisions = nigori.getRevisions(index);
+        List<Revision> revisions = nigori.getRevisions(index);
         assertNotNull("No revisions", revisions);
         assertEquals("Not correct number of revisions", 2,revisions.size());
         assertThat(revisions,hasItem(a));
@@ -151,9 +152,9 @@ public class SetGetDeleteTest extends AcceptanceTest {
     NigoriDatastore nigori = getStore();
     try {
       assertTrue("Not registered", nigori.register());
-      final Index indexa = new Index("indexa".getBytes(MessageLibrary.CHARSET));
-      final Index indexb = new Index("indexb".getBytes(MessageLibrary.CHARSET));
-      final byte[] revision = "a".getBytes(MessageLibrary.CHARSET);
+      final Index indexa = new Index("indexa");
+      final Index indexb = new Index("indexb");
+      final Revision revision = new Revision("a");
       assertTrue("Not put", nigori.put(indexa, revision, "aa".getBytes(MessageLibrary.CHARSET)));
       assertTrue("Not put", nigori.put(indexb, revision, "bb".getBytes(MessageLibrary.CHARSET)));
       try {
