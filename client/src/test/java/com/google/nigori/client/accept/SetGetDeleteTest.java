@@ -29,20 +29,25 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.google.nigori.client.Index;
 import com.google.nigori.client.NigoriCryptographyException;
 import com.google.nigori.client.NigoriDatastore;
 import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.RevValue;
 
-public class SetGetDeleteTest {
+public class SetGetDeleteTest extends AcceptanceTest {
+
+  public SetGetDeleteTest(DatastoreFactory store) {
+    super(store);
+  }
 
   protected static class IndexValue {
-    public final byte[] index;
+    public final Index index;
     public final RevValue revvalue;
     public final boolean later;
 
     public IndexValue(String index, String revision, String value, boolean later) {
-      this.index = index.getBytes();
+      this.index = new Index(index.getBytes());
       this.revvalue = new RevValue(revision.getBytes(),value.getBytes());
       this.later = later;
     }
@@ -61,14 +66,14 @@ public class SetGetDeleteTest {
 
   @Test
   public void setGetDelete() throws NigoriCryptographyException, IOException {
-    NigoriDatastore nigori = AcceptanceTests.getStore();
+    NigoriDatastore nigori = getStore();
 
     for (int i = 0; i < AcceptanceTests.REPEAT; ++i) {// check we can do this more than once
       try {
         assertTrue("Not registered" + i, nigori.register());
 
         for (IndexValue iv : testCases) {// once round for each
-          final byte[] index = iv.index;
+          final Index index = iv.index;
           final byte[] revision = iv.revvalue.getRevision();
           final byte[] value = iv.revvalue.getValue();
 
@@ -79,36 +84,36 @@ public class SetGetDeleteTest {
           RevValue rv = revs.get(0);
           assertArrayEquals("Got different" + i, value, rv.getValue());
           assertArrayEquals("Got different" + i, revision, rv.getRevision());
-          assertTrue("Not deleted" + i, nigori.delete(index));
+          assertTrue("Not deleted" + i, nigori.delete(index,NULL_DELETE_TOKEN));
           assertNull("Not deleted" + i, nigori.get(index));
-          assertFalse("Could redelete", nigori.delete(index));
+          assertFalse("Could redelete", nigori.delete(index,NULL_DELETE_TOKEN));
         }
         // allow them to accumulate
         for (IndexValue iv : testCases) {
-          final byte[] index = iv.index;
+          final Index index = iv.index;
           final byte[] value = iv.revvalue.getValue();
           final byte[] revision = iv.revvalue.getRevision();
           assertTrue("Not put" + i, nigori.put(index, revision, value));
         }
         try {
           for (IndexValue iv : testCases) {
-            final byte[] index = iv.index;
+            final Index index = iv.index;
             final byte[] value = iv.revvalue.getValue();
             final byte[] revision = iv.revvalue.getRevision();
             assertArrayEquals("Got different" + i, value, nigori.getRevision(index, revision));
           }
         } finally {
           for (IndexValue iv : testCases) {
-            final byte[] index = iv.index;
+            final Index index = iv.index;
             if (!iv.later) {
-              assertTrue("Not deleted" + i, nigori.delete(index));
+              assertTrue("Not deleted" + i, nigori.delete(index,NULL_DELETE_TOKEN));
             } else {// should have already been deleted
-              assertFalse("Not deleted" + i, nigori.delete(index));
+              assertFalse("Not deleted" + i, nigori.delete(index,NULL_DELETE_TOKEN));
             }
           }
         }
         for (IndexValue iv : testCases) {
-          final byte[] index = iv.index;
+          final Index index = iv.index;
           assertNull("Not deleted" + i, nigori.get(index));
         }
       } finally {
@@ -119,10 +124,10 @@ public class SetGetDeleteTest {
 
   @Test
   public void getRevisions() throws IOException, NigoriCryptographyException {
-    NigoriDatastore nigori = AcceptanceTests.getStore();
+    NigoriDatastore nigori = getStore();
     try {
       assertTrue("Not registered", nigori.register());
-      final byte[] index = "index".getBytes(MessageLibrary.CHARSET);
+      final Index index = new Index("index".getBytes(MessageLibrary.CHARSET));
       final byte[] a = "a".getBytes(MessageLibrary.CHARSET);
       final byte[] b = "b".getBytes(MessageLibrary.CHARSET);
       assertTrue("Not put", nigori.put(index, a, "aa".getBytes(MessageLibrary.CHARSET)));
@@ -134,7 +139,7 @@ public class SetGetDeleteTest {
         assertThat(revisions,hasItem(a));
         assertThat(revisions,hasItem(b));
       } finally {
-        nigori.delete(index);
+        nigori.delete(index,NULL_DELETE_TOKEN);
       }
     } finally {
       assertTrue("Not unregistered", nigori.unregister());
@@ -143,23 +148,23 @@ public class SetGetDeleteTest {
 
   @Test
   public void getIndices() throws IOException, NigoriCryptographyException {
-    NigoriDatastore nigori = AcceptanceTests.getStore();
+    NigoriDatastore nigori = getStore();
     try {
       assertTrue("Not registered", nigori.register());
-      final byte[] indexa = "indexa".getBytes(MessageLibrary.CHARSET);
-      final byte[] indexb = "indexb".getBytes(MessageLibrary.CHARSET);
+      final Index indexa = new Index("indexa".getBytes(MessageLibrary.CHARSET));
+      final Index indexb = new Index("indexb".getBytes(MessageLibrary.CHARSET));
       final byte[] revision = "a".getBytes(MessageLibrary.CHARSET);
       assertTrue("Not put", nigori.put(indexa, revision, "aa".getBytes(MessageLibrary.CHARSET)));
       assertTrue("Not put", nigori.put(indexb, revision, "bb".getBytes(MessageLibrary.CHARSET)));
       try {
-        List<byte[]> indices = nigori.getIndices();
+        List<Index> indices = nigori.getIndices();
         assertNotNull("No indices", indices);
         assertEquals("Not correct number of indices", 2, indices.size());
         assertThat(indices, hasItem(indexa));
         assertThat(indices, hasItem(indexb));
       } finally {
-        nigori.delete(indexa);
-        nigori.delete(indexb);
+        nigori.delete(indexa,NULL_DELETE_TOKEN);
+        nigori.delete(indexb,NULL_DELETE_TOKEN);
       }
     } finally {
       assertTrue("Not unregistered", nigori.unregister());

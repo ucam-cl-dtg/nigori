@@ -72,7 +72,7 @@ public class CommandLineExample {
 				usage();
 				return;
 			}
-			boolean success = nigori.put(args[5].getBytes(MessageLibrary.CHARSET), args[6].getBytes(MessageLibrary.CHARSET),
+			boolean success = nigori.put(new Index(args[5].getBytes(MessageLibrary.CHARSET)), args[6].getBytes(MessageLibrary.CHARSET),
 					args[7].getBytes(MessageLibrary.CHARSET));
 			System.out.println("Success: " + success);
 		}
@@ -83,7 +83,7 @@ public class CommandLineExample {
 				return;
 			}
 			try {
-				List<RevValue> data = nigori.get(args[5].getBytes(MessageLibrary.CHARSET));
+				List<RevValue> data = nigori.get(new Index(args[5].getBytes(MessageLibrary.CHARSET)));
         for (RevValue datum : data) {
           System.out.println(new String(datum.getRevision()) + new String(datum.getValue()));
         }
@@ -97,7 +97,7 @@ public class CommandLineExample {
 				usage();
 				return;
 			}
-			boolean success = nigori.delete(args[5].getBytes(MessageLibrary.CHARSET));
+			boolean success = nigori.delete(new Index(args[5].getBytes(MessageLibrary.CHARSET)),new byte[]{});
 			System.out.println("Success: " + success);
 		}
 		else {

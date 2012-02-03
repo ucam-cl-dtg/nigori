@@ -56,7 +56,7 @@ public interface NigoriDatastore {
    * @return true if the data was successfully inserted; false otherwise.
    * @throws NigoriCryptographyException
    */
-  public boolean put(byte[] index, byte[] revision, byte[] value) throws IOException,
+  public boolean put(Index index, byte[] revision, byte[] value) throws IOException,
       NigoriCryptographyException;
 
   /**
@@ -64,7 +64,7 @@ public interface NigoriDatastore {
    * @throws NigoriCryptographyException 
    * @throws IOException 
    */
-  List<byte[]> getIndices() throws NigoriCryptographyException, IOException;
+  List<Index> getIndices() throws NigoriCryptographyException, IOException;
 
   /**
    * Retrieve the revision-values associated with {@code index} on the server.
@@ -73,7 +73,7 @@ public interface NigoriDatastore {
    * @return a List of revision-values containing the data associated with {@code index} or {@code null} if no data
    *         exists.
    */
-  public List<RevValue> get(byte[] index) throws IOException, NigoriCryptographyException;
+  public List<RevValue> get(Index index) throws IOException, NigoriCryptographyException;
 
   /**
    * Retrieve the value for a particular index,revision pair
@@ -83,7 +83,7 @@ public interface NigoriDatastore {
    * @throws NigoriCryptographyException
    * @throws IOException
    */
-  public byte[] getRevision(byte[] index, byte[] revision) throws IOException,
+  public byte[] getRevision(Index index, byte[] revision) throws IOException,
       NigoriCryptographyException;
 
   /**
@@ -93,7 +93,7 @@ public interface NigoriDatastore {
    * @throws NigoriCryptographyException
    * @throws IOException
    */
-  public List<byte[]> getRevisions(byte[] index) throws NigoriCryptographyException, IOException;
+  public List<byte[]> getRevisions(Index index) throws NigoriCryptographyException, IOException;
 
   /**
    * Delete the index (and associated revisions and values) on the server
@@ -104,5 +104,5 @@ public interface NigoriDatastore {
    * @throws IOException
    * @throws NigoriCryptographyException
    */
-  public boolean delete(byte[] index) throws NigoriCryptographyException, IOException;
+  public boolean delete(Index index, byte[] token) throws NigoriCryptographyException, IOException;
 }

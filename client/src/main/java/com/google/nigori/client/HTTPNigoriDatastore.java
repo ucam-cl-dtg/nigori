@@ -249,6 +249,7 @@ public class HTTPNigoriDatastore implements NigoriDatastore {
 		return keyManager.signer().getPublicKey();
 	}
 
+	@Override
 	public boolean register() throws IOException, NigoriCryptographyException {
 
 		try{
@@ -263,6 +264,7 @@ public class HTTPNigoriDatastore implements NigoriDatastore {
 		}
 	}
 
+	@Override
   public boolean unregister() throws IOException, NigoriCryptographyException {
 
     try{
@@ -276,6 +278,7 @@ public class HTTPNigoriDatastore implements NigoriDatastore {
     }
   }
 
+	@Override
 	public boolean authenticate() throws IOException, NigoriCryptographyException {
 
 		try {
@@ -289,7 +292,8 @@ public class HTTPNigoriDatastore implements NigoriDatastore {
 		}
 	}
 
-	public boolean put(byte[] index, byte[] revision, byte[] value)  throws IOException, NigoriCryptographyException {
+	@Override
+	public boolean put(Index index, byte[] revision, byte[] value)  throws IOException, NigoriCryptographyException {
 		return put(null, index, revision, value);
 	}
 
@@ -302,18 +306,18 @@ public class HTTPNigoriDatastore implements NigoriDatastore {
 	 * @param writeAuthorities list of public keys of people permitted to read this key-value pair.
 	 * @return true if the data was successfully inserted; false otherwise.
 	 */
-	private boolean put(byte[] encKey, byte[] index, byte[] revision, byte[] value) throws IOException, 
+	private boolean put(byte[] encKey, Index index, byte[] revision, byte[] value) throws IOException, 
 	NigoriCryptographyException {
 
 		byte[] encIndex;
 		byte[] encRevision;
 		byte[] encValue;
 		if (encKey == null) {
-			encIndex = keyManager.encryptDeterministically(index);
+			encIndex = keyManager.encryptDeterministically(index.getBytes());
 			encRevision = keyManager.encryptDeterministically(revision);
 			encValue = keyManager.encrypt(value);
 		} else {
-			encIndex = keyManager.encryptDeterministically(encKey, index);
+			encIndex = keyManager.encryptDeterministically(encKey, index.getBytes());
 			encRevision = keyManager.encryptDeterministically(encKey, revision);
 			encValue = keyManager.encrypt(encKey, value);
 		}
@@ -328,7 +332,8 @@ public class HTTPNigoriDatastore implements NigoriDatastore {
 		}
 	}
 
-	public List<RevValue> get(byte[] index) throws IOException,	NigoriCryptographyException {
+	@Override
+	public List<RevValue> get(Index index) throws IOException,	NigoriCryptographyException {
 		return get(null, index, null);
 	}
 
@@ -339,7 +344,8 @@ public class HTTPNigoriDatastore implements NigoriDatastore {
    * @throws NigoriCryptographyException 
    * @throws IOException 
    */
-  public byte[] getRevision(byte[] index, byte[] revision) throws IOException, NigoriCryptographyException {
+	@Override
+  public byte[] getRevision(Index index, byte[] revision) throws IOException, NigoriCryptographyException {
     List<RevValue> rev = get(null, index, revision);
     if (rev != null && rev.size() == 1) {
       return rev.get(0).getValue();
@@ -356,17 +362,17 @@ public class HTTPNigoriDatastore implements NigoriDatastore {
 	 * @return a byte array containing the data associated with {@code key} or {@code null} if no
 	 * data exists.
 	 */
-	private List<RevValue> get(byte[] encKey, byte[] index, byte[] revision) throws IOException, NigoriCryptographyException {
+	private List<RevValue> get(byte[] encKey, Index index, byte[] revision) throws IOException, NigoriCryptographyException {
 
 	  byte[] encIndex;
 	  byte[] encRevision = null;
 	  if (encKey == null) {
-	    encIndex = keyManager.encryptDeterministically(index);
+	    encIndex = keyManager.encryptDeterministically(index.getBytes());
 	    if (revision != null) {
 	      encRevision = keyManager.encryptDeterministically(revision);
 	    }
 	  } else {
-	    encIndex = keyManager.encryptDeterministically(encKey, index);
+	    encIndex = keyManager.encryptDeterministically(encKey, index.getBytes());
 	    if (revision != null) {
 	      encRevision = keyManager.encryptDeterministically(encKey, revision);
 	    }
@@ -409,8 +415,9 @@ public class HTTPNigoriDatastore implements NigoriDatastore {
 		}
 	}
 
-	public List<byte[]> getRevisions(byte[] index) throws NigoriCryptographyException, UnsupportedEncodingException, IOException{
-	  byte[] encIndex = keyManager.encryptDeterministically(index);
+	@Override
+	public List<byte[]> getRevisions(Index index) throws NigoriCryptographyException, UnsupportedEncodingException, IOException{
+	  byte[] encIndex = keyManager.encryptDeterministically(index.getBytes());
 	  Response response;
     try {
       response = postResponse(MessageLibrary.REQUEST_GET_REVISIONS, MessageLibrary.getRevisionsRequestAsJson(keyManager.signer(), encIndex));
@@ -440,16 +447,17 @@ public class HTTPNigoriDatastore implements NigoriDatastore {
     }
 	}
 
-  public boolean delete(byte[] index) throws UnsupportedEncodingException, NigoriCryptographyException, IOException {
-    return delete(null, index);
+	@Override
+  public boolean delete(Index index, byte[] token) throws UnsupportedEncodingException, NigoriCryptographyException, IOException {
+    return delete(null, index, token);
   }
 
-  private boolean delete(byte[] encKey, byte[] index) throws NigoriCryptographyException, UnsupportedEncodingException, IOException {
+  private boolean delete(byte[] encKey, Index index, byte[] token) throws NigoriCryptographyException, UnsupportedEncodingException, IOException {
     byte[] encIndex;
     if (encKey == null) {
-      encIndex = keyManager.encryptDeterministically(index);
+      encIndex = keyManager.encryptDeterministically(index.getBytes());
     } else {
-      encIndex = keyManager.encryptDeterministically(encKey, index);
+      encIndex = keyManager.encryptDeterministically(encKey, index.getBytes());
     }
     Response response;
 
@@ -471,7 +479,7 @@ public class HTTPNigoriDatastore implements NigoriDatastore {
   }
 
   @Override
-  public List<byte[]> getIndices() throws NigoriCryptographyException, IOException {
+  public List<Index> getIndices() throws NigoriCryptographyException, IOException {
     Response response;
     try {
       response = postResponse(MessageLibrary.REQUEST_GET_INDICES,MessageLibrary.getIndicesRequestAsJson(keyManager.signer()));
@@ -491,9 +499,9 @@ public class HTTPNigoriDatastore implements NigoriDatastore {
     try {
       GetIndicesResponse getResponse = MessageLibrary.getIndicesResponseFromJson(response.jsonResponse);
       List<ByteString> indices = getResponse.getIndicesList();
-      List<byte[]> answer = new ArrayList<byte[]>(indices.size());
-      for (ByteString revision : indices) {
-          answer.add(keyManager.decrypt(revision.toByteArray()));
+      List<Index> answer = new ArrayList<Index>(indices.size());
+      for (ByteString index : indices) {
+          answer.add(new Index(keyManager.decrypt(index.toByteArray())));
       }
       return answer;
     } catch(JsonConversionException jce) {

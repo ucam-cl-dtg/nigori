@@ -37,9 +37,9 @@ public class TwoUserDemo {
 		
 		private String username;
 		private String password;
-		private byte[] sharedIndex;
+		private Index sharedIndex;
 		
-		SeparateUserAccessesSharedStore(String username, String password, byte[] sharedIndex) {
+		SeparateUserAccessesSharedStore(String username, String password, Index sharedIndex) {
 
 			this.username = username;
 			this.password = password;
@@ -81,7 +81,7 @@ public class TwoUserDemo {
 		}		
 
 		//This is the index in the store which is used to hold the shared data
-		final byte[] sharedIndex = new byte[]{1};
+		final Index sharedIndex = new Index(new byte[]{1});
 
 		SeparateUserAccessesSharedStore secondUser = new SeparateUserAccessesSharedStore(username, 
 				password, sharedIndex);		
@@ -114,7 +114,7 @@ public class TwoUserDemo {
     } catch (InterruptedException e) {
     }
     // Clean up
-    sharedStore.delete(sharedIndex);
+    sharedStore.delete(sharedIndex, new byte[]{});
     sharedStore.unregister();
 
   }

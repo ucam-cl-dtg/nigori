@@ -47,22 +47,22 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
    * @throws IOException
    */
   public void syncAll() throws IOException, NigoriCryptographyException {
-    List<byte[]> firstIndices = first.getIndices();
-    List<byte[]> secondIndices = second.getIndices();
+    List<Index> firstIndices = first.getIndices();
+    List<Index> secondIndices = second.getIndices();
     if (!(firstIndices.containsAll(secondIndices) && secondIndices.containsAll(firstIndices))) {
       // indices not already synced
-      List<byte[]> firstMSecond = new ArrayList<byte[]>(firstIndices);
+      List<Index> firstMSecond = new ArrayList<Index>(firstIndices);
       firstMSecond.removeAll(secondIndices);
       addAllIndices(firstMSecond, first, second);
-      List<byte[]> secondMFirst = new ArrayList<byte[]>(secondIndices);
+      List<Index> secondMFirst = new ArrayList<Index>(secondIndices);
       secondMFirst.removeAll(firstIndices);
       addAllIndices(secondMFirst, second, first);
       // make sure firstIndices has all the indices
       firstIndices.addAll(secondIndices);
     }
     // Now need to sync revisions.
-    List<byte[]> indices = firstIndices;
-    for (byte[] index : indices) {
+    List<Index> indices = firstIndices;
+    for (Index index : indices) {
       syncRevisions(index);
     }
   }
@@ -71,7 +71,7 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
    * @throws IOException 
    * @throws NigoriCryptographyException 
    */
-  private void syncRevisions(byte[] index) throws NigoriCryptographyException, IOException {
+  private void syncRevisions(Index index) throws NigoriCryptographyException, IOException {
     List<byte[]> firstRevisions = first.getRevisions(index);
     List<byte[]> secondRevisions = second.getRevisions(index);
     if (!(firstRevisions.containsAll(secondRevisions) && secondRevisions.containsAll(firstRevisions))){
@@ -91,7 +91,7 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
    * @throws NigoriCryptographyException 
    * @throws IOException 
    */
-  private void addAllRevisions(byte[] index, List<byte[]> revisions, NigoriDatastore from,
+  private void addAllRevisions(Index index, List<byte[]> revisions, NigoriDatastore from,
       NigoriDatastore to) throws IOException, NigoriCryptographyException {
     for (byte[] revision : revisions){
       to.put(index, revision, from.getRevision(index, revision));
@@ -106,8 +106,8 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
    * @throws NigoriCryptographyException 
    * @throws IOException 
    */
-  private void addAllIndices(List<byte[]> indices, NigoriDatastore from, NigoriDatastore to) throws IOException, NigoriCryptographyException {
-    for (byte[] index : indices){
+  private void addAllIndices(List<Index> indices, NigoriDatastore from, NigoriDatastore to) throws IOException, NigoriCryptographyException {
+    for (Index index : indices){
       List<RevValue> revs = from.get(index);
       for (RevValue rev : revs){
         to.put(index, rev.getRevision(), rev.getValue());
@@ -145,40 +145,73 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
   }
 
   @Override
-  public boolean put(byte[] index, byte[] revision, byte[] value) throws IOException,
+  public boolean put(Index index, byte[] revision, byte[] value) throws IOException,
       NigoriCryptographyException {
-    // TODO(drt24) Auto-generated method stub
-    return false;
+    boolean firstPut = first.put(index, revision, value);
+    boolean secondPut = second.put(index, revision, value);
+    return firstPut && secondPut;
   }
 
   @Override
-  public List<byte[]> getIndices() {
-    // TODO(drt24) Auto-generated method stub
-    return null;
-  }
-  @Override
-  public List<RevValue> get(byte[] index) throws IOException, NigoriCryptographyException {
-    // TODO(drt24) Auto-generated method stub
-    return null;
+  public List<Index> getIndices() throws NigoriCryptographyException, IOException {
+    List<Index> firstIndices = first.getIndices();
+    List<Index> secondIndices = second.getIndices();
+    firstIndices.addAll(secondIndices);//TODO(drt24) do a proper union and sync here
+    return firstIndices;
   }
 
   @Override
-  public byte[] getRevision(byte[] index, byte[] revision) throws IOException,
+  public List<RevValue> get(Index index) throws IOException, NigoriCryptographyException {
+    List<RevValue> firstRevVals = first.get(index);
+    List<RevValue> secondRevVals = second.get(index);
+    if (firstRevVals == null){
+      if (secondRevVals == null){
+        return null;
+      } else {
+        return secondRevVals;
+      }
+    }
+    if (secondRevVals == null){
+      return firstRevVals;
+    }
+    firstRevVals.addAll(secondRevVals);//TODO(drt24) do a proper union and sync here
+    return firstRevVals;
+  }
+
+  @Override
+  public byte[] getRevision(Index index, byte[] revision) throws IOException,
       NigoriCryptographyException {
-    // TODO(drt24) Auto-generated method stub
-    return null;
+    byte[] firstRevision = first.getRevision(index, revision);
+    byte[] secondRevision = second.getRevision(index, revision);
+    if (!firstRevision.equals(secondRevision)){
+      throw new IOException("Stores returned different values for the same revision");
+    }
+    return firstRevision;
   }
 
   @Override
-  public List<byte[]> getRevisions(byte[] index) throws NigoriCryptographyException, IOException {
-    // TODO(drt24) Auto-generated method stub
-    return null;
+  public List<byte[]> getRevisions(Index index) throws NigoriCryptographyException, IOException {
+    List<byte[]> firstRevisions = first.getRevisions(index);
+    List<byte[]> secondRevisions = second.getRevisions(index);
+    if (firstRevisions == null){
+      if (secondRevisions == null){
+        return null;
+      } else {
+        return secondRevisions;
+      }
+    }
+    if (secondRevisions == null){
+      return firstRevisions;
+    }
+    firstRevisions.addAll(secondRevisions);//TODO(drt24) do a proper union and sync here
+    return firstRevisions;
   }
 
   @Override
-  public boolean delete(byte[] index) throws NigoriCryptographyException, IOException {
-    // TODO(drt24) Auto-generated method stub
-    return false;
+  public boolean delete(Index index, byte[] token) throws NigoriCryptographyException, IOException {
+    boolean firstDel = first.delete(index, token);
+    boolean secondDel = second.delete(index, token);
+    return firstDel & secondDel;
   }
 
 }

@@ -18,16 +18,11 @@ package com.google.nigori.client.accept;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-
-import com.google.nigori.client.NigoriCryptographyException;
-import com.google.nigori.client.HTTPNigoriDatastore;
-import com.google.nigori.client.NigoriDatastore;
 
 
 @RunWith(Suite.class)
@@ -42,6 +37,7 @@ public class AcceptanceTests {
 
   protected static final int PORT = 8888;
   protected static final String HOST = "localhost";
+  protected static final String PATH = "nigori";
   private static long startTime;
   private static final int EXTERNAL_TIMEOUT = 20000;
   public static final int REPEAT = 3;
@@ -108,9 +104,5 @@ public class AcceptanceTests {
     stopper.join(EXTERNAL_TIMEOUT);
     stopper.interrupt();
     System.out.println("Total time (ms): " + ((System.currentTimeMillis() - startTime)));
-  }
-
-  public static NigoriDatastore getStore() throws UnsupportedEncodingException, NigoriCryptographyException {
-    return new HTTPNigoriDatastore(HOST, PORT, "nigori");
   }
 }

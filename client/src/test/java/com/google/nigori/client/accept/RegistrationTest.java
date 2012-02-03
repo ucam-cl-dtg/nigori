@@ -27,11 +27,18 @@ import com.google.nigori.client.NigoriDatastore;
  * @author drt24
  * 
  */
-public class RegistrationTest {
+public class RegistrationTest extends AcceptanceTest {
+
+  /**
+   * @param store
+   */
+  public RegistrationTest(DatastoreFactory store) {
+    super(store);
+  }
 
   @Test
   public void test() throws NigoriCryptographyException, IOException {
-    NigoriDatastore nigori = AcceptanceTests.getStore();
+    NigoriDatastore nigori = getStore();
     for (int i = 0; i < AcceptanceTests.REPEAT; ++i) {// check we can do this more than once
       assertTrue("Not registered", nigori.register());
       assertTrue("Can't authenticate",nigori.authenticate());

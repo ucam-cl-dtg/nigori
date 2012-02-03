@@ -31,13 +31,17 @@ import java.util.Random;
 
 import org.junit.Test;
 
+import com.google.nigori.client.Index;
 import com.google.nigori.client.NigoriCryptographyException;
 import com.google.nigori.client.NigoriDatastore;
 import com.google.nigori.client.accept.SetGetDeleteTest.IndexValue;
 import com.google.nigori.common.MessageLibrary;
 
-public class ConcurrencyTest {
+public class ConcurrencyTest extends AcceptanceTest {
 
+  public ConcurrencyTest(DatastoreFactory store) {
+    super(store);
+  }
   private static final int THREADS = 5;
   protected boolean failed = false;
 
@@ -80,19 +84,19 @@ public class ConcurrencyTest {
         public void run() {
           boolean succeeded = false;
           try {
-            NigoriDatastore nigori = AcceptanceTests.getStore();
+            NigoriDatastore nigori = getStore();
 
             for (int i = 0; i < AcceptanceTests.REPEAT * 10; ++i) {// check we can do this more than
                                                                    // once
               assertTrue("Not registered" + i, nigori.register());
               try {
                 for (IndexValue iv : SetGetDeleteTest.testCases) {// once round for each
-                  final byte[] index = iv.index;
+                  final Index index = iv.index;
                   final byte[] value = iv.revvalue.getValue();
                   final byte[] revision = iv.revvalue.getRevision();
                   assertTrue("Not put" + i, nigori.put(index, revision, value));
                   assertArrayEquals("Got different" + i, value, nigori.getRevision(index, revision));
-                  assertTrue("Not deleted" + i, nigori.delete(index));
+                  assertTrue("Not deleted" + i, nigori.delete(index,NULL_DELETE_TOKEN));
                   assertNull("Not deleted" + i, nigori.get(index));
                 }
               } finally {
@@ -123,7 +127,7 @@ public class ConcurrencyTest {
     failed = false;
     Thread[] threads = new Thread[THREADS];
 
-    final NigoriDatastore nigori = AcceptanceTests.getStore();
+    final NigoriDatastore nigori = getStore();
     assertTrue("Not registered", nigori.register());
     try {
       final List<Throwable> exceptionList = Collections.synchronizedList(new LinkedList<Throwable>());
@@ -136,15 +140,15 @@ public class ConcurrencyTest {
               for (int i = 0; i < AcceptanceTests.REPEAT * 10; ++i) {// check we can do this more than
                 // once
                 for (IndexValue iv : SetGetDeleteTest.testCases) {// once round for each
-                  final byte[] index = new byte[16];
-                  r.nextBytes(index);// need to generate some different indices
+                  final Index index = new Index(new byte[16]);
+                  r.nextBytes(index.getBytes());// need to generate some different indices
                   final byte[] value = iv.revvalue.getValue();
                   final byte[] revision = iv.revvalue.getRevision();
                   assertTrue("Not put" + i, nigori.put(index, revision, value));
                   try {
                     assertArrayEquals("Got different" + i, value, nigori.getRevision(index,revision));
                   } finally {
-                    assertTrue("Not deleted" + i, nigori.delete(index));
+                    assertTrue("Not deleted" + i, nigori.delete(index, NULL_DELETE_TOKEN));
                   }
                   assertNull("Not deleted" + i, nigori.get(index));
                 }
