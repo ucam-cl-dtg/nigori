@@ -17,6 +17,7 @@ package com.google.nigori.client;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.google.nigori.common.Index;
@@ -158,6 +159,7 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
   public List<Index> getIndices() throws NigoriCryptographyException, IOException {
     List<Index> firstIndices = first.getIndices();
     List<Index> secondIndices = second.getIndices();
+    secondIndices.removeAll(firstIndices);
     firstIndices.addAll(secondIndices);//TODO(drt24) do a proper union and sync here
     return firstIndices;
   }
@@ -176,6 +178,7 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
     if (secondRevVals == null){
       return firstRevVals;
     }
+    secondRevVals.removeAll(firstRevVals);
     firstRevVals.addAll(secondRevVals);//TODO(drt24) do a proper union and sync here
     return firstRevVals;
   }
@@ -183,12 +186,12 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
   @Override
   public byte[] getRevision(Index index, Revision revision) throws IOException,
       NigoriCryptographyException {
-    byte[] firstRevision = first.getRevision(index, revision);
-    byte[] secondRevision = second.getRevision(index, revision);
-    if (!firstRevision.equals(secondRevision)){
+    byte[] firstValue = first.getRevision(index, revision);
+    byte[] secondValue = second.getRevision(index, revision);
+    if (!Arrays.equals(firstValue, secondValue)){
       throw new IOException("Stores returned different values for the same revision");
     }
-    return firstRevision;
+    return firstValue;
   }
 
   @Override
@@ -205,6 +208,7 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
     if (secondRevisions == null){
       return firstRevisions;
     }
+    secondRevisions.removeAll(firstRevisions);
     firstRevisions.addAll(secondRevisions);//TODO(drt24) do a proper union and sync here
     return firstRevisions;
   }
