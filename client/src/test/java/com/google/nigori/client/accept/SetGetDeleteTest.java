@@ -150,7 +150,7 @@ public class SetGetDeleteTest {
       final byte[] indexb = "indexb".getBytes(MessageLibrary.CHARSET);
       final byte[] revision = "a".getBytes(MessageLibrary.CHARSET);
       assertTrue("Not put", nigori.put(indexa, revision, "aa".getBytes(MessageLibrary.CHARSET)));
-      assertTrue("Not put", nigori.put(indexa, revision, "bb".getBytes(MessageLibrary.CHARSET)));
+      assertTrue("Not put", nigori.put(indexb, revision, "bb".getBytes(MessageLibrary.CHARSET)));
       try {
         List<byte[]> indices = nigori.getIndices();
         assertNotNull("No indices", indices);
