@@ -72,7 +72,7 @@
     </plugins>
   </build>
   <properties>
-    <appengine.version>1.5.5</appengine.version>
+    <appengine.version>1.6.1</appengine.version>
   </properties>
   <distributionManagement>
     <!-- use the following if you're not using a snapshot version. -->
