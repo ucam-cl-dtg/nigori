@@ -26,28 +26,7 @@ import com.google.nigori.common.Revision;
  * @author drt24
  * 
  */
-public interface NigoriDatastore {
-
-  /**
-   * Register the with the server.
-   * 
-   * @return true if the registration was successful; false otherwise.
-   */
-  boolean register() throws IOException, NigoriCryptographyException;
-
-  /**
-   * Unregister from the server.
-   * 
-   * @return true if the unregistration was successful; false otherwise.
-   */
-  public boolean unregister() throws IOException, NigoriCryptographyException;
-
-  /**
-   * Evaluate whether this NigoriDatastore can authenticate to the server.
-   * 
-   * @return true if the account is valid; false otherwise.
-   */
-  public boolean authenticate() throws IOException, NigoriCryptographyException;
+public interface NigoriDatastore extends Datastore {
 
   /**
    * Insert a new index-revision-value pair into the datastore of the server.
@@ -60,13 +39,6 @@ public interface NigoriDatastore {
    */
   public boolean put(Index index, Revision revision, byte[] value) throws IOException,
       NigoriCryptographyException;
-
-  /**
-   * @return
-   * @throws NigoriCryptographyException 
-   * @throws IOException 
-   */
-  List<Index> getIndices() throws NigoriCryptographyException, IOException;
 
   /**
    * Retrieve the revision-values associated with {@code index} on the server.
@@ -107,4 +79,5 @@ public interface NigoriDatastore {
    * @throws NigoriCryptographyException
    */
   public boolean delete(Index index, byte[] token) throws NigoriCryptographyException, IOException;
+
 }
