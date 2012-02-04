@@ -39,7 +39,7 @@ public class AcceptanceTests {
   protected static final String HOST = "localhost";
   protected static final String PATH = "nigori";
   private static long startTime;
-  private static final int EXTERNAL_TIMEOUT = 20000;
+  private static final int EXTERNAL_TIMEOUT = 30000;
   public static final int REPEAT = 3;
 
   protected static class GaeThread extends Thread {
