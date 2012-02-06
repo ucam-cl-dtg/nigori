@@ -16,6 +16,8 @@ package com.google.nigori.common;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
+import org.apache.commons.codec.binary.Base64;
+
 /**
  * @author drt24
  * 
@@ -68,5 +70,10 @@ public class Revision {
     if (!Arrays.equals(revision, other.revision))
       return false;
     return true;
+  }
+
+  @Override
+  public String toString() {
+    return Base64.encodeBase64String(revision);
   }
 }

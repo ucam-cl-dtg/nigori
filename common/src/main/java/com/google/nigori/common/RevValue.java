@@ -96,4 +96,8 @@ public class RevValue implements Comparable<RevValue> {
     }
     return 0;
   }
+  @Override
+  public String toString() {
+    return revision + " : "+ new String(value);
+  }
 }
