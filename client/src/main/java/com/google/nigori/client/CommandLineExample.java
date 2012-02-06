@@ -18,7 +18,7 @@ package com.google.nigori.client;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.List;
+import java.util.Collection;
 
 import com.google.nigori.common.Index;
 import com.google.nigori.common.MessageLibrary;
@@ -39,7 +39,7 @@ public class CommandLineExample {
     out.println("  register username password");
     out.println("  unregister username password");
     out.println("  authenticate username password");
-    out.println("  put username password index revision value");
+    out.println("  put username password index value");
     out.println("  get username password index");
     out.println("  delete username password key");
   }	
@@ -57,7 +57,7 @@ public class CommandLineExample {
 		final String username = args[3];
 		final String password = args[4];
 
-		NigoriDatastore nigori = new HTTPNigoriDatastore(server, port, "nigori", username, password);
+		MigoriDatastore nigori = new HashMigoriDatastore(new HTTPNigoriDatastore(server, port, "nigori", username, password));
 		
 		if (action.equals("register")) {
 			boolean success = nigori.register();
@@ -71,13 +71,12 @@ public class CommandLineExample {
 			System.out.println("Success: " + success);
 		}
 		else if (action.equals("put")) {
-			if (args.length != 8) {
+			if (args.length != 7) {
 				System.err.println("*** Error: exactly seven elements needed for a put action");
 				usage();
 				return;
 			}
-			boolean success = nigori.put(new Index(args[5]), new Revision(args[6]),
-					args[7].getBytes(MessageLibrary.CHARSET));
+			RevValue success = nigori.put(new Index(args[5]), args[6].getBytes(MessageLibrary.CHARSET));
 			System.out.println("Success: " + success);
 		}
 		else if (action.equals("get")) {
@@ -87,9 +86,9 @@ public class CommandLineExample {
 				return;
 			}
 			try {
-				List<RevValue> data = nigori.get(new Index(args[5]));
+				Collection<RevValue> data = nigori.get(new Index(args[5]));
         for (RevValue datum : data) {
-          System.out.println(new String(datum.getRevision().getBytes()) + new String(datum.getValue()));
+          System.out.println(datum.getRevision() + " : " + new String(datum.getValue()));
         }
 			} catch (IOException ioe) {
 				System.out.println(ioe.getMessage());
@@ -101,7 +100,7 @@ public class CommandLineExample {
 				usage();
 				return;
 			}
-			boolean success = nigori.delete(new Index(args[5]),new byte[]{});
+			boolean success = nigori.deleteIndex(new Index(args[5]),Revision.EMPTY);
 			System.out.println("Success: " + success);
 		}
 		else {

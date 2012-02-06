@@ -30,11 +30,10 @@ public class CommandLineExampleTest {
     String username = "username";
     String password = "password";
     String index = "index";
-    String revision = "revision";
     String value = "value";
     CommandLineExample.main(new String[]{AcceptanceTests.HOST,"" +AcceptanceTests.PORT, "register", username, password});
     CommandLineExample.main(new String[]{AcceptanceTests.HOST,"" +AcceptanceTests.PORT, "authenticate", username, password});
-    CommandLineExample.main(new String[]{AcceptanceTests.HOST,"" +AcceptanceTests.PORT, "put", username, password, index, revision, value});
+    CommandLineExample.main(new String[]{AcceptanceTests.HOST,"" +AcceptanceTests.PORT, "put", username, password, index, value});
     CommandLineExample.main(new String[]{AcceptanceTests.HOST,"" +AcceptanceTests.PORT, "get", username, password, index});
     CommandLineExample.main(new String[]{AcceptanceTests.HOST,"" +AcceptanceTests.PORT, "delete", username, password, index});
     CommandLineExample.main(new String[]{AcceptanceTests.HOST,"" +AcceptanceTests.PORT, "unregister", username, password});
