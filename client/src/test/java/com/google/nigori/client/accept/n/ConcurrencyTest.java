@@ -44,7 +44,7 @@ public class ConcurrencyTest extends AcceptanceTest {
   public ConcurrencyTest(DatastoreFactory store) {
     super(store);
   }
-  private static final int THREADS = 5;
+  private static final int THREADS = 4;
   protected boolean failed = false;
 
   private void startThenJoinThreads(Thread[] threads){
