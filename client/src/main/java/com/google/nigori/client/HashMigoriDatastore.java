@@ -81,6 +81,9 @@ public class HashMigoriDatastore implements MigoriDatastore {
   @Override
   public List<RevValue> get(Index index) throws NigoriCryptographyException, IOException {
     DAG<Revision> history = getHistory(index);
+    if (history == null){
+      return null;
+    }
     Collection<Node<Revision>> heads = history.getHeads();
     List<RevValue> answer = new ArrayList<RevValue>();
     for (Node<Revision> rev : heads) {
