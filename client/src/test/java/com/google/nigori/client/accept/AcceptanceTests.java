@@ -24,6 +24,8 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import com.google.nigori.client.accept.m.MRegistrationTest;
+import com.google.nigori.client.accept.m.MSetGetTest;
 import com.google.nigori.client.accept.n.ConcurrencyTest;
 import com.google.nigori.client.accept.n.RegistrationTest;
 import com.google.nigori.client.accept.n.SetGetDeleteTest;
@@ -34,6 +36,8 @@ import com.google.nigori.client.accept.n.SetGetDeleteTest;
   RegistrationTest.class,
   SetGetDeleteTest.class,
   ConcurrencyTest.class,
+  MRegistrationTest.class,
+  MSetGetTest.class,
   CommandLineExampleTest.class,
   TwoUserDemoTest.class
   })

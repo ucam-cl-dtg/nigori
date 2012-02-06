@@ -67,6 +67,10 @@ public class HashDAG implements DAG<Revision> {
    */
   private void walkGraph(RNode node) {
     Collection<RNode> successors = allSuccessors.get(node.index);
+    if (successors == null){// No successors so a head
+      heads.add(node);
+      return;
+    }
     for (RNode successor : successors) {
       if (node.addSuccessor(successor)) {
         walkGraph(successor);
