@@ -21,7 +21,7 @@ import java.util.Arrays;
  * @author drt24
  *
  */
-public class RevValue {
+public class RevValue implements Comparable<RevValue> {
 
   private final Revision revision;
   private final byte[] value;
@@ -75,5 +75,25 @@ public class RevValue {
     if (!Arrays.equals(value, other.value))
       return false;
     return true;
+  }
+
+  @Override
+  public int compareTo(RevValue arg0) {
+    if (arg0 == null){
+      return -1;
+    }
+    byte[] thisBytes = this.revision.getBytes();
+    byte[] argBytes = arg0.revision.getBytes();
+    if (Arrays.equals(thisBytes, argBytes)){
+      return 0;
+    }
+    for (int i = 0; i < thisBytes.length; ++i){
+      if (thisBytes[i] < argBytes[i]){
+        return -1;
+      } else if (thisBytes[i] > argBytes[i]){
+        return 1;
+      }
+    }
+    return 0;
   }
 }

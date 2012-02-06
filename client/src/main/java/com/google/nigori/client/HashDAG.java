@@ -23,40 +23,40 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.nigori.common.NigoriConstants;
-import com.google.nigori.common.RevValue;
+import com.google.nigori.common.Revision;
 
 /**
  * @author drt24
  * 
  */
-public class HashDAG implements DAG<RevValue> {
+public class HashDAG implements DAG<Revision> {
 
   public static final int HASH_SIZE = NigoriConstants.B_SHA1;
 
-  private Set<Node<RevValue>> heads;
-  private Set<Node<RevValue>> starts;
+  private Set<Node<Revision>> heads;
+  private Set<Node<Revision>> starts;
   private Map<RevIndex, RNode> nodes;
   private Map<RevIndex, Collection<RNode>> allSuccessors;
 
   @Override
-  public Collection<Node<RevValue>> getHeads() {
+  public Collection<Node<Revision>> getHeads() {
     return Collections.unmodifiableCollection(heads);
   }
 
   @Override
-  public Collection<Node<RevValue>> getStarts() {
+  public Collection<Node<Revision>> getStarts() {
     return Collections.unmodifiableCollection(starts);
   }
 
-  public HashDAG(Collection<RevValue> values) {
-    heads = new HashSet<Node<RevValue>>();
-    starts = new HashSet<Node<RevValue>>();
+  public HashDAG(Collection<Revision> values) {
+    heads = new HashSet<Node<Revision>>();
+    starts = new HashSet<Node<Revision>>();
     nodes = new HashMap<RevIndex, RNode>();
     allSuccessors = new HashMap<RevIndex, Collection<RNode>>();
-    for (RevValue value : values) {
+    for (Revision value : values) {
       addNode(value);
     }
-    for (Node<RevValue> node : starts) {
+    for (Node<Revision> node : starts) {
       walkGraph((RNode) node);
     }
     allSuccessors = null;// Allow garbage collection
@@ -74,19 +74,19 @@ public class HashDAG implements DAG<RevValue> {
     }
   }
 
-  private Collection<Node<RevValue>> collectionCast(Collection<RNode> coll) {
-    Collection<Node<RevValue>> answer = new ArrayList<Node<RevValue>>();
+  private Collection<Node<Revision>> collectionCast(Collection<RNode> coll) {
+    Collection<Node<Revision>> answer = new ArrayList<Node<Revision>>();
     for (RNode node : coll) {
       answer.add(node);
     }
     return answer;
   }
 
-  private Collection<Node<RevValue>> collectionResolve(Collection<RevIndex> coll)
+  private Collection<Node<Revision>> collectionResolve(Collection<RevIndex> coll)
       throws MissingNodeException {
-    Collection<Node<RevValue>> answer = new ArrayList<Node<RevValue>>();
+    Collection<Node<Revision>> answer = new ArrayList<Node<Revision>>();
     for (RevIndex index : coll) {
-      Node<RevValue> node = nodes.get(index);
+      Node<Revision> node = nodes.get(index);
       if (node != null) {
         answer.add(node);
       } else
@@ -97,7 +97,7 @@ public class HashDAG implements DAG<RevValue> {
   }
 
   @Override
-  public Collection<Node<RevValue>> getPredecessors(Node<RevValue> node)
+  public Collection<Node<Revision>> getPredecessors(Node<Revision> node)
       throws MissingNodeException {
     if (node instanceof RNode) {
       return collectionResolve(((RNode) node).getPredecessors());
@@ -106,7 +106,7 @@ public class HashDAG implements DAG<RevValue> {
   }
 
   @Override
-  public Collection<Node<RevValue>> getSuccessors(Node<RevValue> node) {
+  public Collection<Node<Revision>> getSuccessors(Node<Revision> node) {
     if (node instanceof RNode) {
       return collectionCast(((RNode) node).getSuccessors());
     } else
@@ -114,13 +114,13 @@ public class HashDAG implements DAG<RevValue> {
   }
 
   @Override
-  public Node<RevValue> getCommonPredecessor(Node<RevValue> firstNode, Node<RevValue> secondNode) {
+  public Node<Revision> getCommonPredecessor(Node<Revision> firstNode, Node<Revision> secondNode) {
     throw new UnsupportedOperationException("Not yet implemented");
     // TODO(drt24) implement
   }
 
-  private Node<RevValue> addNode(RevValue value) {
-    byte[] revBytes = value.getRevision().getBytes();
+  private Node<Revision> addNode(Revision value) {
+    byte[] revBytes = value.getBytes();
     if (revBytes.length < HASH_SIZE) {
       throw new IllegalArgumentException(String.format(
           "Revision too small, must be at least %d bytes long", HASH_SIZE));
@@ -169,14 +169,14 @@ public class HashDAG implements DAG<RevValue> {
     }
   }
 
-  private static class RNode implements Node<RevValue> {
+  private static class RNode implements Node<Revision> {
 
-    private final RevValue value;
+    private final Revision value;
     private final RevIndex index;
     private Collection<RevIndex> predecessors;
     private Set<RNode> successors;
 
-    public RNode(RevValue rv, RevIndex index, Collection<RevIndex> predecessors) {
+    public RNode(Revision rv, RevIndex index, Collection<RevIndex> predecessors) {
       this.value = rv;
       this.index = index;
       this.predecessors = predecessors;
@@ -184,7 +184,7 @@ public class HashDAG implements DAG<RevValue> {
     }
 
     @Override
-    public RevValue getValue() {
+    public Revision getValue() {
       return value;
     }
 
