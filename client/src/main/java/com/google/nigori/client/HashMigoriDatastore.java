@@ -67,22 +67,22 @@ public class HashMigoriDatastore implements MigoriDatastore {
   @Override
   public RevValue getHead(Index index, MigoriMerger merger) throws NigoriCryptographyException,
       IOException {
-    Collection<RevValue> heads = get(index);
+    List<RevValue> heads = get(index);
     if (heads.size() == 1) {
       for (RevValue head : heads) {
         return head;
       }
       throw new IllegalStateException("Can never happen as must be one head to return");
     } else {
-      return merger.merge(index, heads);
+      return put(index,merger.merge(index, heads),heads.toArray(new RevValue[0]));
     }
   }
 
   @Override
-  public Collection<RevValue> get(Index index) throws NigoriCryptographyException, IOException {
+  public List<RevValue> get(Index index) throws NigoriCryptographyException, IOException {
     DAG<Revision> history = getHistory(index);
     Collection<Node<Revision>> heads = history.getHeads();
-    Collection<RevValue> answer = new ArrayList<RevValue>();
+    List<RevValue> answer = new ArrayList<RevValue>();
     for (Node<Revision> rev : heads) {
       Revision revision = rev.getValue();
       byte[] value = store.getRevision(index, revision);

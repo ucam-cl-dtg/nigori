@@ -115,8 +115,8 @@ public interface MigoriDatastore extends Datastore {
      * 
      * @param index the index we are merging for
      * @param heads the current heads of the branches of history
-     * @return
+     * @return the value to use as the merged head, will be put with the correct revision
      */
-    RevValue merge(Index index, Collection<RevValue> heads);
+    byte[] merge(Index index, Collection<RevValue> heads);
   }
 }
