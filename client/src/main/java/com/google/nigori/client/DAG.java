@@ -43,8 +43,9 @@ public interface DAG<T> {
    * 
    * @param node the node to get the predecessors of
    * @return a collection of those predecessors - empty if there are none
+   * @throws MissingNodeException 
    */
-  Collection<Node<T>> getPredecessors(Node<T> node);
+  Collection<Node<T>> getPredecessors(Node<T> node) throws MissingNodeException;
 
   /**
    * Get the successors of a node

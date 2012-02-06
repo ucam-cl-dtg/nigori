@@ -1,0 +1,258 @@
+/*
+ * Copyright (C) 2012 Daniel Thomas (drt24)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+package com.google.nigori.client;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import com.google.nigori.common.NigoriConstants;
+import com.google.nigori.common.RevValue;
+
+/**
+ * @author drt24
+ * 
+ */
+public class HashDAG implements DAG<RevValue> {
+
+  public static final int HASH_SIZE = NigoriConstants.B_SHA1;
+
+  private Set<Node<RevValue>> heads;
+  private Set<Node<RevValue>> starts;
+  private Map<RevIndex, RNode> nodes;
+  private Map<RevIndex, Collection<RNode>> allSuccessors;
+
+  @Override
+  public Collection<Node<RevValue>> getHeads() {
+    return Collections.unmodifiableCollection(heads);
+  }
+
+  @Override
+  public Collection<Node<RevValue>> getStarts() {
+    return Collections.unmodifiableCollection(starts);
+  }
+
+  public HashDAG(Collection<RevValue> values) {
+    heads = new HashSet<Node<RevValue>>();
+    starts = new HashSet<Node<RevValue>>();
+    nodes = new HashMap<RevIndex, RNode>();
+    allSuccessors = new HashMap<RevIndex, Collection<RNode>>();
+    for (RevValue value : values) {
+      addNode(value);
+    }
+    for (Node<RevValue> node : starts) {
+      walkGraph((RNode) node);
+    }
+    allSuccessors = null;// Allow garbage collection
+  }
+
+  /**
+   * Walks depth first only adding successors once so as to only visit each branch once
+   */
+  private void walkGraph(RNode node) {
+    Collection<RNode> successors = allSuccessors.get(node.index);
+    for (RNode successor : successors) {
+      if (node.addSuccessor(successor)) {
+        walkGraph(successor);
+      }
+    }
+  }
+
+  private Collection<Node<RevValue>> collectionCast(Collection<RNode> coll) {
+    Collection<Node<RevValue>> answer = new ArrayList<Node<RevValue>>();
+    for (RNode node : coll) {
+      answer.add(node);
+    }
+    return answer;
+  }
+
+  private Collection<Node<RevValue>> collectionResolve(Collection<RevIndex> coll)
+      throws MissingNodeException {
+    Collection<Node<RevValue>> answer = new ArrayList<Node<RevValue>>();
+    for (RevIndex index : coll) {
+      Node<RevValue> node = nodes.get(index);
+      if (node != null) {
+        answer.add(node);
+      } else
+        throw new MissingNodeException();
+
+    }
+    return answer;
+  }
+
+  @Override
+  public Collection<Node<RevValue>> getPredecessors(Node<RevValue> node)
+      throws MissingNodeException {
+    if (node instanceof RNode) {
+      return collectionResolve(((RNode) node).getPredecessors());
+    } else
+      throw new IllegalStateException("Mixed types");
+  }
+
+  @Override
+  public Collection<Node<RevValue>> getSuccessors(Node<RevValue> node) {
+    if (node instanceof RNode) {
+      return collectionCast(((RNode) node).getSuccessors());
+    } else
+      throw new IllegalStateException("Mixed types");
+  }
+
+  @Override
+  public Node<RevValue> getCommonPredecessor(Node<RevValue> firstNode, Node<RevValue> secondNode) {
+    throw new UnsupportedOperationException("Not yet implemented");
+    // TODO(drt24) implement
+  }
+
+  private Node<RevValue> addNode(RevValue value) {
+    byte[] revBytes = value.getRevision().getBytes();
+    if (revBytes.length < HASH_SIZE) {
+      throw new IllegalArgumentException(String.format(
+          "Revision too small, must be at least %d bytes long", HASH_SIZE));
+    }
+    if (revBytes.length % HASH_SIZE != 0) {
+      throw new IllegalArgumentException(String.format(
+          "Revision length must be a multiple of %d bytes long", HASH_SIZE));
+    }
+
+    byte[] revIdx = Arrays.copyOf(revBytes, HASH_SIZE);
+    RevIndex index = new RevIndex(revIdx);
+    Collection<RevIndex> predecessors = predecessors(revBytes);
+    RNode node = new RNode(value, index, predecessors);
+    nodes.put(index, node);
+    if (revBytes.length == HASH_SIZE) {
+      starts.add(node);
+    }
+    // Record ourself as a successor of all our predecessors
+    for (RevIndex pIndex : predecessors) {
+      Collection<RNode> psuccessors = allSuccessors.get(pIndex);
+      if (psuccessors == null) {
+        psuccessors = new ArrayList<RNode>();
+        allSuccessors.put(pIndex, psuccessors);
+      }
+      psuccessors.add(node);
+    }
+    return node;
+  }
+
+  /**
+   * @param revBytes
+   * @return
+   */
+  private Collection<RevIndex> predecessors(byte[] revBytes) {
+    int numHashes = revBytes.length / HASH_SIZE;
+    if (numHashes > 1) {
+      Collection<RevIndex> answer = new ArrayList<RevIndex>();
+      for (int i = 1; i < numHashes; ++i) {
+        RevIndex idx =
+            new RevIndex(Arrays.copyOfRange(revBytes, i * HASH_SIZE, HASH_SIZE * (i + 1)));
+        answer.add(idx);
+      }
+      return answer;
+    } else {
+      return Collections.emptyList();
+    }
+  }
+
+  private static class RNode implements Node<RevValue> {
+
+    private final RevValue value;
+    private final RevIndex index;
+    private Collection<RevIndex> predecessors;
+    private Set<RNode> successors;
+
+    public RNode(RevValue rv, RevIndex index, Collection<RevIndex> predecessors) {
+      this.value = rv;
+      this.index = index;
+      this.predecessors = predecessors;
+      this.successors = new HashSet<RNode>();
+    }
+
+    @Override
+    public RevValue getValue() {
+      return value;
+    }
+
+    public boolean addSuccessor(RNode successor) {
+      return successors.add(successor);
+    }
+
+    protected Collection<RevIndex> getPredecessors() {
+      return predecessors;
+    }
+
+    protected Collection<RNode> getSuccessors() {
+      return successors;
+    }
+
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ((index == null) ? 0 : index.hashCode());
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      RNode other = (RNode) obj;
+      if (index == null) {
+        if (other.index != null)
+          return false;
+      } else if (!index.equals(other.index))
+        return false;
+      return true;
+    }
+  }
+
+  private static class RevIndex {
+    private final byte[] hash;
+
+    public RevIndex(byte[] hash) {
+      this.hash = hash;
+    }
+
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + Arrays.hashCode(hash);
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      RevIndex other = (RevIndex) obj;
+      if (!Arrays.equals(hash, other.hash))
+        return false;
+      return true;
+    }
+  }
+}
