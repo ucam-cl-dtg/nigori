@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.google.nigori.client.accept;
+package com.google.nigori.client.accept.n;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -26,6 +26,7 @@ import com.google.nigori.client.HTTPNigoriDatastore;
 import com.google.nigori.client.NigoriCryptographyException;
 import com.google.nigori.client.NigoriDatastore;
 import com.google.nigori.client.SyncingNigoriDatastore;
+import com.google.nigori.client.accept.AcceptanceTests;
 
 /**
  * @author drt24

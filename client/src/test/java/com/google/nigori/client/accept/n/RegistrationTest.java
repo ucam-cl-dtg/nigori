@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.google.nigori.client.accept;
+package com.google.nigori.client.accept.n;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -20,8 +20,9 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+import com.google.nigori.client.Datastore;
 import com.google.nigori.client.NigoriCryptographyException;
-import com.google.nigori.client.NigoriDatastore;
+import com.google.nigori.client.accept.AcceptanceTests;
 
 /**
  * @author drt24
@@ -38,7 +39,7 @@ public class RegistrationTest extends AcceptanceTest {
 
   @Test
   public void test() throws NigoriCryptographyException, IOException {
-    NigoriDatastore nigori = getStore();
+    Datastore nigori = getStore();
     for (int i = 0; i < AcceptanceTests.REPEAT; ++i) {// check we can do this more than once
       assertTrue("Not registered", nigori.register());
       assertTrue("Can't authenticate",nigori.authenticate());

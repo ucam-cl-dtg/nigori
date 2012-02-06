@@ -24,6 +24,10 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import com.google.nigori.client.accept.n.ConcurrencyTest;
+import com.google.nigori.client.accept.n.RegistrationTest;
+import com.google.nigori.client.accept.n.SetGetDeleteTest;
+
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses ({
@@ -35,9 +39,9 @@ import org.junit.runners.Suite;
   })
 public class AcceptanceTests {
 
-  protected static final int PORT = 8888;
-  protected static final String HOST = "localhost";
-  protected static final String PATH = "nigori";
+  public static final int PORT = 8888;
+  public static final String HOST = "localhost";
+  public static final String PATH = "nigori";
   private static long startTime;
   private static final int EXTERNAL_TIMEOUT = 30000;
   public static final int REPEAT = 3;
