@@ -17,6 +17,7 @@
 package com.google.nigori.client;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.List;
 
 import com.google.nigori.common.Index;
@@ -32,14 +33,15 @@ import com.google.nigori.common.Revision;
 public class CommandLineExample {
 
   private static void usage() {
-    System.out.println("Usage: java nigori.jar server port <action and args>");
-    System.out.println(" Where <action and args> is one of the following:");
-    System.out.println("  register username password");
-    System.out.println("  unregister username password");
-    System.out.println("  authenticate username password");
-    System.out.println("  put username password index revision value");
-    System.out.println("  get username password index");
-    System.out.println("  delete username password key");
+    PrintStream out = System.err;
+    out.println("Usage: java nigori.jar server port <action and args>");
+    out.println(" Where <action and args> is one of the following:");
+    out.println("  register username password");
+    out.println("  unregister username password");
+    out.println("  authenticate username password");
+    out.println("  put username password index revision value");
+    out.println("  get username password index");
+    out.println("  delete username password key");
   }	
 	
 	public static void main(String[] args) throws Exception {
@@ -70,7 +72,7 @@ public class CommandLineExample {
 		}
 		else if (action.equals("put")) {
 			if (args.length != 8) {
-				System.out.println("*** Error: exactly seven elements needed for a put action");
+				System.err.println("*** Error: exactly seven elements needed for a put action");
 				usage();
 				return;
 			}
@@ -80,7 +82,7 @@ public class CommandLineExample {
 		}
 		else if (action.equals("get")) {
 			if (args.length != 6) {
-				System.out.println("*** Error: exactly six elements needed for a get action");
+				System.err.println("*** Error: exactly six elements needed for a get action");
 				usage();
 				return;
 			}
@@ -95,7 +97,7 @@ public class CommandLineExample {
 		}
 		else if (action.equals("delete")) {
 			if (args.length != 6) {
-				System.out.println("*** Error: exactly six elements needed for a delete action");
+				System.err.println("*** Error: exactly six elements needed for a delete action");
 				usage();
 				return;
 			}
@@ -103,7 +105,7 @@ public class CommandLineExample {
 			System.out.println("Success: " + success);
 		}
 		else {
-			System.out.println("*** Error: Unknown action "+action);
+			System.err.println("*** Error: Unknown action "+action);
 			usage();
 		}
 	}
