@@ -16,12 +16,10 @@
 package com.google.nigori.client;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
 
 import com.google.nigori.common.Index;
-import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.RevValue;
-import com.google.nigori.common.Revision;
 
 /**
  * Create two threads which communicate by placing encrypted data in the Nigori datastore.
@@ -51,10 +49,12 @@ public class TwoUserDemo {
 		public void run() {
 			byte count = 0;
 			try {
-				NigoriDatastore sharedStore = new HTTPNigoriDatastore(HOST, PORT, "nigori", username,
-						password);
+				MigoriDatastore sharedStore = new HashMigoriDatastore(new HTTPNigoriDatastore(HOST, PORT, "nigori", username,
+						password));
+				RevValue rv = sharedStore.put(sharedIndex, new byte[]{count++});
+				sleep(DELAY * 2);
 				for(int i = 0; i < ITERATIONS; ++i) {
-					sharedStore.put(sharedIndex, Revision.EMPTY, new byte[]{count++});
+				  rv = sharedStore.put(sharedIndex, new byte[]{count++}, rv);
 					sleep(DELAY * 2);
 				}
 			} catch (IOException ioe) {
@@ -70,28 +70,30 @@ public class TwoUserDemo {
 
 	public static void main(String[] args) throws NigoriCryptographyException, IOException {
 
-		//This auto-generates a unique username and password used in the store.
-		//The username and password is the data which should be shared between two devices.
-		final HTTPNigoriDatastore sharedStore = new HTTPNigoriDatastore(HOST, PORT, "nigori");
-		final String username = sharedStore.getUsername();
-		final String password = sharedStore.getPassword();
-		System.out.println("Shared store: Username='" + username + "' Password='" + password + "'");
+    MigoriDatastore store;
+    Thread secondUser;
+    // This is the index in the store which is used to hold the shared data
+    final Index sharedIndex = new Index(new byte[] {1});
+    {
+      // This auto-generates a unique username and password used in the store.
+      // The username and password is the data which should be shared between two devices.
+      final HTTPNigoriDatastore sharedStore = new HTTPNigoriDatastore(HOST, PORT, "nigori");
+      final String username = sharedStore.getUsername();
+      final String password = sharedStore.getPassword();
+      System.out.println("Shared store: Username='" + username + "' Password='" + password + "'");
+      store = new HashMigoriDatastore(sharedStore);
 
-		if(!sharedStore.register()) {
-			System.out.println("Failed to register shared store");
-			return;
-		}		
+      if (!store.register()) {
+        System.out.println("Failed to register shared store");
+        return;
+      }
+      secondUser = new SeparateUserAccessesSharedStore(username, password, sharedIndex);
+      secondUser.start();
+    }
 
-		//This is the index in the store which is used to hold the shared data
-		final Index sharedIndex = new Index(new byte[]{1});
-
-		SeparateUserAccessesSharedStore secondUser = new SeparateUserAccessesSharedStore(username, 
-				password, sharedIndex);		
-		secondUser.start();
-		
 		//First user, possibly on a different device
 		for(int i = 0; i < ITERATIONS; ++i) {
-		  List<RevValue> results = sharedStore.get(sharedIndex);
+		  Collection<RevValue> results = store.get(sharedIndex);
       if (results == null || results.isEmpty()) {
         System.out.println("No valid data held");
       } else {
@@ -101,7 +103,7 @@ public class TwoUserDemo {
             System.out.println("No valid data held for " + rv.getRevision());
           } else {
             System.out.println("Count has the value " + result[0] + " for revision "
-                + new String(rv.getRevision().getBytes(), MessageLibrary.CHARSET));
+                + rv.getRevision());
           }
         }
       }
@@ -116,8 +118,9 @@ public class TwoUserDemo {
     } catch (InterruptedException e) {
     }
     // Clean up
-    sharedStore.delete(sharedIndex, new byte[]{});
-    sharedStore.unregister();
+    RevValue head = store.getHead(sharedIndex, new ArbitraryMerger());
+    store.deleteIndex(sharedIndex, head.getRevision());
+    store.unregister();
 
   }
 }
