@@ -29,6 +29,7 @@ public class JEDatabaseTest extends AbstractDatabaseTest {
   protected Database getDatabase() {
     File dataDir = new File("je-test-dir/");
     dataDir.mkdir();
+    dataDir.deleteOnExit();
     return new JEDatabase(dataDir);
   }
 
@@ -37,6 +38,7 @@ public class JEDatabaseTest extends AbstractDatabaseTest {
     File dataDir = new File("je-test-dir/");
     if (dataDir.exists()){
       deleteDir(dataDir);
+      dataDir.delete();
     }
   }
 

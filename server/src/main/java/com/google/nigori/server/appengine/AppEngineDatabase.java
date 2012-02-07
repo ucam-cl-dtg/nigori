@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.nigori.server;
+package com.google.nigori.server.appengine;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -39,6 +39,10 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.ShortBlob;
 import com.google.nigori.common.Nonce;
 import com.google.nigori.common.RevValue;
+import com.google.nigori.server.Database;
+import com.google.nigori.server.User;
+import com.google.nigori.server.UserFactory;
+import com.google.nigori.server.UserNotFoundException;
 
 public final class AppEngineDatabase implements Database {
 

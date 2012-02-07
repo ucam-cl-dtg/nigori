@@ -27,7 +27,7 @@ import com.google.nigori.common.RevValue;
  * @author Alastair Beresford
  *
  */
-interface Database {
+public interface Database {
 	
   UserFactory getUserFactory();
   

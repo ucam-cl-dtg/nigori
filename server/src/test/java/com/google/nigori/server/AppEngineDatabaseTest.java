@@ -21,6 +21,7 @@ import org.junit.BeforeClass;
 
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
+import com.google.nigori.server.appengine.AppEngineDatabase;
 
 /**
  * @author drt24

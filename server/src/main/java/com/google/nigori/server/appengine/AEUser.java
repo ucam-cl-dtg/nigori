@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.google.nigori.server;
+package com.google.nigori.server.appengine;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -28,6 +28,8 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.ShortBlob;
 import com.google.nigori.common.NigoriConstants;
+import com.google.nigori.server.User;
+import com.google.nigori.server.UserFactory;
 import com.google.protobuf.ByteString;
 
 /**

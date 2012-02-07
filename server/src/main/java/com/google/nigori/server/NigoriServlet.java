@@ -45,6 +45,7 @@ import com.google.nigori.common.Nonce;
 import com.google.nigori.common.RevValue;
 import com.google.nigori.common.SchnorrSignature;
 import com.google.nigori.common.SchnorrVerify;
+import com.google.nigori.server.appengine.AppEngineDatabase;
 
 @SuppressWarnings("serial")
 public class NigoriServlet extends HttpServlet {

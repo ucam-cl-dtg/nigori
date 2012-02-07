@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.nigori.server;
+package com.google.nigori.server.appengine;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
@@ -48,7 +48,7 @@ class AppEngineRecord {
 	@Persistent
 	private Blob value;
 
-	@Persistent(serialized = "true",types={com.google.nigori.server.IntRevision.class, com.google.nigori.server.BytesRevision.class})
+	@Persistent(serialized = "true",types={com.google.nigori.server.appengine.IntRevision.class, com.google.nigori.server.appengine.BytesRevision.class})
   private Revision revision;
 	
 	static Key makeKey(Key lookup, Revision revision) {

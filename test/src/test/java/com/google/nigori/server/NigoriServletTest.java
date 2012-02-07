@@ -55,6 +55,7 @@ import com.google.nigori.common.NigoriMessages.GetResponse;
 import com.google.nigori.common.NigoriMessages.RevisionValue;
 import com.google.nigori.common.Nonce;
 import com.google.nigori.common.RevValue;
+import com.google.nigori.server.appengine.AEUser;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 
 public class NigoriServletTest {
@@ -82,7 +83,7 @@ public class NigoriServletTest {
 				"username".getBytes(MessageLibrary.CHARSET),
 				"password".getBytes(MessageLibrary.CHARSET));
 		//TODO need to correctly create user
-		user = new AEUser(keyManager.signer().getPublicKey(), new Date());
+		user = AEUser.Factory.getInstance().getUser(keyManager.signer().getPublicKey(), new Date());
 	}
 
 	@After
