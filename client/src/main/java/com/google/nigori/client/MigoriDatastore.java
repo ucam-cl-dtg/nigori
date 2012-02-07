@@ -45,7 +45,7 @@ public interface MigoriDatastore extends Datastore {
    * 
    * @param index the index
    * @param merger the code to automatically merge the heads of any branches of history together
-   * @return the single head revision for all current history
+   * @return the single head revision for all current history or null if there are no values for this index
    * @throws IOException 
    * @throws NigoriCryptographyException 
    */
@@ -57,7 +57,7 @@ public interface MigoriDatastore extends Datastore {
    * @see #getHead(Index, MigoriMerger) better to use this where you can as it ensures the number of
    *      branches of history does not grow.
    * @param index the index
-   * @return a collection of the heads of the current branches of history
+   * @return a collection of the heads of the current branches of history or null if this index has no values
    * 
    *         You MUST NOT assume that this collection with have a size of one.
    * @throws IOException 
@@ -95,7 +95,7 @@ public interface MigoriDatastore extends Datastore {
    * Get the whole history for an index as a DAG
    * 
    * @param index
-   * @return a DAG representing the history for index
+   * @return a DAG representing the history for index or null if there is none
    * @throws IOException 
    * @throws NigoriCryptographyException 
    */
