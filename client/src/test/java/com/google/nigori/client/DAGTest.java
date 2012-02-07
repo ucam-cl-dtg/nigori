@@ -16,6 +16,8 @@ package com.google.nigori.client;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.everyItem;
+import static org.junit.matchers.JUnitMatchers.hasItem;
+import static org.junit.matchers.JUnitMatchers.hasItems;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +41,41 @@ import com.google.nigori.common.Revision;
  */
 @RunWith(Parameterized.class)
 public class DAGTest {
+
+  private static final int HASH = NigoriConstants.B_SHA1;
+  private static final Revision roota = new Revision(new byte[HASH]);
+  private static final Revision rootb;
+  private static final Revision child1;
+  private static final Revision child2;
+  private static final Revision merge;
+  static {
+    // Child1
+    byte[] childBytes = new byte[HASH * 2];
+    byte[] cb = "child1".getBytes();
+    System.arraycopy(cb, 0, childBytes, 0, cb.length);
+    System.arraycopy(roota.getBytes(), 0, childBytes, HASH, HASH);
+    child1 = new Revision(childBytes);
+
+    // Child2
+    byte[] child2Bytes = new byte[HASH * 2];
+    byte[] cb2 = "child2".getBytes();
+    System.arraycopy(cb2, 0, child2Bytes, 0, cb2.length);
+    System.arraycopy(roota.getBytes(), 0, child2Bytes, HASH, HASH);
+    child2 = new Revision(child2Bytes);
+
+    // merge
+    byte[] mergeBytes = new byte[HASH * 3];
+    byte[] mb = "merge".getBytes();
+    System.arraycopy(mb, 0, mergeBytes, 0, mb.length);
+    System.arraycopy(child1.getBytes(), 0, mergeBytes, HASH, HASH);
+    System.arraycopy(child2.getBytes(), 0, mergeBytes, HASH * 2, HASH);
+    merge = new Revision(mergeBytes);
+
+    byte[] rootBytes = new byte[HASH];
+    byte[] rb = "rootb".getBytes();
+    System.arraycopy(rb, 0, rootBytes, 0, rb.length);
+    rootb = new Revision(rootBytes);
+  }
 
   @Parameters
   public static Collection<DAGFactory[]> dags() {
@@ -64,17 +101,84 @@ public class DAGTest {
   @Test
   public void singleton() {
     List<Revision> values = new ArrayList<Revision>(1);
-    Revision single = new Revision(new byte[NigoriConstants.B_SHA1]);
-    values.add(single);
+    values.add(roota);
     DAG<Revision> dag = factory.getDag(values);
     Collection<Node<Revision>> starts = dag.getStarts();
     assertEquals(1, starts.size());
-    assertThat(starts, everyItem(nodeContains(single)));
+    assertThat(starts, everyItem(nodeContains(roota)));
 
     Collection<Node<Revision>> heads = dag.getHeads();
     assertEquals(1, heads.size());
-    assertThat(heads, everyItem(nodeContains(single)));
+    assertThat(heads, everyItem(nodeContains(roota)));
+  }
 
+  @Test
+  public void two() {
+    List<Revision> values = new ArrayList<Revision>(2);
+    values.add(roota);
+    values.add(child1);
+    DAG<Revision> dag = factory.getDag(values);
+    Collection<Node<Revision>> starts = dag.getStarts();
+    assertEquals(1, starts.size());
+    assertThat(starts, everyItem(nodeContains(roota)));
+
+    Collection<Node<Revision>> heads = dag.getHeads();
+    assertEquals(1, heads.size());
+    assertThat(heads, everyItem(nodeContains(child1)));
+  }
+
+  @Test
+  public void diverge() {
+    List<Revision> values = new ArrayList<Revision>(2);
+    values.add(roota);
+    values.add(child1);
+    values.add(child2);
+    DAG<Revision> dag = factory.getDag(values);
+    Collection<Node<Revision>> starts = dag.getStarts();
+    assertEquals(1, starts.size());
+    assertThat(starts, everyItem(nodeContains(roota)));
+
+    Collection<Node<Revision>> heads = dag.getHeads();
+    assertEquals(2, heads.size());
+    assertThat(heads, hasItem(nodeContains(child1)));
+    assertThat(heads, hasItem(nodeContains(child2)));
+  }
+
+  @Test
+  public void merge() {
+    List<Revision> values = new ArrayList<Revision>(2);
+    values.add(roota);
+    values.add(child1);
+    values.add(child2);
+    values.add(merge);
+    DAG<Revision> dag = factory.getDag(values);
+    Collection<Node<Revision>> starts = dag.getStarts();
+    assertEquals(1, starts.size());
+    assertThat(starts, everyItem(nodeContains(roota)));
+
+    Collection<Node<Revision>> heads = dag.getHeads();
+    assertEquals(1, heads.size());
+    assertThat(heads, everyItem(nodeContains(merge)));
+  }
+
+  @SuppressWarnings("unchecked")
+  // generic varargs
+  @Test
+  public void mergemultiroot() {
+    List<Revision> values = new ArrayList<Revision>(2);
+    values.add(roota);
+    values.add(child1);
+    values.add(child2);
+    values.add(merge);
+    values.add(rootb);
+    DAG<Revision> dag = factory.getDag(values);
+    Collection<Node<Revision>> starts = dag.getStarts();
+    assertEquals(2, starts.size());
+    assertThat(starts, hasItems(nodeContains(roota), nodeContains(rootb)));
+
+    Collection<Node<Revision>> heads = dag.getHeads();
+    assertEquals(2, heads.size());
+    assertThat(heads, hasItems(nodeContains(merge), nodeContains(rootb)));
   }
 
   private org.hamcrest.Matcher<Node<Revision>> nodeContains(final Revision revision) {
@@ -92,7 +196,7 @@ public class DAGTest {
 
       @Override
       public void describeTo(Description description) {
-        description.appendText("expected " + revision);
+        description.appendText("" + revision);
       }
     };
 
