@@ -115,7 +115,15 @@ public class HashMigoriDatastore implements MigoriDatastore {
 
       crypt.reset();
       crypt.update(toHash);
-      Revision rev = new Revision(crypt.digest());
+      byte[] hashBytes = crypt.digest();
+      byte[] revBytes = new byte[HashDAG.HASH_SIZE * (parents.length + 1)];
+      System.arraycopy(hashBytes, 0, revBytes, 0, HashDAG.HASH_SIZE);
+      int insert = HashDAG.HASH_SIZE;
+      for (RevValue rev : parents) {
+        System.arraycopy(rev.getRevision().getBytes(), 0, revBytes, insert, HashDAG.HASH_SIZE);
+        insert += HashDAG.HASH_SIZE;
+      }
+      Revision rev = new Revision(revBytes);
       RevValue rv = new RevValue(rev, value);
       boolean success = store.put(index, rev, value);
       if (!success) {
