@@ -2,6 +2,8 @@ package com.google.nigori.common;
 
 public final class Util {
 
+  public static final int INT = 4;
+  public static final int LONG = 8;
   /**
    * Don't allow instantiation
    */
