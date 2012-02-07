@@ -43,12 +43,7 @@ public class Index {
     token = null;
     isdeleted = false;
   }
-  
-  /**
-   * This methods exists as a convenience for when writing tests, use is not encouraged in general.
-   * 
-   * @param index
-   */
+
   public Index(String index) {
     byte[] temp;
 
@@ -98,4 +93,12 @@ public class Index {
     return true;
   }
 
+  @Override
+  public String toString() {
+    try {
+      return new String(index, MessageLibrary.CHARSET);
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }
