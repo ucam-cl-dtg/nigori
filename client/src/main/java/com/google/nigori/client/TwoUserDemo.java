@@ -92,18 +92,26 @@ public class TwoUserDemo {
     }
 
 		//First user, possibly on a different device
+    byte lastCount = 0;
 		for(int i = 0; i < ITERATIONS; ++i) {
 		  Collection<RevValue> results = store.get(sharedIndex);
       if (results == null || results.isEmpty()) {
         System.out.println("No valid data held");
       } else {
+        //System.out.println(String.format("%d head revisions",results.size()));
         for (RevValue rv : results) {
           byte[] result = rv.getValue();
           if (result == null) {
             System.out.println("No valid data held for " + rv.getRevision());
           } else {
-            System.out.println("Count has the value " + result[0] + " for revision "
+            byte currentCount = result[0];
+            
+            System.out.println("Count has the value " + currentCount + " for revision "
                 + rv.getRevision());
+            if (currentCount < lastCount){
+              System.err.println(String.format("Count not increasing, last was (%d) current is (%d)",lastCount,currentCount));
+            }
+            lastCount = currentCount;
           }
         }
       }
