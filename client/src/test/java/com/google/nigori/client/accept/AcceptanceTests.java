@@ -66,7 +66,7 @@ public class AcceptanceTests {
 
         File current = new File("").getAbsoluteFile();
         File parent = current.getParentFile();
-        pb.directory(new File(parent, "server"));
+        pb.directory(new File(parent, "server/appengine"));
         pb.redirectErrorStream(true); // use this to capture messages sent to stderr
         Process shell = pb.start();
         try {

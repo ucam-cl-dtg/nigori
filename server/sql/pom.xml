@@ -2,22 +2,16 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <groupId>com.google.nigori</groupId>
-    <artifactId>nigori</artifactId>
+    <artifactId>server</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>server</artifactId>
-  <packaging>pom</packaging>
-  <modules>
-    <module>core</module>
-    <module>appengine</module>
-    <module>je</module>
-    <module>sql</module>
-  </modules>
+  <artifactId>sql</artifactId>
+  <packaging>jar</packaging>
   <dependencies>
     <dependency>
       <groupId>com.google.nigori</groupId>
-      <artifactId>common</artifactId>
+      <artifactId>core</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>
