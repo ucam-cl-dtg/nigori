@@ -35,15 +35,18 @@ JsonDeserializer<ByteString> {
       JsonSerializationContext context) {
     return context.serialize(new String(Base64.encodeBase64(src.toByteArray())));
   }
-  
+
+  @SuppressWarnings("deprecation")// see comment below
   @Override
-  public ByteString deserialize(JsonElement json, Type typeOfT,
-      JsonDeserializationContext context) throws JsonParseException {
-  		byte[] jsonBytes = json.getAsString().getBytes();
-  		if (Base64.isBase64(jsonBytes)) {
-  			return ByteString.copyFrom(Base64.decodeBase64(json.getAsString()));
-  		} else {
-  			throw new JsonParseException("JSON element is not correctly base64 encoded.");
-  		}
+  public ByteString deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+      throws JsonParseException {
+    byte[] jsonBytes = json.getAsString().getBytes();
+    // (drt24) Since android ships with an ancient version of org.apache.commons.codec which
+    // overrides any version we ship we have to use old deprecated methods.
+    if (Base64.isArrayByteBase64(jsonBytes)) {
+      return ByteString.copyFrom(Base64.decodeBase64(jsonBytes));
+    } else {
+      throw new JsonParseException("JSON element is not correctly base64 encoded.");
+    }
   }
 }
