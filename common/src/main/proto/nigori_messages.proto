@@ -26,6 +26,15 @@ message AuthenticateRequest {
   required bytes nonce = 4;
 }
 
+message RegisterRequest {
+  required bytes public_key = 1;
+  required bytes token = 2;
+}
+
+message UnregisterRequest {
+  required AuthenticateRequest auth = 1;
+}
+
 message RevisionValue {
   required bytes revision = 1;
   required bytes value = 2;
@@ -70,13 +79,4 @@ message DeleteRequest {
   required AuthenticateRequest auth = 1;
   required bytes key = 2;
   optional bytes revision = 3;
-}
-
-message RegisterRequest {
-  required bytes public_key = 1;
-  required bytes token = 2;
-}
-
-message UnregisterRequest {
-  required AuthenticateRequest auth = 1;
 }

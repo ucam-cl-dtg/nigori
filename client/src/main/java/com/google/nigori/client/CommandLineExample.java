@@ -57,7 +57,7 @@ public class CommandLineExample {
 		final String username = args[3];
 		final String password = args[4];
 
-		MigoriDatastore nigori = new HashMigoriDatastore(new HTTPNigoriDatastore(server, port, "nigori", username, password));
+		MigoriDatastore nigori = new HashMigoriDatastore(new CryptoNigoriDatastore(server, port, "nigori", username, password));
 		
 		if (action.equals("register")) {
 			boolean success = nigori.register();

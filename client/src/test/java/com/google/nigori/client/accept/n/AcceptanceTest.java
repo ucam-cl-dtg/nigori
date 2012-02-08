@@ -22,7 +22,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.google.nigori.client.HTTPNigoriDatastore;
+import com.google.nigori.client.CryptoNigoriDatastore;
 import com.google.nigori.client.NigoriCryptographyException;
 import com.google.nigori.client.NigoriDatastore;
 import com.google.nigori.client.SyncingNigoriDatastore;
@@ -58,14 +58,14 @@ public class AcceptanceTest {
   private static class HTTPDatastoreFactory implements DatastoreFactory {
     public NigoriDatastore makeDatastore() throws UnsupportedEncodingException,
         NigoriCryptographyException {
-      return new HTTPNigoriDatastore(AcceptanceTests.HOST, AcceptanceTests.PORT, AcceptanceTests.PATH);
+      return new CryptoNigoriDatastore(AcceptanceTests.HOST, AcceptanceTests.PORT, AcceptanceTests.PATH);
     }
   }
   private static class SyncingDatastoreFactory implements DatastoreFactory {
     public NigoriDatastore makeDatastore() throws NigoriCryptographyException, IOException {
       return new SyncingNigoriDatastore(
-          new HTTPNigoriDatastore(AcceptanceTests.HOST, AcceptanceTests.PORT, AcceptanceTests.PATH),
-          new HTTPNigoriDatastore(AcceptanceTests.HOST, AcceptanceTests.PORT, AcceptanceTests.PATH));
+          new CryptoNigoriDatastore(AcceptanceTests.HOST, AcceptanceTests.PORT, AcceptanceTests.PATH),
+          new CryptoNigoriDatastore(AcceptanceTests.HOST, AcceptanceTests.PORT, AcceptanceTests.PATH));
     }
   }
 }

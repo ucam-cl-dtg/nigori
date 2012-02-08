@@ -17,7 +17,7 @@ package com.google.nigori.client.accept.m;
 
 import java.io.IOException;
 
-import com.google.nigori.client.HTTPNigoriDatastore;
+import com.google.nigori.client.CryptoNigoriDatastore;
 import com.google.nigori.client.HashMigoriDatastore;
 import com.google.nigori.client.MigoriDatastore;
 import com.google.nigori.client.NigoriCryptographyException;
@@ -30,6 +30,6 @@ import com.google.nigori.client.accept.AcceptanceTests;
 public class AcceptanceTest {
 
   protected MigoriDatastore getStore() throws NigoriCryptographyException, IOException {
-    return new HashMigoriDatastore(new HTTPNigoriDatastore(AcceptanceTests.HOST, AcceptanceTests.PORT, AcceptanceTests.PATH));
+    return new HashMigoriDatastore(new CryptoNigoriDatastore(AcceptanceTests.HOST, AcceptanceTests.PORT, AcceptanceTests.PATH));
   }
 }

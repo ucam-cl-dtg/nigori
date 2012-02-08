@@ -49,7 +49,7 @@ public class TwoUserDemo {
 		public void run() {
 			byte count = 0;
 			try {
-				MigoriDatastore sharedStore = new HashMigoriDatastore(new HTTPNigoriDatastore(HOST, PORT, "nigori", username,
+				MigoriDatastore sharedStore = new HashMigoriDatastore(new CryptoNigoriDatastore(HOST, PORT, "nigori", username,
 						password));
 				RevValue rv = sharedStore.put(sharedIndex, new byte[]{count++});
 				sleep(DELAY * 2);
@@ -77,7 +77,7 @@ public class TwoUserDemo {
     {
       // This auto-generates a unique username and password used in the store.
       // The username and password is the data which should be shared between two devices.
-      final HTTPNigoriDatastore sharedStore = new HTTPNigoriDatastore(HOST, PORT, "nigori");
+      final CryptoNigoriDatastore sharedStore = new CryptoNigoriDatastore(HOST, PORT, "nigori");
       final String username = sharedStore.getUsername();
       final String password = sharedStore.getPassword();
       System.out.println("Shared store: Username='" + username + "' Password='" + password + "'");

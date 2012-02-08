@@ -37,6 +37,7 @@ import com.google.nigori.common.NigoriMessages.RegisterRequest;
 import com.google.nigori.common.NigoriMessages.RevisionValue;
 import com.google.nigori.common.NigoriMessages.UnregisterRequest;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.GeneratedMessage;
 
 public class MessageLibrary {
 
@@ -85,6 +86,10 @@ public class MessageLibrary {
 		}
 	}
 	// TODO(drt24) add fromGson method
+
+	public static String toJson(GeneratedMessage src){
+	  return gson.toJson(src);
+	}
 
 	public static GetRequest getRequestAsProtobuf(SchnorrSign signer, byte[] index, byte[] revision) throws 
 	NoSuchAlgorithmException {
