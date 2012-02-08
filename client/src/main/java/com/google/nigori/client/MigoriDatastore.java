@@ -113,10 +113,13 @@ public interface MigoriDatastore extends Datastore {
   public interface MigoriMerger {
     /**
      * 
+     * @param store the store we are merging for
      * @param index the index we are merging for
      * @param heads the current heads of the branches of history
-     * @return the value to use as the merged head, will be put with the correct revision
+     * @return the RevValue which has been put into the store and dominates all the heads.
+     * @throws NigoriCryptographyException 
+     * @throws IOException 
      */
-    byte[] merge(Index index, Collection<RevValue> heads);
+    RevValue merge(MigoriDatastore store, Index index, Collection<RevValue> heads) throws IOException, NigoriCryptographyException;
   }
 }

@@ -13,27 +13,33 @@
  */
 package com.google.nigori.client;
 
+import java.io.IOException;
 import java.util.Collection;
 
+import com.google.nigori.client.MigoriDatastore.MigoriMerger;
 import com.google.nigori.common.Index;
 import com.google.nigori.common.RevValue;
 
 /**
- * Arbitrarily pick a current head and use that
- * 
- * This is very stupid
+ * Handles the putting of the value obtained so that extending classes don't have to.
  * 
  * @author drt24
  * 
  */
-public class ArbitraryMerger extends AbstractMerger {
+public abstract class AbstractMerger implements MigoriMerger {
 
   @Override
-  public byte[] doMerge(Index index, Collection<RevValue> heads) {
-    for (RevValue rv : heads) {
-      return rv.getValue();
-    }
-    throw new IllegalStateException("Must be at least one value to merge");
+  public RevValue merge(MigoriDatastore store, Index index, Collection<RevValue> heads)
+      throws IOException, NigoriCryptographyException {
+    return store.put(index, doMerge(index, heads), heads.toArray(new RevValue[0]));
   }
+
+  /**
+   * @param store
+   * @param index
+   * @param heads
+   * @return the value to use as the merged head, will be put with the correct revision
+   */
+  protected abstract byte[] doMerge(Index index, Collection<RevValue> heads);
 
 }

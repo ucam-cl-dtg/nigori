@@ -77,7 +77,7 @@ public class HashMigoriDatastore implements MigoriDatastore {
       }
       throw new IllegalStateException("Can never happen as must be one head to return");
     } else {
-      return put(index,merger.merge(index, heads),heads.toArray(new RevValue[0]));
+      return merger.merge(this, index, heads);
     }
   }
 
