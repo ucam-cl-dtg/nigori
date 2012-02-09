@@ -32,8 +32,8 @@ import com.google.nigori.common.UnauthorisedException;
  */
 public class SyncingNigoriDatastore implements NigoriDatastore {
 
-  private final NigoriDatastore first;
-  private final NigoriDatastore second;
+  protected final NigoriDatastore first;
+  protected final NigoriDatastore second;
 
   public SyncingNigoriDatastore(NigoriDatastore first, NigoriDatastore second ) throws IOException, NigoriCryptographyException{
     if (first == null || second == null){
@@ -41,7 +41,6 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
     }
     this.first = first;
     this.second = second;
-    //syncAll();
   }
   
   /**
