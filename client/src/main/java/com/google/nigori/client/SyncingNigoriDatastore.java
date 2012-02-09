@@ -51,7 +51,7 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
    * @throws IOException
    * @throws UnauthorisedException 
    */
-  public void syncAll() throws IOException, NigoriCryptographyException, UnauthorisedException {
+  public synchronized void syncAll() throws IOException, NigoriCryptographyException, UnauthorisedException {
     List<Index> firstIndices = first.getIndices();
     List<Index> secondIndices = second.getIndices();
     if (!(firstIndices.containsAll(secondIndices) && secondIndices.containsAll(firstIndices))) {
