@@ -125,7 +125,8 @@ public interface MigoriDatastore extends Datastore {
      * @return the RevValue which has been put into the store and dominates all the heads.
      * @throws NigoriCryptographyException 
      * @throws IOException 
+     * @throws UnauthorisedException 
      */
-    RevValue merge(MigoriDatastore store, Index index, Collection<RevValue> heads) throws IOException, NigoriCryptographyException;
+    RevValue merge(MigoriDatastore store, Index index, Collection<RevValue> heads) throws IOException, NigoriCryptographyException, UnauthorisedException;
   }
 }

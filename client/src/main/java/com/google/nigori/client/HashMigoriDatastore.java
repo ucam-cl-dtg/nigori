@@ -69,7 +69,7 @@ public class HashMigoriDatastore implements MigoriDatastore {
   public RevValue getHead(Index index, MigoriMerger merger) throws NigoriCryptographyException,
       IOException, UnauthorisedException {
     List<RevValue> heads = get(index);
-    if (heads == null){
+    if (heads == null || heads.size() == 0){
       return null;
     }
     if (heads.size() == 1) {
