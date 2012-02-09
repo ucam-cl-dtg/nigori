@@ -47,6 +47,13 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
 
 	private final NigoriProtocol protocol;
 
+	public CryptoNigoriDatastore(NigoriProtocol protocol, String username, String password, String serverName) throws UnsupportedEncodingException, NigoriCryptographyException {
+	  this.protocol = protocol;
+	  this.keyManager = new RealKeyManager(serverName.getBytes(MessageLibrary.CHARSET),
+        username.getBytes(MessageLibrary.CHARSET),
+        password.getBytes(MessageLibrary.CHARSET));
+	}
+
   /**
 	 * Represents communication with a Nigori datastore for a specific user.
 	 * 
