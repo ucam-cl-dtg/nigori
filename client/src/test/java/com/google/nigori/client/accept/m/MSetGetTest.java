@@ -26,6 +26,7 @@ import com.google.nigori.client.MigoriDatastore;
 import com.google.nigori.client.NigoriCryptographyException;
 import com.google.nigori.common.Index;
 import com.google.nigori.common.RevValue;
+import com.google.nigori.common.UnauthorisedException;
 
 /**
  * @author drt24
@@ -34,7 +35,7 @@ import com.google.nigori.common.RevValue;
 public class MSetGetTest extends AcceptanceTest {
 
   @Test
-  public void putGraph() throws NigoriCryptographyException, IOException {
+  public void putGraph() throws NigoriCryptographyException, IOException, UnauthorisedException {
     MigoriDatastore store = getStore();
     store.register();
     try {

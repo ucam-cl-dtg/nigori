@@ -25,6 +25,7 @@ import com.google.nigori.client.DAG.Node;
 import com.google.nigori.common.Index;
 import com.google.nigori.common.RevValue;
 import com.google.nigori.common.Revision;
+import com.google.nigori.common.UnauthorisedException;
 
 /**
  * @author drt24
@@ -44,7 +45,7 @@ public class HashMigoriDatastore implements MigoriDatastore {
   }
 
   @Override
-  public boolean unregister() throws IOException, NigoriCryptographyException {
+  public boolean unregister() throws IOException, NigoriCryptographyException, UnauthorisedException {
     return store.unregister();
   }
 
@@ -54,7 +55,7 @@ public class HashMigoriDatastore implements MigoriDatastore {
   }
 
   @Override
-  public List<Index> getIndices() throws NigoriCryptographyException, IOException {
+  public List<Index> getIndices() throws NigoriCryptographyException, IOException, UnauthorisedException {
     return store.getIndices();
   }
 
@@ -66,7 +67,7 @@ public class HashMigoriDatastore implements MigoriDatastore {
 
   @Override
   public RevValue getHead(Index index, MigoriMerger merger) throws NigoriCryptographyException,
-      IOException {
+      IOException, UnauthorisedException {
     List<RevValue> heads = get(index);
     if (heads == null){
       return null;
@@ -82,7 +83,7 @@ public class HashMigoriDatastore implements MigoriDatastore {
   }
 
   @Override
-  public List<RevValue> get(Index index) throws NigoriCryptographyException, IOException {
+  public List<RevValue> get(Index index) throws NigoriCryptographyException, IOException, UnauthorisedException {
     DAG<Revision> history = getHistory(index);
     if (history == null){
       return null;
@@ -102,7 +103,7 @@ public class HashMigoriDatastore implements MigoriDatastore {
 
   @Override
   public RevValue put(Index index, byte[] value, RevValue... parents) throws IOException,
-      NigoriCryptographyException {
+      NigoriCryptographyException, UnauthorisedException {
     byte[] toHash = new byte[value.length + parents.length * HashDAG.HASH_SIZE];
     Arrays.sort(parents);
     int insertPoint = 0;
@@ -140,12 +141,12 @@ public class HashMigoriDatastore implements MigoriDatastore {
 
   @Override
   public boolean deleteIndex(Index index, Revision position) throws NigoriCryptographyException,
-      IOException {
+      IOException, UnauthorisedException {
     return store.delete(index, position.getBytes());
   }
 
   @Override
-  public DAG<Revision> getHistory(Index index) throws NigoriCryptographyException, IOException {
+  public DAG<Revision> getHistory(Index index) throws NigoriCryptographyException, IOException, UnauthorisedException {
     List<Revision> revisions = store.getRevisions(index);
     if (revisions == null) {
       return null;

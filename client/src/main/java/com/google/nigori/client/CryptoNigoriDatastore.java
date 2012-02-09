@@ -29,8 +29,10 @@ import com.google.nigori.common.NigoriMessages.GetResponse;
 import com.google.nigori.common.NigoriMessages.GetRevisionsResponse;
 import com.google.nigori.common.NigoriMessages.RevisionValue;
 import com.google.nigori.common.NigoriProtocol;
+import com.google.nigori.common.NotFoundException;
 import com.google.nigori.common.RevValue;
 import com.google.nigori.common.Revision;
+import com.google.nigori.common.UnauthorisedException;
 import com.google.protobuf.ByteString;
 
 /**
@@ -152,7 +154,7 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
 	}
 
 	@Override
-  public boolean unregister() throws IOException, NigoriCryptographyException {
+  public boolean unregister() throws IOException, NigoriCryptographyException, UnauthorisedException {
 
     try{
       return protocol.unregister(MessageLibrary.unregisterRequestAsProtobuf(keyManager.signer()));
@@ -163,7 +165,7 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
   }
 
 	@Override
-	public List<RevValue> get(Index index) throws IOException,	NigoriCryptographyException {
+	public List<RevValue> get(Index index) throws IOException,	NigoriCryptographyException, UnauthorisedException {
 		return get(null, index, null);
 	}
 
@@ -173,9 +175,10 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
    * @return
    * @throws NigoriCryptographyException 
    * @throws IOException 
+	 * @throws UnauthorisedException 
    */
 	@Override
-  public byte[] getRevision(Index index, Revision revision) throws IOException, NigoriCryptographyException {
+  public byte[] getRevision(Index index, Revision revision) throws IOException, NigoriCryptographyException, UnauthorisedException {
     List<RevValue> rev = get(null, index, revision);
     if (rev != null && rev.size() == 1) {
       return rev.get(0).getValue();
@@ -192,7 +195,7 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
 	 * @return a byte array containing the data associated with {@code key} or {@code null} if no
 	 * data exists.
 	 */
-	private List<RevValue> get(byte[] encKey, Index index, Revision revision) throws IOException, NigoriCryptographyException {
+	private List<RevValue> get(byte[] encKey, Index index, Revision revision) throws IOException, NigoriCryptographyException, UnauthorisedException {
 
 	  byte[] encIndex;
 	  byte[] encRevision = null;
@@ -230,11 +233,13 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
       return answer;
     } catch (NoSuchAlgorithmException e) {
       throw new NigoriCryptographyException(e);
+    } catch (NotFoundException e) {
+      return null;
     }
 	}
 
   @Override
-  public List<Index> getIndices() throws NigoriCryptographyException, IOException {
+  public List<Index> getIndices() throws NigoriCryptographyException, IOException, UnauthorisedException {
   
     try {
       GetIndicesResponse getResponse =
@@ -251,12 +256,14 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
     } catch (NoSuchAlgorithmException e) {
       throw new NigoriCryptographyException("Platform does have required crypto support:"
           + e.getMessage());
+    } catch (NotFoundException e) {
+      return null;
     }
   }
 
   @Override
   public List<Revision> getRevisions(Index index) throws NigoriCryptographyException,
-      UnsupportedEncodingException, IOException {
+      UnsupportedEncodingException, IOException, UnauthorisedException {
     byte[] encIndex = keyManager.encryptDeterministically(index.getBytes());
 
     try {
@@ -275,11 +282,13 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
     } catch (NoSuchAlgorithmException e) {
       throw new NigoriCryptographyException("Platform does have required crypto support:"
           + e.getMessage());
+    } catch (NotFoundException e) {
+      return null;
     }
   }
 
 	@Override
-  public boolean put(Index index, Revision revision, byte[] value)  throws IOException, NigoriCryptographyException {
+  public boolean put(Index index, Revision revision, byte[] value)  throws IOException, NigoriCryptographyException, UnauthorisedException {
   	return put(null, index, revision, value);
   }
 
@@ -291,9 +300,10 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
    * @param readAuthorities list of public keys of people permitted to read this key-value pair.
    * @param writeAuthorities list of public keys of people permitted to read this key-value pair.
    * @return true if the data was successfully inserted; false otherwise.
+   * @throws UnauthorisedException 
    */
   private boolean put(byte[] encKey, Index index, Revision revision, byte[] value) throws IOException, 
-  NigoriCryptographyException {
+  NigoriCryptographyException, UnauthorisedException {
   
   	byte[] encIndex;
   	byte[] encRevision;
@@ -317,11 +327,11 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
   }
 
   @Override
-  public boolean delete(Index index, byte[] token) throws UnsupportedEncodingException, NigoriCryptographyException, IOException {
+  public boolean delete(Index index, byte[] token) throws UnsupportedEncodingException, NigoriCryptographyException, IOException, UnauthorisedException {
     return delete(null, index, token);
   }
 
-	private boolean delete(byte[] encKey, Index index, byte[] token) throws NigoriCryptographyException, UnsupportedEncodingException, IOException {
+	private boolean delete(byte[] encKey, Index index, byte[] token) throws NigoriCryptographyException, UnsupportedEncodingException, IOException, UnauthorisedException {
 	  byte[] encIndex;
 	  if (encKey == null) {
 	    encIndex = keyManager.encryptDeterministically(index.getBytes());
@@ -333,7 +343,9 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
 	  } catch (NoSuchAlgorithmException e) {
 	    throw new NigoriCryptographyException("Platform does have required crypto support:" +
 	        e.getMessage());
-	  }
+    } catch (NotFoundException e) {
+      return false;
+    }
 	}
 
 }

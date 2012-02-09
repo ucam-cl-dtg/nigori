@@ -23,6 +23,7 @@ import java.util.List;
 import com.google.nigori.common.Index;
 import com.google.nigori.common.RevValue;
 import com.google.nigori.common.Revision;
+import com.google.nigori.common.UnauthorisedException;
 
 /**
  * @author drt24
@@ -48,8 +49,9 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
    * 
    * @throws NigoriCryptographyException
    * @throws IOException
+   * @throws UnauthorisedException 
    */
-  public void syncAll() throws IOException, NigoriCryptographyException {
+  public void syncAll() throws IOException, NigoriCryptographyException, UnauthorisedException {
     List<Index> firstIndices = first.getIndices();
     List<Index> secondIndices = second.getIndices();
     if (!(firstIndices.containsAll(secondIndices) && secondIndices.containsAll(firstIndices))) {
@@ -73,8 +75,9 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
    * @param index
    * @throws IOException 
    * @throws NigoriCryptographyException 
+   * @throws UnauthorisedException 
    */
-  private void syncRevisions(Index index) throws NigoriCryptographyException, IOException {
+  private void syncRevisions(Index index) throws NigoriCryptographyException, IOException, UnauthorisedException {
     List<Revision> firstRevisions = first.getRevisions(index);
     List<Revision> secondRevisions = second.getRevisions(index);
     if (!(firstRevisions.containsAll(secondRevisions) && secondRevisions.containsAll(firstRevisions))){
@@ -93,9 +96,10 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
    * @param to
    * @throws NigoriCryptographyException 
    * @throws IOException 
+   * @throws UnauthorisedException 
    */
   private void addAllRevisions(Index index, List<Revision> revisions, NigoriDatastore from,
-      NigoriDatastore to) throws IOException, NigoriCryptographyException {
+      NigoriDatastore to) throws IOException, NigoriCryptographyException, UnauthorisedException {
     for (Revision revision : revisions){
       to.put(index, revision, from.getRevision(index, revision));
     }    
@@ -108,8 +112,9 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
    * @param to
    * @throws NigoriCryptographyException 
    * @throws IOException 
+   * @throws UnauthorisedException 
    */
-  private void addAllIndices(List<Index> indices, NigoriDatastore from, NigoriDatastore to) throws IOException, NigoriCryptographyException {
+  private void addAllIndices(List<Index> indices, NigoriDatastore from, NigoriDatastore to) throws IOException, NigoriCryptographyException, UnauthorisedException {
     for (Index index : indices){
       List<RevValue> revs = from.get(index);
       for (RevValue rev : revs){
@@ -129,9 +134,10 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
 
   /**
    * Attempts to unregister from both stores, if one fails the other may still succeed and false will be returned
+   * @throws UnauthorisedException 
    */
   @Override
-  public boolean unregister() throws IOException, NigoriCryptographyException {
+  public boolean unregister() throws IOException, NigoriCryptographyException, UnauthorisedException {
     boolean firstReg = first.unregister();
     boolean secondReg = second.unregister();
     return firstReg && secondReg;
@@ -149,14 +155,14 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
 
   @Override
   public boolean put(Index index, Revision revision, byte[] value) throws IOException,
-      NigoriCryptographyException {
+      NigoriCryptographyException, UnauthorisedException {
     boolean firstPut = first.put(index, revision, value);
     boolean secondPut = second.put(index, revision, value);
     return firstPut && secondPut;
   }
 
   @Override
-  public List<Index> getIndices() throws NigoriCryptographyException, IOException {
+  public List<Index> getIndices() throws NigoriCryptographyException, IOException, UnauthorisedException {
     List<Index> firstIndices = first.getIndices();
     List<Index> secondIndices = second.getIndices();
     secondIndices.removeAll(firstIndices);
@@ -165,7 +171,7 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
   }
 
   @Override
-  public List<RevValue> get(Index index) throws IOException, NigoriCryptographyException {
+  public List<RevValue> get(Index index) throws IOException, NigoriCryptographyException, UnauthorisedException {
     List<RevValue> firstRevVals = first.get(index);
     List<RevValue> secondRevVals = second.get(index);
     if (firstRevVals == null){
@@ -185,7 +191,7 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
 
   @Override
   public byte[] getRevision(Index index, Revision revision) throws IOException,
-      NigoriCryptographyException {
+      NigoriCryptographyException, UnauthorisedException {
     byte[] firstValue = first.getRevision(index, revision);
     byte[] secondValue = second.getRevision(index, revision);
     if (!Arrays.equals(firstValue, secondValue)){
@@ -195,7 +201,7 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
   }
 
   @Override
-  public List<Revision> getRevisions(Index index) throws NigoriCryptographyException, IOException {
+  public List<Revision> getRevisions(Index index) throws NigoriCryptographyException, IOException, UnauthorisedException {
     List<Revision> firstRevisions = first.getRevisions(index);
     List<Revision> secondRevisions = second.getRevisions(index);
     if (firstRevisions == null){
@@ -214,7 +220,7 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
   }
 
   @Override
-  public boolean delete(Index index, byte[] token) throws NigoriCryptographyException, IOException {
+  public boolean delete(Index index, byte[] token) throws NigoriCryptographyException, IOException, UnauthorisedException {
     boolean firstDel = first.delete(index, token);
     boolean secondDel = second.delete(index, token);
     return firstDel & secondDel;

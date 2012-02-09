@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import com.google.nigori.common.Index;
 import com.google.nigori.common.RevValue;
+import com.google.nigori.common.UnauthorisedException;
 
 /**
  * Create two threads which communicate by placing encrypted data in the Nigori datastore.
@@ -63,12 +64,14 @@ public class TwoUserDemo {
 				ie.printStackTrace();
 			} catch (NigoriCryptographyException e) {
 				e.printStackTrace();
-			}
+			} catch (UnauthorisedException e) {
+        e.printStackTrace();
+      }
 		}
 
 	}
 
-	public static void main(String[] args) throws NigoriCryptographyException, IOException {
+	public static void main(String[] args) throws NigoriCryptographyException, IOException, UnauthorisedException {
 
     MigoriDatastore store;
     Thread secondUser;

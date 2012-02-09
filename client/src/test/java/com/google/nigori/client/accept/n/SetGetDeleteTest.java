@@ -36,6 +36,7 @@ import com.google.nigori.common.Index;
 import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.RevValue;
 import com.google.nigori.common.Revision;
+import com.google.nigori.common.UnauthorisedException;
 
 public class SetGetDeleteTest extends AcceptanceTest {
 
@@ -67,7 +68,7 @@ public class SetGetDeleteTest extends AcceptanceTest {
               "jlkvjhskldhjvguyvh78ryfgkjvjhzsahkjrtgagflbakjsdvskjhsjkhdafkjdashlkjajhasfkjsadhf;adshfkjd", false)};
 
   @Test
-  public void setGetDelete() throws NigoriCryptographyException, IOException {
+  public void setGetDelete() throws NigoriCryptographyException, IOException, UnauthorisedException {
     NigoriDatastore nigori = getStore();
 
     for (int i = 0; i < AcceptanceTests.REPEAT; ++i) {// check we can do this more than once
@@ -125,7 +126,7 @@ public class SetGetDeleteTest extends AcceptanceTest {
   }
 
   @Test
-  public void getRevisions() throws IOException, NigoriCryptographyException {
+  public void getRevisions() throws IOException, NigoriCryptographyException, UnauthorisedException {
     NigoriDatastore nigori = getStore();
     try {
       assertTrue("Not registered", nigori.register());
@@ -149,7 +150,7 @@ public class SetGetDeleteTest extends AcceptanceTest {
   }
 
   @Test
-  public void getIndices() throws IOException, NigoriCryptographyException {
+  public void getIndices() throws IOException, NigoriCryptographyException, UnauthorisedException {
     NigoriDatastore nigori = getStore();
     try {
       assertTrue("Not registered", nigori.register());

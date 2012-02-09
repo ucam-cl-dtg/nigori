@@ -19,6 +19,7 @@ import java.util.Collection;
 import com.google.nigori.common.Index;
 import com.google.nigori.common.RevValue;
 import com.google.nigori.common.Revision;
+import com.google.nigori.common.UnauthorisedException;
 
 /**
  * An index-value store which provides merging and synchronisation support through tracking revision
@@ -48,8 +49,9 @@ public interface MigoriDatastore extends Datastore {
    * @return the single head revision for all current history or null if there are no values for this index
    * @throws IOException 
    * @throws NigoriCryptographyException 
+   * @throws UnauthorisedException 
    */
-  RevValue getHead(Index index, MigoriMerger merger) throws NigoriCryptographyException, IOException;
+  RevValue getHead(Index index, MigoriMerger merger) throws NigoriCryptographyException, IOException, UnauthorisedException;
 
   /**
    * Get all the current heads of branches of history for this index.
@@ -62,8 +64,9 @@ public interface MigoriDatastore extends Datastore {
    *         You MUST NOT assume that this collection with have a size of one.
    * @throws IOException 
    * @throws NigoriCryptographyException 
+   * @throws UnauthorisedException 
    */
-  Collection<RevValue> get(Index index) throws NigoriCryptographyException, IOException;
+  Collection<RevValue> get(Index index) throws NigoriCryptographyException, IOException, UnauthorisedException;
 
   /**
    * Put the value for the index specifying that its parents are parents. The parents will be made
@@ -75,8 +78,9 @@ public interface MigoriDatastore extends Datastore {
    * @return the value that was put along with its revision.
    * @throws NigoriCryptographyException 
    * @throws IOException 
+   * @throws UnauthorisedException 
    */
-  RevValue put(Index index, byte[] value, RevValue... parents) throws IOException, NigoriCryptographyException;
+  RevValue put(Index index, byte[] value, RevValue... parents) throws IOException, NigoriCryptographyException, UnauthorisedException;
 
   /**
    * Permanently delete all information about an index storing only the revision at which it was
@@ -88,8 +92,9 @@ public interface MigoriDatastore extends Datastore {
    * @return
    * @throws IOException 
    * @throws NigoriCryptographyException 
+   * @throws UnauthorisedException 
    */
-  boolean deleteIndex(Index index, Revision position) throws NigoriCryptographyException, IOException;
+  boolean deleteIndex(Index index, Revision position) throws NigoriCryptographyException, IOException, UnauthorisedException;
 
   /**
    * Get the whole history for an index as a DAG
@@ -98,8 +103,9 @@ public interface MigoriDatastore extends Datastore {
    * @return a DAG representing the history for index or null if there is none
    * @throws IOException 
    * @throws NigoriCryptographyException 
+   * @throws UnauthorisedException 
    */
-  DAG<Revision> getHistory(Index index) throws NigoriCryptographyException, IOException;
+  DAG<Revision> getHistory(Index index) throws NigoriCryptographyException, IOException, UnauthorisedException;
 
   /**
    * Merges together the head revisions of existing branches of history to produce one single

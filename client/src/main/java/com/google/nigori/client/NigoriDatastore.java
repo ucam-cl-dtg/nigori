@@ -19,6 +19,7 @@ import java.util.List;
 import com.google.nigori.common.Index;
 import com.google.nigori.common.RevValue;
 import com.google.nigori.common.Revision;
+import com.google.nigori.common.UnauthorisedException;
 
 /**
  * Nigori datastore which performs the relevant encryption and communicates with nigori server(s) which store the data.
@@ -36,9 +37,10 @@ public interface NigoriDatastore extends Datastore {
    * @param value the data value associated with the index and revision.
    * @return true if the data was successfully inserted; false otherwise.
    * @throws NigoriCryptographyException
+   * @throws UnauthorisedException 
    */
   public boolean put(Index index, Revision revision, byte[] value) throws IOException,
-      NigoriCryptographyException;
+      NigoriCryptographyException, UnauthorisedException;
 
   /**
    * Retrieve the revision-values associated with {@code index} on the server.
@@ -46,8 +48,9 @@ public interface NigoriDatastore extends Datastore {
    * @param index
    * @return a List of revision-values containing the data associated with {@code index} or {@code null} if no data
    *         exists.
+   * @throws UnauthorisedException 
    */
-  public List<RevValue> get(Index index) throws IOException, NigoriCryptographyException;
+  public List<RevValue> get(Index index) throws IOException, NigoriCryptographyException, UnauthorisedException;
 
   /**
    * Retrieve the value for a particular index,revision pair
@@ -56,9 +59,10 @@ public interface NigoriDatastore extends Datastore {
    * @return the associated value or null if not present.
    * @throws NigoriCryptographyException
    * @throws IOException
+   * @throws UnauthorisedException 
    */
   public byte[] getRevision(Index index, Revision revision) throws IOException,
-      NigoriCryptographyException;
+      NigoriCryptographyException, UnauthorisedException;
 
   /**
    * Get the revisions for a particular index
@@ -66,8 +70,9 @@ public interface NigoriDatastore extends Datastore {
    * @return a List of revisions for the index or null if the index does not exist.
    * @throws NigoriCryptographyException
    * @throws IOException
+   * @throws UnauthorisedException 
    */
-  public List<Revision> getRevisions(Index index) throws NigoriCryptographyException, IOException;
+  public List<Revision> getRevisions(Index index) throws NigoriCryptographyException, IOException, UnauthorisedException;
 
   /**
    * Delete the index (and associated revisions and values) on the server
@@ -77,7 +82,8 @@ public interface NigoriDatastore extends Datastore {
    *         occurred.
    * @throws IOException
    * @throws NigoriCryptographyException
+   * @throws UnauthorisedException 
    */
-  public boolean delete(Index index, byte[] token) throws NigoriCryptographyException, IOException;
+  public boolean delete(Index index, byte[] token) throws NigoriCryptographyException, IOException, UnauthorisedException;
 
 }

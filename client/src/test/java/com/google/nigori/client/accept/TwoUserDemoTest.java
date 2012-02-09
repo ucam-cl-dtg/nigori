@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import com.google.nigori.client.NigoriCryptographyException;
 import com.google.nigori.client.TwoUserDemo;
+import com.google.nigori.common.UnauthorisedException;
 
 /**
  * @author drt24
@@ -29,7 +30,7 @@ import com.google.nigori.client.TwoUserDemo;
 public class TwoUserDemoTest {
 
   @Test
-  public void main() throws NigoriCryptographyException, IOException {
+  public void main() throws NigoriCryptographyException, IOException, UnauthorisedException {
     TwoUserDemo.main(new String[]{});
   }
 }

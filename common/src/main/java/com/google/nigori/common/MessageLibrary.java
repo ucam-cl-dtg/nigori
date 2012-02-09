@@ -168,7 +168,7 @@ public class MessageLibrary {
     }
   }
 
-  private static GetIndicesResponse getIndicesResponseAsProtobuf(Collection<byte[]> value) {
+  public static GetIndicesResponse getIndicesResponseAsProtobuf(Collection<byte[]> value) {
     List<ByteString> values = new ArrayList<ByteString>(value.size());
     for (byte[] valueA : value){
       values.add(ByteString.copyFrom(valueA));

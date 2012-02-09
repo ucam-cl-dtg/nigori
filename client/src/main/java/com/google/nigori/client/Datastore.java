@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.google.nigori.common.Index;
+import com.google.nigori.common.UnauthorisedException;
 
 /**
  * Encapsulates common datastore functionality from {@link MigoriDatstore} and
@@ -38,8 +39,9 @@ public interface Datastore {
    * Unregister from the server.
    * 
    * @return true if the unregistration was successful; false otherwise.
+   * @throws UnauthorisedException 
    */
-  public boolean unregister() throws IOException, NigoriCryptographyException;
+  public boolean unregister() throws IOException, NigoriCryptographyException, UnauthorisedException;
 
   /**
    * Evaluate whether this NigoriDatastore can authenticate to the server.
@@ -52,6 +54,7 @@ public interface Datastore {
    * @return
    * @throws NigoriCryptographyException
    * @throws IOException
+   * @throws UnauthorisedException 
    */
-  List<Index> getIndices() throws NigoriCryptographyException, IOException;
+  List<Index> getIndices() throws NigoriCryptographyException, IOException, UnauthorisedException;
 }

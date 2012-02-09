@@ -20,9 +20,6 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
@@ -33,27 +30,28 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.codec.binary.Base64;
 
 import com.google.nigori.common.MessageLibrary;
+import com.google.nigori.common.MessageLibrary.JsonConversionException;
 import com.google.nigori.common.NigoriMessages.AuthenticateRequest;
 import com.google.nigori.common.NigoriMessages.DeleteRequest;
 import com.google.nigori.common.NigoriMessages.GetIndicesRequest;
 import com.google.nigori.common.NigoriMessages.GetRequest;
+import com.google.nigori.common.NigoriMessages.GetResponse;
 import com.google.nigori.common.NigoriMessages.GetRevisionsRequest;
 import com.google.nigori.common.NigoriMessages.PutRequest;
 import com.google.nigori.common.NigoriMessages.RegisterRequest;
 import com.google.nigori.common.NigoriMessages.UnregisterRequest;
-import com.google.nigori.common.Nonce;
-import com.google.nigori.common.RevValue;
-import com.google.nigori.common.SchnorrSignature;
-import com.google.nigori.common.SchnorrVerify;
+import com.google.nigori.common.NigoriProtocol;
+import com.google.nigori.common.NotFoundException;
+import com.google.nigori.common.UnauthorisedException;
 import com.google.nigori.server.appengine.AppEngineDatabase;
 
-@SuppressWarnings("serial")
 public class NigoriServlet extends HttpServlet {
 
+  private static final long serialVersionUID = 1L;
   private static final boolean DEBUG_JSON = false;
   private static final Logger log = Logger.getLogger(NigoriServlet.class.getName());
 	private static final int maxJsonQueryLength = 1024*1024*1;
-	private final Database database;
+	private final NigoriProtocol protocol;
 
 	public NigoriServlet() {
 		this(new AppEngineDatabase());
@@ -61,11 +59,15 @@ public class NigoriServlet extends HttpServlet {
 
 	public NigoriServlet(Database database) {
 		super();
-		this.database = database;
+		this.protocol = new DatabaseNigoriProtocol(database);
 	}
 
 	private class ServletException extends Exception {
-		private int statusCode;
+		/**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+    private int statusCode;
 
 		ServletException(int statusCode, String message) {
 			super(message);
@@ -151,52 +153,6 @@ public class NigoriServlet extends HttpServlet {
 	}
 
 	/**
-	 * Check {@code nonce} is valid. If so, this method returns; else throws a ServletException
-	 * 
-	 * @param schnorrS
-	 * @param schnorrE
-	 * @param message
-	 * @throws ServletException
-	 */
-  private User authenticateUser(AuthenticateRequest auth)
-      throws ServletException {
-
-    byte[] publicKey = auth.getPublicKey().toByteArray();
-    byte[] schnorrE = auth.getSchnorrE().toByteArray();
-    byte[] schnorrS = auth.getSchnorrS().toByteArray();
-    byte[] nonce = auth.getNonce().toByteArray();
-
-    SchnorrSignature sig = new SchnorrSignature(schnorrS, schnorrE, nonce);
-    try {
-      SchnorrVerify v = new SchnorrVerify(publicKey);
-
-      if (v.verify(sig)) {
-        Nonce n = new Nonce(sig.getMessage());
-        boolean validNonce = database.checkAndAddNonce(n, publicKey);
-
-        boolean userExists = database.haveUser(publicKey);
-        if (validNonce && userExists) {
-          try {
-            return database.getUser(publicKey);
-          } catch (UserNotFoundException e) {
-            // TODO(drt24): potential security vulnerability - user existence oracle.
-            // Should not happen often - is only possible due to concurrency
-            throw new ServletException(HttpServletResponse.SC_UNAUTHORIZED, "No such user");
-          }
-        } else {
-          throw new ServletException(HttpServletResponse.SC_UNAUTHORIZED,
-              "Invalid nonce or no such user");
-        }
-      } else {
-        throw new ServletException(HttpServletResponse.SC_UNAUTHORIZED, "The signature is invalid");
-      }
-    } catch (NoSuchAlgorithmException nsae) {
-      throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-          "Internal error attempting to verify signature");
-    }
-  }
-
-	/**
 	 * Send an SC_OK and and empty body
 	 * @param resp
 	 * @throws ServletException
@@ -214,268 +170,153 @@ public class NigoriServlet extends HttpServlet {
 	}
 
 	private abstract interface RequestHandler {
-		public void handle(HttpServletRequest req, HttpServletResponse resp) throws ServletException;
+		public void handle(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, JsonConversionException, UnauthorisedException, NotFoundException;
 	}
 
-	private class JsonGetRequestHandler implements RequestHandler {
+  private class JsonGetRequestHandler implements RequestHandler {
 
-		public void handle(HttpServletRequest req, HttpServletResponse resp) 
-		throws ServletException {
-
-			String json = getJsonAsString(req, maxJsonQueryLength);
-			Collection<RevValue> value;
-
-			try {
-				GetRequest request = MessageLibrary.getRequestFromJson(json);
-				byte[] key = request.getKey().toByteArray();
-				AuthenticateRequest auth = request.getAuth();
-				User user = authenticateUser(auth);
-
-        if (request.hasRevision()) {
-          byte[] revision = request.getRevision().toByteArray();
-          value = new ArrayList<RevValue>(1);
-          RevValue revVal = database.getRevision(user, key, revision);
-          if (revVal == null) {
-            throw new ServletException(HttpServletResponse.SC_NOT_FOUND,
-                "Cannot find requested key with revision");
-          }
-          value.add(revVal);
-        } else {
-          value = database.getRecord(user, key);
-        }
-
-        if (value == null) {
-          throw new ServletException(HttpServletResponse.SC_NOT_FOUND, "Cannot find requested key");
-        }
-
-				String response = MessageLibrary.getResponseAsJson(value);
-				resp.setContentType(MessageLibrary.MIMETYPE_JSON);
-				resp.setCharacterEncoding(MessageLibrary.CHARSET);
-				resp.setStatus(HttpServletResponse.SC_OK);
-				BufferedWriter w = new BufferedWriter(new OutputStreamWriter(resp.getOutputStream()));
-				w.write(response);
-				w.flush();
-			} catch(IOException ioe) {
-				throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal error sending data to client");
-			} catch (MessageLibrary.JsonConversionException jce) {
-				throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, "JSON format error: " + 
-						jce.getMessage());
-			}
-		}
-	}
-
-	private class JsonGetIndicesRequestHandler implements RequestHandler {
-
-    public void handle(HttpServletRequest req, HttpServletResponse resp) 
-    throws ServletException {
+    public void handle(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
+        IOException, JsonConversionException, NotFoundException, UnauthorisedException {
 
       String json = getJsonAsString(req, maxJsonQueryLength);
-      Collection<byte[]> value;
+      GetRequest request = MessageLibrary.getRequestFromJson(json);
+      GetResponse response = protocol.get(request);
 
-      try {
-        GetIndicesRequest request = MessageLibrary.getIndicesRequestFromJson(json);
-        AuthenticateRequest auth = request.getAuth();
-        User user = authenticateUser(auth);
+      String jsonresponse = MessageLibrary.toJson(response);
+      resp.setContentType(MessageLibrary.MIMETYPE_JSON);
+      resp.setCharacterEncoding(MessageLibrary.CHARSET);
+      resp.setStatus(HttpServletResponse.SC_OK);
+      BufferedWriter w = new BufferedWriter(new OutputStreamWriter(resp.getOutputStream()));
+      w.write(jsonresponse);
+      w.flush();
+    }
+  }
 
-        value = database.getIndices(user);
+  private class JsonGetIndicesRequestHandler implements RequestHandler {
 
-        if (value == null) {
-          throw new ServletException(HttpServletResponse.SC_NOT_FOUND, "Cannot find indices");
-        }
+    public void handle(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
+        IOException, NotFoundException, UnauthorisedException, JsonConversionException {
 
-        String response = MessageLibrary.getIndicesResponseAsJson(value);
-        resp.setContentType(MessageLibrary.MIMETYPE_JSON);
-        resp.setCharacterEncoding(MessageLibrary.CHARSET);
-        resp.setStatus(HttpServletResponse.SC_OK);
-        BufferedWriter w = new BufferedWriter(new OutputStreamWriter(resp.getOutputStream()));
-        w.write(response);
-        w.flush();
-      } catch(IOException ioe) {
-        throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal error sending data to client");
-      } catch (MessageLibrary.JsonConversionException jce) {
-        throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, "JSON format error: " + 
-            jce.getMessage());
-      }
+      String json = getJsonAsString(req, maxJsonQueryLength);
+
+      GetIndicesRequest request = MessageLibrary.getIndicesRequestFromJson(json);
+
+      String response = MessageLibrary.toJson(protocol.getIndices(request));
+      resp.setContentType(MessageLibrary.MIMETYPE_JSON);
+      resp.setCharacterEncoding(MessageLibrary.CHARSET);
+      resp.setStatus(HttpServletResponse.SC_OK);
+      BufferedWriter w = new BufferedWriter(new OutputStreamWriter(resp.getOutputStream()));
+      w.write(response);
+      w.flush();
     }
   }
 
 	private class JsonGetRevisionsRequestHandler implements RequestHandler {
 
-    public void handle(HttpServletRequest req, HttpServletResponse resp) 
-    throws ServletException {
+    public void handle(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
+        IOException, NotFoundException, UnauthorisedException, JsonConversionException {
 
       String json = getJsonAsString(req, maxJsonQueryLength);
-      Collection<byte[]> value;
 
-      try {
-        GetRevisionsRequest request = MessageLibrary.getRevisionsRequestFromJson(json);
-        byte[] key = request.getKey().toByteArray();
-        AuthenticateRequest auth = request.getAuth();
-        User user = authenticateUser(auth);
+      GetRevisionsRequest request = MessageLibrary.getRevisionsRequestFromJson(json);
 
-        value = database.getRevisions(user, key);
-
-        if (value == null) {
-          throw new ServletException(HttpServletResponse.SC_NOT_FOUND, "Cannot find requested key");
-        }
-
-        String response = MessageLibrary.getRevisionsResponseAsJson(value);
-        resp.setContentType(MessageLibrary.MIMETYPE_JSON);
-        resp.setCharacterEncoding(MessageLibrary.CHARSET);
-        resp.setStatus(HttpServletResponse.SC_OK);
-        BufferedWriter w = new BufferedWriter(new OutputStreamWriter(resp.getOutputStream()));
-        w.write(response);
-        w.flush();
-      } catch(IOException ioe) {
-        throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal error sending data to client");
-      } catch (MessageLibrary.JsonConversionException jce) {
-        throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, "JSON format error: " + 
-            jce.getMessage());
-      }
+      String response = MessageLibrary.toJson(protocol.getRevisions(request));
+      resp.setContentType(MessageLibrary.MIMETYPE_JSON);
+      resp.setCharacterEncoding(MessageLibrary.CHARSET);
+      resp.setStatus(HttpServletResponse.SC_OK);
+      BufferedWriter w = new BufferedWriter(new OutputStreamWriter(resp.getOutputStream()));
+      w.write(response);
+      w.flush();
     }
   }
 
 	private class JsonPutRequestHandler implements RequestHandler {
 
-    public void handle(HttpServletRequest req, HttpServletResponse resp) 
-		throws ServletException {
+	  public void handle(HttpServletRequest req, HttpServletResponse resp) 
+	      throws ServletException, JsonConversionException, IOException, UnauthorisedException {
+	    String json = getJsonAsString(req, maxJsonQueryLength);
+	    if (DEBUG_JSON) {
+	      System.out.println(json);
+	    }
+	    PutRequest request = MessageLibrary.putRequestFromJson(json);
 
-			try {
-				String json = getJsonAsString(req, maxJsonQueryLength);
-        if (DEBUG_JSON) {
-          System.out.println(json);
-        }
-				PutRequest request = MessageLibrary.putRequestFromJson(json);
-				AuthenticateRequest auth = request.getAuth();
-				
-				User user = authenticateUser(auth);
+	    if (!protocol.put(request)) {
+	      throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, 
+	          "Internal storage error for key " + Base64.encodeBase64String(request.getKey().toByteArray()));
+	    }
 
-				boolean success = database.putRecord(user, request.getKey().toByteArray(), request.getRevision().toByteArray(),
-						request.getValue().toByteArray());
-
-				if (!success) {
-					throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, 
-							"Internal storage error for key " + Base64.encodeBase64String(request.getKey().toByteArray()));
-				}
-
-				emptyBody(resp);
-
-			} catch (MessageLibrary.JsonConversionException jce) {
-				throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, "JSON format error: " + 
-						jce.getMessage());
-			}
-
-		}
+	    emptyBody(resp);
+	  }
 	}
 
 	private class JsonDeleteRequestHandler implements RequestHandler {
 
-    public void handle(HttpServletRequest req, HttpServletResponse resp)
-    throws ServletException {
+	  public void handle(HttpServletRequest req, HttpServletResponse resp)
+	      throws ServletException, JsonConversionException, IOException, UnauthorisedException, NotFoundException {
+	    String json = getJsonAsString(req, maxJsonQueryLength);
 
-      try {
-        String json = getJsonAsString(req, maxJsonQueryLength);
+	    if (DEBUG_JSON) {
+	      System.out.println(json);
+	    }
+	    DeleteRequest request = MessageLibrary.deleteRequestFromJson(json);
 
-        if (DEBUG_JSON) {
-          System.out.println(json);
-        }
-        DeleteRequest request = MessageLibrary.deleteRequestFromJson(json);
-        AuthenticateRequest auth = request.getAuth();
 
-        User user = authenticateUser(auth);
-        byte[] index = request.getKey().toByteArray();
-        boolean exists = database.getRecord(user, index) != null;
-        if (! exists){
-          throw new ServletException(HttpServletResponse.SC_NOT_FOUND, "No such key: " + Base64.encodeBase64String(request.getKey().toByteArray()) );
-        }
+	    if (!protocol.delete(request)) {
+	      throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+	          "Internal storage error for key " + Base64.encodeBase64String(request.getKey().toByteArray()));
+	    }
 
-        boolean success = database.deleteRecord(user, index);
-
-        if (!success) {
-          throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-              "Internal storage error for key " + Base64.encodeBase64String(request.getKey().toByteArray()));
-        }
-
-        emptyBody(resp);
-
-      } catch (MessageLibrary.JsonConversionException jce) {
-        throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, "JSON format error: " + 
-            jce.getMessage());
-      } catch (IOException e) {
-        throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Exception: " + e.getLocalizedMessage());
-      }
-
-    }
-  }
+	    emptyBody(resp);
+	  }
+	}
 
 	private class JsonAuthenticateRequestHandler implements RequestHandler {
 
-		public void handle(HttpServletRequest req, HttpServletResponse resp)
-		throws ServletException {
+	  public void handle(HttpServletRequest req, HttpServletResponse resp)
+	      throws ServletException, JsonConversionException, IOException {
+	    String json = getJsonAsString(req, maxJsonQueryLength);
+	    AuthenticateRequest auth = MessageLibrary.authenticateRequestFromJson(json);
+	    boolean success = protocol.authenticate(auth);
+	    if (!success){
+	      throw new ServletException(HttpServletResponse.SC_UNAUTHORIZED,"Authorisation failed");
+	    }
 
-			try {
-				String json = getJsonAsString(req, maxJsonQueryLength);
-				AuthenticateRequest auth = MessageLibrary.authenticateRequestFromJson(json);
-				authenticateUser(auth);
-
-				emptyBody(resp);
-
-			} catch (MessageLibrary.JsonConversionException jce) {
-				throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, "JSON format error: " +
-						jce.getMessage());
-			}
-
-		}
+	    emptyBody(resp);
+	  }
 	}
 
 	private class JsonRegisterRequestHandler implements RequestHandler {
 
-		public void handle(HttpServletRequest req, HttpServletResponse resp)
-		throws ServletException {
+	  public void handle(HttpServletRequest req, HttpServletResponse resp)
+	      throws ServletException, JsonConversionException, IOException {
 
-			try {
-				String json = getJsonAsString(req, maxJsonQueryLength);
-				RegisterRequest request = MessageLibrary.registerRequestFromJson(json);
+	    String json = getJsonAsString(req, maxJsonQueryLength);
+	    RegisterRequest request = MessageLibrary.registerRequestFromJson(json);
 
-				//TODO(drt24): validate request.getToken()
-				boolean success = database.addUser(request.getPublicKey().toByteArray());
-				if(!success) {
-					throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-							"Adding user " + Base64.encodeBase64String(request.getPublicKey().toByteArray()) + " failed");
-				}
-				emptyBody(resp);
-
-			} catch (MessageLibrary.JsonConversionException jce) {
-				throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, "JSON format error: " + 
-						jce.getMessage());
-			}
-		}
+	    boolean success = protocol.register(request);
+	    if(!success) {
+	      throw new ServletException(HttpServletResponse.SC_CONFLICT,
+	          "Adding user " + Base64.encodeBase64String(request.getPublicKey().toByteArray()) + " failed, may already exist");
+	    }
+	    emptyBody(resp);
+	  }
 	}
 
 	private class JsonUnregisterRequestHandler implements RequestHandler {
 
-    public void handle(HttpServletRequest req, HttpServletResponse resp)
-    throws ServletException {
+	  public void handle(HttpServletRequest req, HttpServletResponse resp)
+	      throws ServletException, IOException, UnauthorisedException, JsonConversionException {
+	    String json = getJsonAsString(req, maxJsonQueryLength);
+	    UnregisterRequest request = MessageLibrary.unregisterRequestFromJson(json);
 
-      try {
-        String json = getJsonAsString(req, maxJsonQueryLength);
-        UnregisterRequest request = MessageLibrary.unregisterRequestFromJson(json);
-        AuthenticateRequest auth = request.getAuth();
-        User user = authenticateUser(auth);
-
-        boolean success = database.deleteUser(user);
-        if(!success) {
-          throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-              "Removing user " + Base64.encodeBase64String(auth.getPublicKey().toByteArray()) + " failed");
-        }
-        emptyBody(resp);
-
-      } catch (MessageLibrary.JsonConversionException jce) {
-        throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, "JSON format error: " + 
-            jce.getMessage());
-      }
-    }
-  }
+	    boolean success = protocol.unregister(request);
+	    if(!success) {
+	      throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+	          "Removing user " + Base64.encodeBase64String(request.getAuth().getPublicKey().toByteArray()) + " failed");
+	    }
+	    emptyBody(resp);
+	  }
+	}
 
 	//TODO(beresford): double-check that Servlet instances are created rarely
 	private HashMap<RequestHandlerType, RequestHandler> handlers = initHandlers();
@@ -518,8 +359,21 @@ public class NigoriServlet extends HttpServlet {
 			if (handler == null) {
 				throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, 
 						"Unsupported request pair:" + handlerType);
-			}			
-			handler.handle(req, resp);
+      }
+      try {
+        handler.handle(req, resp);
+      } catch (IOException ioe) {
+        throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+            "Internal error sending data to client");
+      } catch (MessageLibrary.JsonConversionException jce) {
+        throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, "JSON format error: "
+            + jce.getMessage());
+      } catch (NotFoundException e) {
+        throw new ServletException(HttpServletResponse.SC_NOT_FOUND, e.getLocalizedMessage());
+      } catch (UnauthorisedException e) {
+        throw new ServletException(HttpServletResponse.SC_UNAUTHORIZED, "Authorisation failed: "
+            + e.getLocalizedMessage());
+      }
 
 		} catch (ServletException e) {
 		  log.severe(e.toString());

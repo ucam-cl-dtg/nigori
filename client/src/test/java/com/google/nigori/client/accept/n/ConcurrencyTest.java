@@ -38,6 +38,7 @@ import com.google.nigori.client.accept.n.SetGetDeleteTest.IndexValue;
 import com.google.nigori.common.Index;
 import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.Revision;
+import com.google.nigori.common.UnauthorisedException;
 
 public class ConcurrencyTest extends AcceptanceTest {
 
@@ -123,9 +124,10 @@ public class ConcurrencyTest extends AcceptanceTest {
    * Test that one user can do lots of things at the same time.
    * @throws NigoriCryptographyException
    * @throws IOException
+   * @throws UnauthorisedException 
    */
   @Test
-  public void singleUserConcurrency() throws NigoriCryptographyException, IOException {
+  public void singleUserConcurrency() throws NigoriCryptographyException, IOException, UnauthorisedException {
     failed = false;
     Thread[] threads = new Thread[THREADS];
 

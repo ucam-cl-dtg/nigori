@@ -38,15 +38,15 @@ public interface NigoriProtocol {
 
   boolean register(RegisterRequest request) throws IOException;
 
-  boolean unregister(UnregisterRequest request) throws IOException;
+  boolean unregister(UnregisterRequest request) throws IOException, UnauthorisedException;
 
-  GetResponse get(GetRequest request) throws IOException;
+  GetResponse get(GetRequest request) throws IOException, NotFoundException, UnauthorisedException;
 
-  GetIndicesResponse getIndices(GetIndicesRequest request) throws IOException;
+  GetIndicesResponse getIndices(GetIndicesRequest request) throws IOException, NotFoundException, UnauthorisedException;
 
-  GetRevisionsResponse getRevisions(GetRevisionsRequest request) throws IOException;
+  GetRevisionsResponse getRevisions(GetRevisionsRequest request) throws IOException, NotFoundException, UnauthorisedException;
 
-  boolean put(PutRequest request) throws IOException;
+  boolean put(PutRequest request) throws IOException, UnauthorisedException;
 
-  boolean delete(DeleteRequest request) throws IOException;
+  boolean delete(DeleteRequest request) throws IOException, UnauthorisedException, NotFoundException;
 }

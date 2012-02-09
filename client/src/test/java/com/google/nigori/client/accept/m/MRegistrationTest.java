@@ -23,6 +23,7 @@ import org.junit.Test;
 import com.google.nigori.client.Datastore;
 import com.google.nigori.client.NigoriCryptographyException;
 import com.google.nigori.client.accept.AcceptanceTests;
+import com.google.nigori.common.UnauthorisedException;
 
 /**
  * @author drt24
@@ -31,7 +32,7 @@ import com.google.nigori.client.accept.AcceptanceTests;
 public class MRegistrationTest extends AcceptanceTest {
 
   @Test
-  public void test() throws NigoriCryptographyException, IOException {
+  public void test() throws NigoriCryptographyException, IOException, UnauthorisedException {
     Datastore nigori = getStore();
     for (int i = 0; i < AcceptanceTests.REPEAT; ++i) {// check we can do this more than once
       assertTrue("Not registered", nigori.register());
