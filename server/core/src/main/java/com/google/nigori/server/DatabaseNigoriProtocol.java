@@ -197,7 +197,7 @@ public class DatabaseNigoriProtocol implements NigoriProtocol {
     boolean exists = database.getRecord(user, index) != null;
     if (!exists) {
       throw new NotFoundException("No such index: "
-          + Base64.encodeBase64String(request.getKey().toByteArray()));
+          + Base64.encodeBase64(request.getKey().toByteArray()));
     }
 
     return database.deleteRecord(user, index);
