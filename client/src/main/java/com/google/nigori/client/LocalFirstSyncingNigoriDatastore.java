@@ -199,6 +199,11 @@ public class LocalFirstSyncingNigoriDatastore extends SyncingNigoriDatastore {
   @Override
   public boolean delete(Index index, byte[] token) throws NigoriCryptographyException, IOException,
       UnauthorisedException {
+    boolean firstAt = first.authenticate();
+    boolean secondAuth = second.authenticate();
+    if (!(firstAt & secondAuth)) {
+      return false;// can't delete from both atm
+    }
     boolean firstDel = first.delete(index, token);
     boolean secondDel = second.delete(index, token);
     return firstDel & secondDel;
