@@ -14,10 +14,13 @@
 package com.google.nigori.server;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Date;
 
 import org.apache.commons.codec.binary.Base64;
+
+import com.google.nigori.common.MessageLibrary;
 
 /**
  * Plain java implementation of User
@@ -39,7 +42,11 @@ public class JUser implements User, Serializable {
 
   @Override
   public String getName() {
-    return Base64.encodeBase64String(getPublicKey());
+    try {
+      return new String(Base64.encodeBase64(getPublicKey()),MessageLibrary.CHARSET);
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
