@@ -60,13 +60,13 @@ public class HashMigoriDatastore implements MigoriDatastore {
   }
 
   @Override
-  public RevValue deleteValue(Index index, RevValue... parents) {
+  public RevValue removeValue(Index index, RevValue... parents) {
     // TODO(drt24) implement
     throw new UnsupportedOperationException("Not yet implemented");
   }
 
   @Override
-  public RevValue getHead(Index index, MigoriMerger merger) throws NigoriCryptographyException,
+  public RevValue getMerging(Index index, MigoriMerger merger) throws NigoriCryptographyException,
       IOException, UnauthorisedException {
     List<RevValue> heads = get(index);
     if (heads == null || heads.size() == 0){
@@ -140,7 +140,7 @@ public class HashMigoriDatastore implements MigoriDatastore {
   }
 
   @Override
-  public boolean deleteIndex(Index index, Revision position) throws NigoriCryptographyException,
+  public boolean removeIndex(Index index, Revision position) throws NigoriCryptographyException,
       IOException, UnauthorisedException {
     return store.delete(index, position.getBytes());
   }

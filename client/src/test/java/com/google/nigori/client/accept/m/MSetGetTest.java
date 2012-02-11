@@ -50,7 +50,7 @@ public class MSetGetTest extends AcceptanceTest {
       Collection<RevValue> heads = store.get(index);
       assertThat(heads, hasItems(f, g));
 
-      assertTrue(store.deleteIndex(index, g.getRevision()));
+      assertTrue(store.removeIndex(index, g.getRevision()));
     } finally {
       store.unregister();
     }

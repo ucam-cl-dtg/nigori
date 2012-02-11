@@ -100,7 +100,7 @@ public class CommandLineExample {
 				usage();
 				return;
 			}
-			boolean success = nigori.deleteIndex(new Index(args[5]),Revision.EMPTY);
+			boolean success = nigori.removeIndex(new Index(args[5]),Revision.EMPTY);
 			System.out.println("Success: " + success);
 		}
 		else {

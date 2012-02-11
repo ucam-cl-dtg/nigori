@@ -31,16 +31,6 @@ import com.google.nigori.common.UnauthorisedException;
 public interface MigoriDatastore extends Datastore {
 
   /**
-   * Set the value for the index to be deleted but preserve all history - this is safe delete in
-   * that it can be undone.
-   * 
-   * @param index the index
-   * @param parents the parent revisions
-   * @return the RevValue which represents the deleted value and the revision that points to it
-   */
-  RevValue deleteValue(Index index, RevValue... parents);
-
-  /**
    * Get the head revision for the index, the merger automatically merges multiple heads if there
    * are multiple and the merged head is put before being returned.
    * 
@@ -51,12 +41,12 @@ public interface MigoriDatastore extends Datastore {
    * @throws NigoriCryptographyException 
    * @throws UnauthorisedException 
    */
-  RevValue getHead(Index index, MigoriMerger merger) throws NigoriCryptographyException, IOException, UnauthorisedException;
+  RevValue getMerging(Index index, MigoriMerger merger) throws NigoriCryptographyException, IOException, UnauthorisedException;
 
   /**
    * Get all the current heads of branches of history for this index.
    * 
-   * @see #getHead(Index, MigoriMerger) better to use this where you can as it ensures the number of
+   * @see #getMerging(Index, MigoriMerger) better to use this where you can as it ensures the number of
    *      branches of history does not grow.
    * @param index the index
    * @return a collection of the heads of the current branches of history or null if this index has no values
@@ -67,6 +57,17 @@ public interface MigoriDatastore extends Datastore {
    * @throws UnauthorisedException 
    */
   Collection<RevValue> get(Index index) throws NigoriCryptographyException, IOException, UnauthorisedException;
+
+  /**
+   * Get the whole history for an index as a DAG
+   * 
+   * @param index
+   * @return a DAG representing the history for index or null if there is none
+   * @throws IOException 
+   * @throws NigoriCryptographyException 
+   * @throws UnauthorisedException 
+   */
+  DAG<Revision> getHistory(Index index) throws NigoriCryptographyException, IOException, UnauthorisedException;
 
   /**
    * Put the value for the index specifying that its parents are parents. The parents will be made
@@ -83,6 +84,16 @@ public interface MigoriDatastore extends Datastore {
   RevValue put(Index index, byte[] value, RevValue... parents) throws IOException, NigoriCryptographyException, UnauthorisedException;
 
   /**
+   * Set the value for the index to be deleted but preserve all history - this is safe delete in
+   * that it can be undone.
+   * 
+   * @param index the index
+   * @param parents the parent revisions
+   * @return the RevValue which represents the deleted value and the revision that points to it
+   */
+  RevValue removeValue(Index index, RevValue... parents);
+
+  /**
    * Permanently delete all information about an index storing only the revision at which it was
    * deleted to allow synchronisation between different data stores.
    * 
@@ -94,25 +105,14 @@ public interface MigoriDatastore extends Datastore {
    * @throws NigoriCryptographyException 
    * @throws UnauthorisedException 
    */
-  boolean deleteIndex(Index index, Revision position) throws NigoriCryptographyException, IOException, UnauthorisedException;
-
-  /**
-   * Get the whole history for an index as a DAG
-   * 
-   * @param index
-   * @return a DAG representing the history for index or null if there is none
-   * @throws IOException 
-   * @throws NigoriCryptographyException 
-   * @throws UnauthorisedException 
-   */
-  DAG<Revision> getHistory(Index index) throws NigoriCryptographyException, IOException, UnauthorisedException;
+  boolean removeIndex(Index index, Revision position) throws NigoriCryptographyException, IOException, UnauthorisedException;
 
   /**
    * Merges together the head revisions of existing branches of history to produce one single
    * current head revision. This will automatically be put before
-   * {@link #getHead(Index,MigoriMerger)} returns.
+   * {@link #getMerging(Index,MigoriMerger)} returns.
    * 
-   * @see #getHead(Index,MigoriMerger)
+   * @see #getMerging(Index,MigoriMerger)
    * @author drt24
    * 
    */

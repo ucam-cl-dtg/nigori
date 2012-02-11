@@ -129,8 +129,8 @@ public class TwoUserDemo {
     } catch (InterruptedException e) {
     }
     // Clean up
-    RevValue head = store.getHead(sharedIndex, new ArbitraryMerger());
-    store.deleteIndex(sharedIndex, head.getRevision());
+    RevValue head = store.getMerging(sharedIndex, new ArbitraryMerger());
+    store.removeIndex(sharedIndex, head.getRevision());
     store.unregister();
 
   }
