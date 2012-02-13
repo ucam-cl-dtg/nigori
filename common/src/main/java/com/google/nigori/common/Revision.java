@@ -74,6 +74,10 @@ public class Revision {
 
   @Override
   public String toString() {
-    return Base64.encodeBase64String(revision);
+    try {
+      return new String(Base64.encodeBase64(revision),MessageLibrary.CHARSET);
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
