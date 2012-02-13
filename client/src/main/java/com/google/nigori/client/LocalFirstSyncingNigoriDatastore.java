@@ -33,7 +33,7 @@ import com.google.nigori.common.UnauthorisedException;
  */
 public class LocalFirstSyncingNigoriDatastore extends SyncingNigoriDatastore {
 
-  protected boolean noRemote = false;
+  protected boolean noRemote = true;// Before we started we were not connected
   private static final Logger log = Logger.getLogger(LocalFirstSyncingNigoriDatastore.class
       .getName());
 
