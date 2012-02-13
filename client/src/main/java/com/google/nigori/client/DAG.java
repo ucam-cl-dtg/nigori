@@ -15,6 +15,8 @@ package com.google.nigori.client;
 
 import java.util.Collection;
 
+import com.google.nigori.common.Revision;
+
 /**
  * A Directed Acyclic Graph of {@link Node Nodes} of type T
  * 
@@ -22,7 +24,7 @@ import java.util.Collection;
  * @author drt24
  * 
  */
-public interface DAG<T> {
+public interface DAG<T> extends Iterable<Node<T>> {
 
   /**
    * Get the heads of the DAG - those nodes which have no successors
@@ -64,14 +66,8 @@ public interface DAG<T> {
    */
   Node<T> getCommonPredecessor(Node<T> firstNode, Node<T> secondNode);
 
-  /**
-   * Nodes which encapsulate the type T
-   * 
-   * @author drt24
-   * 
-   * @param <T>
-   */
-  public interface Node<T> {
-    T getValue();
+  interface DAGFactory {
+    public DAG<Revision> getDag(Collection<Revision> values);
+    public Node<Revision> getNode(Revision rev);
   }
 }

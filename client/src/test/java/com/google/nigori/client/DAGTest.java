@@ -13,6 +13,7 @@
  */
 package com.google.nigori.client;
 
+import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.everyItem;
@@ -31,7 +32,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.google.nigori.client.DAG.Node;
+import com.google.nigori.client.DAG.DAGFactory;
 import com.google.nigori.common.NigoriConstants;
 import com.google.nigori.common.Revision;
 
@@ -49,6 +50,14 @@ public class DAGTest {
   private static final Revision child2;
   private static final Revision merge;
   static {
+    // DAG:
+    //    roota           rootb
+    //   /    \
+    //  /      \
+    // child1  child2
+    //  \      /
+    //    merge
+
     // Child1
     byte[] childBytes = new byte[HASH * 2];
     byte[] cb = "child1".getBytes();
@@ -79,17 +88,7 @@ public class DAGTest {
 
   @Parameters
   public static Collection<DAGFactory[]> dags() {
-    return Arrays.asList(new DAGFactory[][] {{new HashDAGFactory()}});
-  }
-
-  private interface DAGFactory {
-    public DAG<Revision> getDag(Collection<Revision> values);
-  }
-
-  private static class HashDAGFactory implements DAGFactory {
-    public DAG<Revision> getDag(Collection<Revision> values) {
-      return new HashDAG(values);
-    }
+    return Arrays.asList(new DAGFactory[][] {{new HashDAG.HashDAGFactory()}});
   }
 
   private final DAGFactory factory;
@@ -179,6 +178,33 @@ public class DAGTest {
     Collection<Node<Revision>> heads = dag.getHeads();
     assertEquals(2, heads.size());
     assertThat(heads, hasItems(nodeContains(merge), nodeContains(rootb)));
+  }
+
+  @SuppressWarnings("unchecked")
+  // generic varargs
+  @Test
+  public void iterator() {
+    List<Revision> values = new ArrayList<Revision>(2);
+    values.add(roota);
+    values.add(child1);
+    values.add(child2);
+    values.add(merge);
+    values.add(rootb);
+    DAG<Revision> dag = factory.getDag(values);
+
+    List<Node<Revision>> nodes = new ArrayList<Node<Revision>>();
+    for (Node<Revision> next : dag) {
+      nodes.add(next);
+    }
+
+    assertThat(nodes, hasItems(nodeContains(roota), nodeContains(child1), nodeContains(child2),
+        nodeContains(merge), nodeContains(rootb)));
+    assertEquals(values.size(), nodes.size());
+    assertThat(nodes.indexOf(factory.getNode(merge)), lessThan(nodes.indexOf(factory.getNode(roota))));
+    assertThat(nodes.indexOf(factory.getNode(rootb)), lessThan(nodes.indexOf(factory.getNode(child1))));
+    assertThat(nodes.indexOf(factory.getNode(rootb)), lessThan(nodes.indexOf(factory.getNode(child2))));
+    assertThat(nodes.indexOf(factory.getNode(child1)), lessThan(nodes.indexOf(factory.getNode(roota))));
+    assertThat(nodes.indexOf(factory.getNode(child2)), lessThan(nodes.indexOf(factory.getNode(roota))));
   }
 
   private org.hamcrest.Matcher<Node<Revision>> nodeContains(final Revision revision) {

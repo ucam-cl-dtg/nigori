@@ -19,7 +19,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import com.google.nigori.common.NigoriConstants;
@@ -124,26 +128,13 @@ public class HashDAG implements DAG<Revision> {
   }
 
   private Node<Revision> addNode(Revision value) {
-    byte[] revBytes = value.getBytes();
-    if (revBytes.length < HASH_SIZE) {
-      throw new IllegalArgumentException(String.format(
-          "Revision too small, must be at least %d bytes long", HASH_SIZE));
-    }
-    if (revBytes.length % HASH_SIZE != 0) {
-      throw new IllegalArgumentException(String.format(
-          "Revision length must be a multiple of %d bytes long", HASH_SIZE));
-    }
-
-    byte[] revIdx = Arrays.copyOf(revBytes, HASH_SIZE);
-    RevIndex index = new RevIndex(revIdx);
-    Collection<RevIndex> predecessors = predecessors(revBytes);
-    RNode node = new RNode(value, index, predecessors);
-    nodes.put(index, node);
-    if (revBytes.length == HASH_SIZE) {
+    RNode node = new RNode(value);
+    nodes.put(node.index, node);
+    if (node.value.getBytes().length == HASH_SIZE) {
       starts.add(node);
     }
     // Record ourself as a successor of all our predecessors
-    for (RevIndex pIndex : predecessors) {
+    for (RevIndex pIndex : node.predecessors) {
       Collection<RNode> psuccessors = allSuccessors.get(pIndex);
       if (psuccessors == null) {
         psuccessors = new ArrayList<RNode>();
@@ -158,7 +149,7 @@ public class HashDAG implements DAG<Revision> {
    * @param revBytes
    * @return
    */
-  private Collection<RevIndex> predecessors(byte[] revBytes) {
+  private static Collection<RevIndex> predecessors(byte[] revBytes) {
     int numHashes = revBytes.length / HASH_SIZE;
     if (numHashes > 1) {
       Collection<RevIndex> answer = new ArrayList<RevIndex>();
@@ -180,10 +171,22 @@ public class HashDAG implements DAG<Revision> {
     private Collection<RevIndex> predecessors;
     private Set<RNode> successors;
 
-    public RNode(Revision rv, RevIndex index, Collection<RevIndex> predecessors) {
-      this.value = rv;
+    public RNode(Revision value){
+      byte[] revBytes = value.getBytes();
+      if (revBytes.length < HASH_SIZE) {
+        throw new IllegalArgumentException(String.format(
+            "Revision too small, must be at least %d bytes long", HASH_SIZE));
+      }
+      if (revBytes.length % HASH_SIZE != 0) {
+        throw new IllegalArgumentException(String.format(
+            "Revision length must be a multiple of %d bytes long", HASH_SIZE));
+      }
+
+      byte[] revIdx = Arrays.copyOf(revBytes, HASH_SIZE);
+      RevIndex index = new RevIndex(revIdx);
+      this.value = value;
       this.index = index;
-      this.predecessors = predecessors;
+      this.predecessors = predecessors(revBytes);
       this.successors = new HashSet<RNode>();
     }
 
@@ -257,6 +260,92 @@ public class HashDAG implements DAG<Revision> {
       if (!Arrays.equals(hash, other.hash))
         return false;
       return true;
+    }
+  }
+
+  @Override
+  public Iterator<Node<Revision>> iterator() {
+    return new HashIterator();
+  }
+
+  /**
+   * Do a breadth first walk of the graph avoiding duplicates
+   * @author drt24
+   *
+   */
+  private class HashIterator implements Iterator<Node<Revision>> {
+
+    private Set<Node<Revision>> seen;
+    private Iterator<Node<Revision>> currentIterator = null;
+    private List<Iterator<Node<Revision>>> iteratorList;
+    private Node<Revision> next = null;
+
+    /**
+     * @param heads
+     */
+    public HashIterator() {
+      seen = new HashSet<Node<Revision>>();
+      currentIterator = heads.iterator();
+      if (currentIterator.hasNext()){
+        next = currentIterator.next();
+        seen.add(next);
+      }
+      iteratorList = new LinkedList<Iterator<Node<Revision>>>();
+    }
+
+    @Override
+    public boolean hasNext() {
+      return (next != null);
+    }
+
+    @Override
+    public Node<Revision> next() {
+      if (next == null) {
+        throw new NoSuchElementException("No next element");
+      }
+      try {
+        Collection<Node<Revision>> predecessors = getPredecessors(next);
+        iteratorList.add(predecessors.iterator());
+        Node<Revision> last = next;
+        setNext();
+        return last;
+      } catch (MissingNodeException e) {
+        throw new IllegalStateException(e);
+      }
+    }
+
+    private void setNext() {
+      while (currentIterator.hasNext()) {
+        Node<Revision> potential = currentIterator.next();
+        if (!seen.contains(potential)) {
+          next = potential;
+          seen.add(next);
+          return;
+        }
+      }
+      if (!iteratorList.isEmpty()) {
+        currentIterator = iteratorList.remove(0);
+        setNext();
+      } else {
+        next = null;
+      }
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+
+  }
+
+  public static class HashDAGFactory implements DAGFactory {
+    public DAG<Revision> getDag(Collection<Revision> values) {
+      return new HashDAG(values);
+    }
+
+    @Override
+    public Node<Revision> getNode(Revision rev) {
+      return new RNode(rev);
     }
   }
 }
