@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.google.nigori.common.Index;
+import com.google.nigori.common.Revision;
 import com.google.nigori.common.UnauthorisedException;
 
 /**
@@ -54,7 +55,20 @@ public interface Datastore {
    * @return
    * @throws NigoriCryptographyException
    * @throws IOException
-   * @throws UnauthorisedException 
+   * @throws UnauthorisedException
    */
   List<Index> getIndices() throws NigoriCryptographyException, IOException, UnauthorisedException;
+
+  /**
+   * Retrieve the value for a particular index,revision pair
+   * 
+   * @param index
+   * @param revision
+   * @return the associated value or null if not present.
+   * @throws NigoriCryptographyException
+   * @throws IOException
+   * @throws UnauthorisedException
+   */
+  public byte[] getRevision(Index index, Revision revision) throws IOException,
+      NigoriCryptographyException, UnauthorisedException;
 }

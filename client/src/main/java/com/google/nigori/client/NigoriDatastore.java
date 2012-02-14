@@ -53,18 +53,6 @@ public interface NigoriDatastore extends Datastore {
   public List<RevValue> get(Index index) throws IOException, NigoriCryptographyException, UnauthorisedException;
 
   /**
-   * Retrieve the value for a particular index,revision pair
-   * @param index
-   * @param revision
-   * @return the associated value or null if not present.
-   * @throws NigoriCryptographyException
-   * @throws IOException
-   * @throws UnauthorisedException 
-   */
-  public byte[] getRevision(Index index, Revision revision) throws IOException,
-      NigoriCryptographyException, UnauthorisedException;
-
-  /**
    * Get the revisions for a particular index
    * @param index
    * @return a List of revisions for the index or null if the index does not exist.

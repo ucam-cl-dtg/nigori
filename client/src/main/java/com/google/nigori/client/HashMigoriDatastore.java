@@ -153,4 +153,9 @@ public class HashMigoriDatastore implements MigoriDatastore {
     return new HashDAG(revisions);
   }
 
+  @Override
+  public byte[] getRevision(Index index, Revision revision) throws IOException, NigoriCryptographyException, UnauthorisedException {
+    return store.getRevision(index, revision);
+  }
+
 }
