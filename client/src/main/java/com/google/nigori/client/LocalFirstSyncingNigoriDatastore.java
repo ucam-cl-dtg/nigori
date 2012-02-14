@@ -157,6 +157,12 @@ public class LocalFirstSyncingNigoriDatastore extends SyncingNigoriDatastore {
     byte[] firstValue = first.getRevision(index, revision);
     try {
       byte[] secondValue = second.getRevision(index, revision);
+      if (secondValue != null){
+        if (firstValue == null){
+          ensureSynced();
+          return secondValue;
+        }
+      }
       if (!Arrays.equals(firstValue, secondValue)) {
         throw new IOException("Stores returned different values for the same revision");
       }
