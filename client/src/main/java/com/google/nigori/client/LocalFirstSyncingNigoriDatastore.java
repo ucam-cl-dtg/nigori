@@ -37,6 +37,53 @@ public class LocalFirstSyncingNigoriDatastore extends SyncingNigoriDatastore {
   private static final Logger log = Logger.getLogger(LocalFirstSyncingNigoriDatastore.class
       .getName());
 
+  private boolean keepRunning = true;
+  private boolean doSync = false;// access protected by synchronized on syncThread
+
+  @Override
+  public void finalize() throws Throwable {// TODO(drt24) ensure that this will be called.
+    keepRunning = false;
+    synchronized (syncThread) {
+      syncThread.notify();
+    }
+    super.finalize();
+  }
+
+  private Thread syncThread = new Thread() {
+    @Override
+    public void run() {
+      while (keepRunning) {
+        synchronized (syncThread) {
+          try {
+            syncThread.wait();
+          } catch (InterruptedException e) {
+          }
+          if (doSync) {
+            sync();
+            doSync = false;
+          }
+        }
+      }
+    }
+
+    private void sync() {
+      boolean canAuth;
+      try {
+        canAuth = first.authenticate() && second.authenticate();
+
+        if (canAuth) {
+          syncAll();
+        }
+      } catch (IOException e) {
+        log.warning(e.toString());
+      } catch (UnauthorisedException e) {
+        log.severe(e.toString());
+      } catch (NigoriCryptographyException e) {
+        log.severe(e.toString());
+      }
+    }
+  };
+
   /**
    * @param first
    * @param second
@@ -67,18 +114,12 @@ public class LocalFirstSyncingNigoriDatastore extends SyncingNigoriDatastore {
    * @throws NigoriCryptographyException
    */
   private synchronized void ensureSynced() throws NigoriCryptographyException {
-    try {
-      if (noRemote) {
-        boolean canAuth = first.authenticate();
-        if (canAuth) {
-          syncAll();
-        }
-        noRemote = false;
+    if (noRemote) {
+      synchronized (syncThread) {
+        syncThread.notify();
+        doSync = true;
       }
-    } catch (IOException e) {
-      log.warning(e.toString());
-    } catch (UnauthorisedException e) {
-      log.severe(e.toString());
+      noRemote = false;
     }
   }
 
