@@ -103,15 +103,33 @@ public class HashMigoriDatastore implements MigoriDatastore {
   @Override
   public RevValue put(Index index, byte[] value, RevValue... parents) throws IOException,
       NigoriCryptographyException, UnauthorisedException {
-    byte[] toHash = new byte[value.length + parents.length * HashDAG.HASH_SIZE];
+    byte[] revBytes = generateHash(value, toIDByte(parents));
+    Revision rev = new Revision(revBytes);
+    RevValue rv = new RevValue(rev, value);
+    boolean success = store.put(index, rev, value);
+    if (!success) {
+      throw new IOException("Could not put into the store");
+    }
+    return rv;
+
+  }
+
+  private byte[] toIDByte(RevValue... parents) {
     Arrays.sort(parents);
+    byte[] idBytes = new byte[parents.length * HashDAG.HASH_SIZE];
     int insertPoint = 0;
-    System.arraycopy(value, 0, toHash, insertPoint, value.length);
-    insertPoint += value.length;
     for (RevValue rev : parents) {
-      System.arraycopy(rev.getRevision().getBytes(), 0, toHash, insertPoint, HashDAG.HASH_SIZE);
+      System.arraycopy(rev.getRevision().getBytes(), 0, idBytes, insertPoint, HashDAG.HASH_SIZE);
       insertPoint += HashDAG.HASH_SIZE;
     }
+    return idBytes;
+  }
+
+  private byte[] generateHash(byte[] value, byte[] idBytes) throws NigoriCryptographyException {
+    byte[] toHash = new byte[value.length + idBytes.length];
+    System.arraycopy(value, 0, toHash, 0, value.length);
+    System.arraycopy(idBytes, 0, toHash, value.length, idBytes.length);
+
     MessageDigest crypt;
     try {
       crypt = MessageDigest.getInstance("SHA-1");
@@ -119,20 +137,10 @@ public class HashMigoriDatastore implements MigoriDatastore {
       crypt.reset();
       crypt.update(toHash);
       byte[] hashBytes = crypt.digest();
-      byte[] revBytes = new byte[HashDAG.HASH_SIZE * (parents.length + 1)];
+      byte[] revBytes = new byte[HashDAG.HASH_SIZE + idBytes.length];
       System.arraycopy(hashBytes, 0, revBytes, 0, HashDAG.HASH_SIZE);
-      int insert = HashDAG.HASH_SIZE;
-      for (RevValue rev : parents) {
-        System.arraycopy(rev.getRevision().getBytes(), 0, revBytes, insert, HashDAG.HASH_SIZE);
-        insert += HashDAG.HASH_SIZE;
-      }
-      Revision rev = new Revision(revBytes);
-      RevValue rv = new RevValue(rev, value);
-      boolean success = store.put(index, rev, value);
-      if (!success) {
-        throw new IOException("Could not put into the store");
-      }
-      return rv;
+      System.arraycopy(idBytes, 0, revBytes, HashDAG.HASH_SIZE, idBytes.length);
+      return revBytes;
     } catch (NoSuchAlgorithmException e) {
       throw new NigoriCryptographyException(e);
     }
@@ -151,6 +159,7 @@ public class HashMigoriDatastore implements MigoriDatastore {
       return null;
     }
     return new HashDAG(revisions);
+    // TODO(drt24): verify revision hashes
   }
 
   @Override
