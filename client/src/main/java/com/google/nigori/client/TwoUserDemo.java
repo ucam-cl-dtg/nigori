@@ -32,8 +32,8 @@ public class TwoUserDemo {
 
   protected static final int PORT = 8888;
   protected static final String HOST = "localhost";
-  private static final int ITERATIONS = 60;
-  private static final int DELAY = 100;
+  private static final int ITERATIONS = 40;
+  private static final int DELAY = 50;
 	private static class SeparateUserAccessesSharedStore extends Thread {
 		
 		private String username;

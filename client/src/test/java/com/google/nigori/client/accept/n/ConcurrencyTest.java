@@ -46,6 +46,7 @@ public class ConcurrencyTest extends AcceptanceTest {
     super(store);
   }
   private static final int THREADS = 4;
+  private static final int REPEAT_FACTOR = 7;
   protected boolean failed = false;
 
   private void startThenJoinThreads(Thread[] threads){
@@ -89,7 +90,7 @@ public class ConcurrencyTest extends AcceptanceTest {
           try {
             NigoriDatastore nigori = getStore();
 
-            for (int i = 0; i < AcceptanceTests.REPEAT * 10; ++i) {// check we can do this more than
+            for (int i = 0; i < AcceptanceTests.REPEAT * REPEAT_FACTOR; ++i) {// check we can do this more than
                                                                    // once
               assertTrue("Not registered" + i, nigori.register());
               try {
@@ -141,7 +142,7 @@ public class ConcurrencyTest extends AcceptanceTest {
             boolean succeeded = false;
             try {
               Random r = new Random();
-              for (int i = 0; i < AcceptanceTests.REPEAT * 10; ++i) {// check we can do this more than
+              for (int i = 0; i < AcceptanceTests.REPEAT * REPEAT_FACTOR; ++i) {// check we can do this more than
                 // once
                 for (IndexValue iv : SetGetDeleteTest.testCases) {// once round for each
                   final Index index = new Index(new byte[16]);
