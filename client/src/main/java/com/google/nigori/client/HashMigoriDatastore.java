@@ -91,7 +91,7 @@ public class HashMigoriDatastore implements MigoriDatastore {
     List<RevValue> answer = new ArrayList<RevValue>();
     for (Node<Revision> rev : heads) {
       Revision revision = rev.getValue();
-      byte[] value = store.getRevision(index, revision);
+      byte[] value = getRevision(index, revision);
       // TODO(drt24) value might be null
       if (value != null) {
         answer.add(new RevValue(revision, value));
@@ -159,11 +159,11 @@ public class HashMigoriDatastore implements MigoriDatastore {
       return null;
     }
     return new HashDAG(revisions);
-    // TODO(drt24): verify revision hashes
   }
 
   @Override
   public byte[] getRevision(Index index, Revision revision) throws IOException, NigoriCryptographyException, UnauthorisedException {
+    //(drt24) Potentially verify revision hashes? I don't think that our threat model makes that necessary.
     return store.getRevision(index, revision);
   }
 
