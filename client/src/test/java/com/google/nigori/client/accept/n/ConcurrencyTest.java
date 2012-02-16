@@ -45,11 +45,11 @@ public class ConcurrencyTest extends AcceptanceTest {
   public ConcurrencyTest(DatastoreFactory store) {
     super(store);
   }
-  private static final int THREADS = 4;
-  private static final int REPEAT_FACTOR = 7;
+  public static final int THREADS = 4;
+  public static final int REPEAT_FACTOR = 7;
   protected boolean failed = false;
 
-  private void startThenJoinThreads(Thread[] threads){
+  public static void startThenJoinThreads(Thread[] threads){
     for (Thread t : threads){
       t.start();
     }
@@ -60,7 +60,7 @@ public class ConcurrencyTest extends AcceptanceTest {
       }
     }
   }
-  private void ifFailedPrintFailures(boolean failed, List<Throwable> exceptionList) throws UnsupportedEncodingException{
+  public static void ifFailedPrintFailures(boolean failed, List<Throwable> exceptionList) throws UnsupportedEncodingException{
     if (failed){
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       PrintStream ps = new PrintStream(baos);
