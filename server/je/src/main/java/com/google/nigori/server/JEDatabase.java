@@ -39,7 +39,7 @@ import com.sleepycat.je.Transaction;
  * @author drt24
  *
  */
-public class JEDatabase implements Database {
+public class JEDatabase extends AbstractDatabase {
 
   private final com.sleepycat.je.Database db;
   private final Environment env;
@@ -502,7 +502,7 @@ public class JEDatabase implements Database {
 
   @Override
   public void clearOldNonces() {
-    // TODO Auto-generated method stub
+    // TODO(drt24) implement clearOldNonces
     
   }
 

@@ -36,7 +36,7 @@ import com.google.nigori.common.RevValue;
  * @author drt24
  *
  */
-public class SQLDatabase implements Database {
+public class SQLDatabase extends AbstractDatabase {
 
   private Connection con;
   private Logger log = Logger.getLogger("SQLDatabase");
@@ -205,13 +205,13 @@ public class SQLDatabase implements Database {
 
   @Override
   public RevValue getRevision(User user, byte[] key, byte[] revision) throws IOException {
-    // TODO Auto-generated method stub
+    // TODO(drt24) implement getRevision
     return null;
   }
 
   @Override
   public Collection<byte[]> getIndices(User user) {
-    // TODO Auto-generated method stub
+    // TODO(drt24) implement getIndices
     return null;
   }
 
@@ -321,8 +321,7 @@ public class SQLDatabase implements Database {
 
   @Override
   public void clearOldNonces() {
-    // TODO Auto-generated method stub
-    
+    // TODO(drt24) implement clearOldNonces    
   }
 
 }

@@ -45,6 +45,7 @@ import com.google.nigori.server.UserFactory;
 import com.google.nigori.server.UserNotFoundException;
 
 public final class AppEngineDatabase implements Database {
+  // TODO(drt24) schedule clearOldNonces
 
   private static final Logger log = Logger.getLogger(AppEngineDatabase.class.getName());
   protected static final String STORE = "store";
@@ -342,7 +343,7 @@ public final class AppEngineDatabase implements Database {
 
   @Override
   public void clearOldNonces() {
-    // TODO Auto-generated method stub
+    // TODO(drt24) implement clearOldNonces
     
   }
 

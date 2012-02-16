@@ -39,7 +39,7 @@ import com.google.protobuf.ByteString;
  * @author Alastair Beresford
  *
  */
-public class HashMapDatabase implements Database {
+public class HashMapDatabase extends AbstractDatabase {
 
 	private HashMap<User,Map<ByteString, Map<ByteString,ByteString>>> stores = new HashMap<User,Map<ByteString, Map<ByteString,ByteString>>>();
 	private HashMap<ByteString,User> users = new HashMap<ByteString,User>();
