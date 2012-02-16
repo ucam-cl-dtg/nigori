@@ -19,11 +19,11 @@ package com.google.nigori.server;
  * @author drt24
  *
  */
-public class TestDatabaseTest extends AbstractDatabaseTest {
+public class HashMapDatabaseTest extends AbstractDatabaseTest {
 
   @Override
   protected Database getDatabase() {
-    return new TestDatabase();
+    return new HashMapDatabase();
   }
 
 }
