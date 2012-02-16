@@ -21,12 +21,6 @@
     </dependency>
     <dependency>
       <groupId>com.google.nigori</groupId>
-      <artifactId>server</artifactId>
-      <version>${project.version}</version>
-      <classifier>classes</classifier>
-    </dependency>
-    <dependency>
-      <groupId>com.google.nigori</groupId>
       <artifactId>appengine</artifactId>
       <version>${project.version}</version>
       <classifier>classes</classifier>
