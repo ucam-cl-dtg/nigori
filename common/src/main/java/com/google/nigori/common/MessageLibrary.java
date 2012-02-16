@@ -85,11 +85,21 @@ public class MessageLibrary {
 			super(msg);
 		}
 	}
-	// TODO(drt24) add fromGson method
 
 	public static String toJson(GeneratedMessage src){
 	  return gson.toJson(src);
 	}
+
+  private static <T extends GeneratedMessage> T fromJson(String json, Class<T> clz)
+      throws JsonConversionException {
+    try {
+      return gson.fromJson(json, clz);
+    } catch (JsonSyntaxException jse) {
+      throw new JsonConversionException("Invalid JSON syntax");
+    } catch (JsonParseException jse) {
+      throw new JsonConversionException("Unable to parse JSON fields into correct message format");
+    }
+  }
 
 	public static GetRequest getRequestAsProtobuf(SchnorrSign signer, byte[] index, byte[] revision) throws 
 	NoSuchAlgorithmException {
@@ -112,13 +122,7 @@ public class MessageLibrary {
 	}
 
 	public static GetRequest getRequestFromJson(String json)  throws JsonConversionException {
-		try {
-			return gson.fromJson(json, GetRequest.class);
-		} catch (JsonSyntaxException jse) {
-			throw new JsonConversionException("Invalid JSON syntax");
-		} catch (JsonParseException jse) {
-			throw new JsonConversionException("Unable to parse JSON fields into correct message format");
-		}
+	  return fromJson(json, GetRequest.class);
 	}
 
 
@@ -140,13 +144,7 @@ public class MessageLibrary {
 	}
 
 	public static GetResponse getResponseFromJson(String json) throws JsonConversionException {
-		try {
-			return gson.fromJson(json, GetResponse.class);
-		} catch (JsonSyntaxException jse) {
-			throw new JsonConversionException("Invalid JSON syntax");
-		} catch (JsonParseException jse) {
-			throw new JsonConversionException("Unable to parse JSON fields into correct message format");
-		}
+	  return fromJson(json, GetResponse.class);
 	}
 
 	public static GetIndicesRequest getIndicesRequestAsProtobuf(SchnorrSign signer) throws NoSuchAlgorithmException {
@@ -159,13 +157,7 @@ public class MessageLibrary {
   }
 
   public static GetIndicesRequest getIndicesRequestFromJson(String json) throws JsonConversionException {
-    try {
-      return gson.fromJson(json, GetIndicesRequest.class);
-    } catch (JsonSyntaxException jse) {
-      throw new JsonConversionException("Invalid JSON syntax");
-    } catch (JsonParseException jse) {
-      throw new JsonConversionException("Unable to parse JSON fields into correct message format");
-    }
+    return fromJson(json, GetIndicesRequest.class);
   }
 
   public static GetIndicesResponse getIndicesResponseAsProtobuf(Collection<byte[]> value) {
@@ -181,13 +173,7 @@ public class MessageLibrary {
   }
 
   public static GetIndicesResponse getIndicesResponseFromJson(String json) throws JsonConversionException {
-    try {
-      return gson.fromJson(json, GetIndicesResponse.class);
-    } catch (JsonSyntaxException jse) {
-      throw new JsonConversionException("Invalid JSON syntax");
-    } catch (JsonParseException jse) {
-      throw new JsonConversionException("Unable to parse JSON fields into correct message format");
-    }
+    return fromJson(json, GetIndicesResponse.class);
   }
 
   public static GetRevisionsRequest getRevisionsRequestAsProtobuf(SchnorrSign signer, byte[] index) throws NoSuchAlgorithmException {
@@ -203,13 +189,7 @@ public class MessageLibrary {
   }
 
   public static GetRevisionsRequest getRevisionsRequestFromJson(String json) throws JsonConversionException{
-    try {
-      return gson.fromJson(json, GetRevisionsRequest.class);
-    } catch (JsonSyntaxException jse) {
-      throw new JsonConversionException("Invalid JSON syntax");
-    } catch (JsonParseException jse) {
-      throw new JsonConversionException("Unable to parse JSON fields into correct message format");
-    }
+    return fromJson(json, GetRevisionsRequest.class);
   }
 
   public static GetRevisionsResponse getRevisionsResponseAsProtobuf(Collection<byte[]> value) {
@@ -226,13 +206,7 @@ public class MessageLibrary {
 
   public static GetRevisionsResponse getRevisionsResponseFromJson(String json)
       throws JsonConversionException {
-    try {
-      return gson.fromJson(json, GetRevisionsResponse.class);
-    } catch (JsonSyntaxException jse) {
-      throw new JsonConversionException("Invalid JSON syntax");
-    } catch (JsonParseException jse) {
-      throw new JsonConversionException("Unable to parse JSON fields into correct message format");
-    }
+    return fromJson(json, GetRevisionsResponse.class);
   }
 
   public static PutRequest putRequestAsProtobuf(SchnorrSign signer, byte[] index, byte[] revision, byte[] value) throws NoSuchAlgorithmException {
@@ -254,13 +228,7 @@ public class MessageLibrary {
 	}
 
 	public static PutRequest putRequestFromJson(String json) throws JsonConversionException {
-		try {
-			return gson.fromJson(json, PutRequest.class);
-		} catch (JsonSyntaxException jse) {
-			throw new JsonConversionException("Invalid JSON syntax");
-		} catch (JsonParseException jse) {
-			throw new JsonConversionException("Unable to parse JSON fields into correct message format");
-		}
+	  return fromJson(json, PutRequest.class);
 	}
 
 	public static DeleteRequest deleteRequestAsProtobuf(SchnorrSign signer, byte[] index) throws NoSuchAlgorithmException{
@@ -279,13 +247,7 @@ public class MessageLibrary {
   }
 
 	public static DeleteRequest deleteRequestFromJson(String json) throws JsonConversionException {
-    try {
-      return gson.fromJson(json, DeleteRequest.class);
-    } catch (JsonSyntaxException jse) {
-      throw new JsonConversionException("Invalid JSON syntax");
-    } catch (JsonParseException jse) {
-      throw new JsonConversionException("Unable to parse JSON fields into correct message format");
-    }
+	  return fromJson(json, DeleteRequest.class);
   }
 
   public static AuthenticateRequest authenticateRequestAsProtobuf(SchnorrSign signer) throws
@@ -310,13 +272,7 @@ public class MessageLibrary {
 
 	public static AuthenticateRequest authenticateRequestFromJson(String json) throws
 	JsonConversionException {
-		try {
-			return gson.fromJson(json, AuthenticateRequest.class);
-		} catch (JsonSyntaxException jse) {
-			throw new JsonConversionException("Invalid JSON syntax");
-		} catch (JsonParseException jse) {
-			throw new JsonConversionException("Unable to parse JSON fields into correct message format");
-		}
+	  return fromJson(json, AuthenticateRequest.class);
 	}
 
 	public static RegisterRequest registerRequestAsProtobuf( SchnorrSign signer, byte[] token ) throws
@@ -335,7 +291,12 @@ public class MessageLibrary {
 		return gson.toJson(registerRequestAsProtobuf(signer, token));
 	}
 
-	public static UnregisterRequest unregisterRequestAsProtobuf(SchnorrSign signer) throws
+	public static RegisterRequest registerRequestFromJson(String json) throws 
+  JsonConversionException {
+	  return fromJson(json, RegisterRequest.class);
+  }
+
+  public static UnregisterRequest unregisterRequestAsProtobuf(SchnorrSign signer) throws
   NoSuchAlgorithmException {
 
     UnregisterRequest req = UnregisterRequest.newBuilder()
@@ -350,24 +311,8 @@ public class MessageLibrary {
     return gson.toJson(unregisterRequestAsProtobuf(signer));
   }
 
-	public static RegisterRequest registerRequestFromJson(String json) throws 
-	JsonConversionException {
-		try {
-			return gson.fromJson(json, RegisterRequest.class);
-		} catch (JsonSyntaxException jse) {
-			throw new JsonConversionException("Invalid JSON syntax");
-		} catch (JsonParseException jse) {
-			throw new JsonConversionException("Unable to parse JSON fields into correct message format");
-		}
-	}
 	public static UnregisterRequest unregisterRequestFromJson(String json) throws 
   JsonConversionException {
-    try {
-      return gson.fromJson(json, UnregisterRequest.class);
-    } catch (JsonSyntaxException jse) {
-      throw new JsonConversionException("Invalid JSON syntax");
-    } catch (JsonParseException jse) {
-      throw new JsonConversionException("Unable to parse JSON fields into correct message format");
-    }
+	  return fromJson(json, UnregisterRequest.class);
   }
 }
