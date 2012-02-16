@@ -154,7 +154,6 @@ public class RealKeyManager implements KeyManager {
   private byte[] generateHMAC(byte[] message, byte[] secretKey) throws NigoriCryptographyException {
 
     try {
-      //TODO(drt24): The spec says SHA256, but this is not available on AppEngine - need to bundle library.
       String hmacAlgorithm = NigoriConstants.A_HMAC;
       Mac mac = Mac.getInstance(hmacAlgorithm);
       SecretKey key = new SecretKeySpec(secretKey, NigoriConstants.A_KMAC);
