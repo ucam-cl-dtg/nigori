@@ -128,7 +128,7 @@ public class SQLDatabase extends AbstractDatabase {
   @Override
   public boolean checkAndAddNonce(Nonce nonce, byte[] publicKey) {
     PreparedStatement queryStatement = null, insertStatement = null;
-    try {//TODO
+    try {
       queryStatement = con.prepareStatement("SELECT sid FROM stores WHERE pk = ?");
       int sid;
       try {

@@ -124,7 +124,7 @@ public class HashDAG implements DAG<Revision> {
   @Override
   public Node<Revision> getCommonPredecessor(Node<Revision> firstNode, Node<Revision> secondNode) {
     throw new UnsupportedOperationException("Not yet implemented");
-    // TODO(drt24) implement
+    // TODO(drt24) implement getCommonPredecessor
   }
 
   private Node<Revision> addNode(Revision value) {

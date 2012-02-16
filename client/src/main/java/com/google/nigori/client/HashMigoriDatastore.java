@@ -60,7 +60,7 @@ public class HashMigoriDatastore implements MigoriDatastore {
 
   @Override
   public RevValue removeValue(Index index, RevValue... parents) {
-    // TODO(drt24) implement
+    // TODO(drt24) implement getCommonPredecessor
     throw new UnsupportedOperationException("Not yet implemented");
   }
 

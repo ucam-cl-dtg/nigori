@@ -22,8 +22,9 @@ import com.google.nigori.common.Revision;
 import com.google.nigori.common.UnauthorisedException;
 
 /**
- * Nigori datastore which performs the relevant encryption and communicates with nigori server(s) which store the data.
- * TODO(drt24) need to wrap up byte[] for revision and value so that .equals() can work correctly.
+ * Nigori datastore which performs the relevant encryption and communicates with nigori server(s)
+ * which store the data.
+ * 
  * @author drt24
  * 
  */

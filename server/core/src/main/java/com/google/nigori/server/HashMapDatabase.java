@@ -41,6 +41,7 @@ import com.google.protobuf.ByteString;
  */
 public class HashMapDatabase extends AbstractDatabase {
 
+  // TODO(drt24) provide a WeakHashMap version so this can be used as a cache
 	private HashMap<User,Map<ByteString, Map<ByteString,ByteString>>> stores = new HashMap<User,Map<ByteString, Map<ByteString,ByteString>>>();
 	private HashMap<ByteString,User> users = new HashMap<ByteString,User>();
 	private HashMap<ByteString,Set<Nonce>> nonces = new HashMap<ByteString,Set<Nonce>>();
@@ -182,7 +183,6 @@ public class HashMapDatabase extends AbstractDatabase {
 
   @Override
   public boolean checkAndAddNonce(Nonce nonce, byte[] publicKey) {
-    //TODO(drt24) old nonces are never pruned
     if (!nonce.isRecent()){
       return false;
     }

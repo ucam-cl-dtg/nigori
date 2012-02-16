@@ -24,7 +24,7 @@ import org.junit.Test;
 
 /**
  * @author drt24
- * TODO covert to Paramaterized
+ * TODO(drt24) covert to Paramaterized
  */
 public class SchnorrSignTest {
 

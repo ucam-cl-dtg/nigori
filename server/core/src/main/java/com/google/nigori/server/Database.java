@@ -41,8 +41,6 @@ public interface Database {
 	 * @param nonce
 	 * @return
 	 */
-	// TODO(beresford): Put this constant in server configuration and use this to timeout
-	// storage of random nonce values out of the database (when we start to store them!).
 	// TODO(beresford): Must avoid race condition when random number is used multiple times
 	// quickly
 	public boolean checkAndAddNonce(Nonce nonce, byte[] publicKey);
