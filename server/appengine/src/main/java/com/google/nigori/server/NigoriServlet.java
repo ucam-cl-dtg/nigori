@@ -63,9 +63,6 @@ public class NigoriServlet extends HttpServlet {
 	}
 
 	private class ServletException extends Exception {
-		/**
-     * 
-     */
     private static final long serialVersionUID = 1L;
     private int statusCode;
 
@@ -108,14 +105,14 @@ public class NigoriServlet extends HttpServlet {
 			while((charsRead = in.read(buffer)) != -1) {
 				charsRemaining -= charsRead;
 				if (charsRemaining < 0) {
-					throw new ServletException(413, "Json request exceeds server maximum length of " + 
+					throw new ServletException(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Json request exceeds server maximum length of " + 
 							maxLength);
 				}
 				json.append(buffer, 0, charsRead);
 			}
 			return json.toString();
 		} catch (IOException ioe) {
-			throw new ServletException(500, "Internal error receiving data from client.");
+			throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal error receiving data from client.");
 		}
 	}
 
@@ -273,12 +270,12 @@ public class NigoriServlet extends HttpServlet {
 	private class JsonAuthenticateRequestHandler implements RequestHandler {
 
 	  public void handle(HttpServletRequest req, HttpServletResponse resp)
-	      throws ServletException, JsonConversionException, IOException {
+	      throws ServletException, JsonConversionException, IOException, UnauthorisedException {
 	    String json = getJsonAsString(req, maxJsonQueryLength);
 	    AuthenticateRequest auth = MessageLibrary.authenticateRequestFromJson(json);
 	    boolean success = protocol.authenticate(auth);
 	    if (!success){
-	      throw new ServletException(HttpServletResponse.SC_UNAUTHORIZED,"Authorisation failed");
+	      throw new UnauthorisedException("Authorisation failed");
 	    }
 
 	    emptyBody(resp);
@@ -348,36 +345,40 @@ public class NigoriServlet extends HttpServlet {
 	@Override
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
-		try {
-			//Subset of path managed by this servlet; e.g. if URI is "/nigori/get" and servlet path
-			//is "/nigori, then we want to retrieve "get" as the request type
-			String requestType = req.getRequestURI().substring(req.getServletPath().length() + 1);
-			String requestMimetype = req.getContentType();
-			RequestHandlerType handlerType = new RequestHandlerType(requestMimetype, requestType);
+	  try {
+	    //Subset of path managed by this servlet; e.g. if URI is "/nigori/get" and servlet path
+	    //is "/nigori, then we want to retrieve "get" as the request type
+	    String requestType = req.getRequestURI().substring(req.getServletPath().length() + 1);
+	    String requestMimetype = req.getContentType();
+	    RequestHandlerType handlerType = new RequestHandlerType(requestMimetype, requestType);
 
-			RequestHandler handler = handlers.get(handlerType);
-			if (handler == null) {
-				throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, 
-						"Unsupported request pair:" + handlerType);
-      }
-      try {
-        handler.handle(req, resp);
-      } catch (IOException ioe) {
-        throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-            "Internal error sending data to client");
-      } catch (MessageLibrary.JsonConversionException jce) {
-        throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, "JSON format error: "
-            + jce.getMessage());
-      } catch (NotFoundException e) {
-        throw new ServletException(HttpServletResponse.SC_NOT_FOUND, e.getLocalizedMessage());
-      } catch (UnauthorisedException e) {
-        throw new ServletException(HttpServletResponse.SC_UNAUTHORIZED, "Authorisation failed: "
-            + e.getLocalizedMessage());
-      }
+	    RequestHandler handler = handlers.get(handlerType);
+	    if (handler == null) {
+	      throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, 
+	          "Unsupported request pair:" + handlerType);
+	    }
+	    try {
+	      handler.handle(req, resp);
+	    } catch (NotFoundException e) {
+	      ServletException s =  new ServletException(HttpServletResponse.SC_NOT_FOUND, e.getLocalizedMessage());
+	      log.fine(s.toString());
+	      s.writeHttpResponse(resp);
+	    } catch (UnauthorisedException e) {
+	      ServletException s = new ServletException(HttpServletResponse.SC_UNAUTHORIZED, "Authorisation failed: "
+	          + e.getLocalizedMessage());
+	      log.warning(s.toString());
+	      s.writeHttpResponse(resp);
+	    } catch (IOException ioe) {
+	      throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+	          "Internal error sending data to client");
+	    } catch (MessageLibrary.JsonConversionException jce) {
+	      throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, "JSON format error: "
+	          + jce.getMessage());
+	    }
 
-		} catch (ServletException e) {
-		  log.severe(e.toString());
-			e.writeHttpResponse(resp);
-		}
+	  } catch (ServletException e) {
+	    log.severe(e.toString());
+	    e.writeHttpResponse(resp);
+	  }
 	}
 }
