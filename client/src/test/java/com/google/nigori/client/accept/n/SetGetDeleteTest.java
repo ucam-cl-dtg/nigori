@@ -37,6 +37,7 @@ import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.RevValue;
 import com.google.nigori.common.Revision;
 import com.google.nigori.common.UnauthorisedException;
+import com.google.nigori.common.Util;
 
 public class SetGetDeleteTest extends AcceptanceTest {
 
@@ -169,6 +170,22 @@ public class SetGetDeleteTest extends AcceptanceTest {
         nigori.delete(indexa,NULL_DELETE_TOKEN);
         nigori.delete(indexb,NULL_DELETE_TOKEN);
       }
+    } finally {
+      assertTrue("Not unregistered", nigori.unregister());
+    }
+  }
+
+  //@Test //TODO(drt24) Do we want to enforce revisions being immutable? Migori doesn't really need this due to the way revisions are generated.
+  public void immutableRevisions() throws IOException, NigoriCryptographyException,
+      UnauthorisedException {
+    NigoriDatastore nigori = getStore();
+    try {
+      assertTrue("Not registered", nigori.register());
+      final Index index = new Index("index");
+      final Revision revision = new Revision("rev");
+      assertTrue("Not put", nigori.put(index, revision, Util.int2bin(0)));
+      assertFalse("Could replace revision value", nigori.put(index, revision, Util.int2bin(1)));
+      nigori.delete(index, NULL_DELETE_TOKEN);
     } finally {
       assertTrue("Not unregistered", nigori.unregister());
     }
