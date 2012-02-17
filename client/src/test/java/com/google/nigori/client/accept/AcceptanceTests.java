@@ -45,8 +45,9 @@ import com.google.nigori.client.accept.n.SetGetDeleteTest;
   })
 public class AcceptanceTests {
 
-  public static final int PORT = 8888;
-  public static final String HOST = "localhost";
+  private static final boolean LOCAL = true;
+  public static final int PORT = LOCAL ? 8888 : 443;
+  public static final String HOST = LOCAL ? "localhost" : "nigori-dev.appspot.com";
   public static final String PATH = "nigori";
   private static long startTime;
   private static final int EXTERNAL_TIMEOUT = 30000;

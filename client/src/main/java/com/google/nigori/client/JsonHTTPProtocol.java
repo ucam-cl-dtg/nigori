@@ -49,7 +49,11 @@ public class JsonHTTPProtocol implements NigoriProtocol {
   private final Http http;
 
   public JsonHTTPProtocol(String server, int port, String serverPrefix) {
-    http = new Http("http://" + server + ":" + port + "/" + serverPrefix + "/");
+    String protocol = "https://";
+    if ("localhost".equals(server)) {
+      protocol = "http://";
+    }
+    http = new Http(protocol + server + ":" + port + "/" + serverPrefix + "/");
   }
 
   /**
