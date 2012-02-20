@@ -181,12 +181,11 @@ public class HashMigoriDatastore implements MigoriDatastore {
   private byte[] validateHash(byte[] value, Revision revision) throws NigoriCryptographyException,
       InvalidHashException {
     byte[] revBytes = revision.getBytes();
-    byte[] hash = Arrays.copyOfRange(generateHash(value, Arrays.copyOfRange(revBytes, HASH_SIZE, revBytes.length)),0,HASH_SIZE);
-    byte[] revHash = Arrays.copyOfRange(revBytes, 0, HASH_SIZE);
-    if (Arrays.equals(hash, revHash)) {
+    byte[] hash = generateHash(value, Arrays.copyOfRange(revBytes, HASH_SIZE, revBytes.length));
+    if (Arrays.equals(hash, revBytes)) {
       return value;
     } else {
-      throw new InvalidHashException(revHash, hash);
+      throw new InvalidHashException(revBytes, hash);
     }
   }
 
