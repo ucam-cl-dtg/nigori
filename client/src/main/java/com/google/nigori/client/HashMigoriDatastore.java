@@ -13,6 +13,8 @@
  */
 package com.google.nigori.client;
 
+import static com.google.nigori.client.HashDAG.HASH_SIZE;
+
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -20,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+
+import org.apache.commons.codec.binary.Hex;
 
 import com.google.nigori.common.Index;
 import com.google.nigori.common.NigoriCryptographyException;
@@ -61,7 +65,7 @@ public class HashMigoriDatastore implements MigoriDatastore {
 
   @Override
   public RevValue removeValue(Index index, RevValue... parents) {
-    // TODO(drt24) implement getCommonPredecessor
+    // TODO(drt24) implement removeValue
     throw new UnsupportedOperationException("Not yet implemented");
   }
 
@@ -69,8 +73,11 @@ public class HashMigoriDatastore implements MigoriDatastore {
   public RevValue getMerging(Index index, MigoriMerger merger) throws NigoriCryptographyException,
       IOException, UnauthorisedException {
     List<RevValue> heads = get(index);
-    if (heads == null || heads.size() == 0){
+    if (heads == null || heads.size() == 0) {
       return null;
+    }
+    for (RevValue head : heads) {
+      validateHash(head.getValue(), head.getRevision());
     }
     if (heads.size() == 1) {
       for (RevValue head : heads) {
@@ -117,11 +124,11 @@ public class HashMigoriDatastore implements MigoriDatastore {
 
   private byte[] toIDByte(RevValue... parents) {
     Arrays.sort(parents);
-    byte[] idBytes = new byte[parents.length * HashDAG.HASH_SIZE];
+    byte[] idBytes = new byte[parents.length * HASH_SIZE];
     int insertPoint = 0;
     for (RevValue rev : parents) {
-      System.arraycopy(rev.getRevision().getBytes(), 0, idBytes, insertPoint, HashDAG.HASH_SIZE);
-      insertPoint += HashDAG.HASH_SIZE;
+      System.arraycopy(rev.getRevision().getBytes(), 0, idBytes, insertPoint, HASH_SIZE);
+      insertPoint += HASH_SIZE;
     }
     return idBytes;
   }
@@ -138,9 +145,9 @@ public class HashMigoriDatastore implements MigoriDatastore {
       crypt.reset();
       crypt.update(toHash);
       byte[] hashBytes = crypt.digest();
-      byte[] revBytes = new byte[HashDAG.HASH_SIZE + idBytes.length];
-      System.arraycopy(hashBytes, 0, revBytes, 0, HashDAG.HASH_SIZE);
-      System.arraycopy(idBytes, 0, revBytes, HashDAG.HASH_SIZE, idBytes.length);
+      byte[] revBytes = new byte[HASH_SIZE + idBytes.length];
+      System.arraycopy(hashBytes, 0, revBytes, 0, HASH_SIZE);
+      System.arraycopy(idBytes, 0, revBytes, HASH_SIZE, idBytes.length);
       return revBytes;
     } catch (NoSuchAlgorithmException e) {
       throw new NigoriCryptographyException(e);
@@ -162,10 +169,41 @@ public class HashMigoriDatastore implements MigoriDatastore {
     return new HashDAG(revisions);
   }
 
-  @Override
-  public byte[] getRevision(Index index, Revision revision) throws IOException, NigoriCryptographyException, UnauthorisedException {
-    //(drt24) Potentially verify revision hashes? I don't think that our threat model makes that necessary.
-    return store.getRevision(index, revision);
+  /**
+   * Verify that the value provided gives the correct hash when combined with the Revision
+   * 
+   * @param value
+   * @param revision
+   * @return
+   * @throws NigoriCryptographyException
+   * @throws InvalidHashException
+   */
+  private byte[] validateHash(byte[] value, Revision revision) throws NigoriCryptographyException,
+      InvalidHashException {
+    byte[] revBytes = revision.getBytes();
+    byte[] hash = generateHash(value, Arrays.copyOfRange(revBytes, HASH_SIZE, revBytes.length));
+    byte[] revHash = Arrays.copyOfRange(revBytes, 0, HASH_SIZE);
+    if (Arrays.equals(hash, revHash)) {
+      return value;
+    } else {
+      throw new InvalidHashException(revHash, hash);
+    }
   }
 
+  @Override
+  public byte[] getRevision(Index index, Revision revision) throws IOException,
+      NigoriCryptographyException, UnauthorisedException {
+    return validateHash(store.getRevision(index, revision), revision);
+  }
+
+  public static class InvalidHashException extends IOException {
+
+    private static final long serialVersionUID = 1L;
+
+    public InvalidHashException(byte[] expectedHash, byte[] gotHash) {
+      super("Expected: " + new String(Hex.encodeHex(expectedHash)) + " and got: "
+          + new String(Hex.encodeHex(gotHash)));
+    }
+
+  }
 }
