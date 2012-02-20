@@ -147,6 +147,9 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
 	  return protocol.unregister(MessageLibrary.unregisterRequestAsProtobuf(keyManager.signer()));
   }
 
+	/**
+	 * @return WARNING: there is no assurance that the value for the revision is a pair once specified by a valid client - the server can pair any value with any revision.
+	 */
 	@Override
 	public List<RevValue> get(Index index) throws IOException,	NigoriCryptographyException, UnauthorisedException {
 		return get(null, index, null);
@@ -155,7 +158,7 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
 	/**
    * @param index
    * @param revision
-   * @return
+   * @return WARNING: there is no assurance that the value for the revision is a pair once specified by a valid client - the server can pair any value with any revision.
    * @throws NigoriCryptographyException 
    * @throws IOException 
 	 * @throws UnauthorisedException 
@@ -175,8 +178,9 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
 	 * Retrieve the value associated with {@code index} on the server.
 	 * 
 	 * @param index
-	 * @return a byte array containing the data associated with {@code key} or {@code null} if no
-	 * data exists.
+	 * @param revision
+	 * @return a list of RevValues containing the data associated with {@code index} or {@code null} if no
+	 * data exists. WARNING: there is no assurance that the value for the revision is a pair once specified by a valid client - the server can pair any value with any revision.
 	 */
 	private List<RevValue> get(byte[] encKey, Index index, Revision revision) throws IOException, NigoriCryptographyException, UnauthorisedException {
 
