@@ -25,6 +25,10 @@ import com.google.nigori.common.UnauthorisedException;
  * An index-value store which provides merging and synchronisation support through tracking revision
  * history.
  * 
+ * @see #getMerging(Index, MigoriMerger) get the current head
+ * @see #put(Index, byte[], RevValue...) put a value specifying its parents
+ * @see #removeValue(Index, RevValue...) remove a value specifying its parents at removal
+ * 
  * @author drt24
  * 
  */
@@ -36,38 +40,43 @@ public interface MigoriDatastore extends Datastore {
    * 
    * @param index the index
    * @param merger the code to automatically merge the heads of any branches of history together
-   * @return the single head revision for all current history or null if there are no values for this index
-   * @throws IOException 
-   * @throws NigoriCryptographyException 
-   * @throws UnauthorisedException 
+   * @return the single head revision for all current history or null if there are no values for
+   *         this index
+   * @throws IOException something went wrong while communicating with the server
+   * @throws NigoriCryptographyException relevant cryptographic libraries not available
+   * @throws UnauthorisedException server denied authorisation
    */
-  RevValue getMerging(Index index, MigoriMerger merger) throws NigoriCryptographyException, IOException, UnauthorisedException;
+  RevValue getMerging(Index index, MigoriMerger merger) throws NigoriCryptographyException,
+      IOException, UnauthorisedException;
 
   /**
    * Get all the current heads of branches of history for this index.
    * 
-   * @see #getMerging(Index, MigoriMerger) better to use this where you can as it ensures the number of
-   *      branches of history does not grow.
+   * @see #getMerging(Index, MigoriMerger) better to use this where you can as it ensures the number
+   *      of branches of history does not grow.
    * @param index the index
-   * @return a collection of the heads of the current branches of history or null if this index has no values
+   * @return a collection of the heads of the current branches of history or null if this index has
+   *         no values
    * 
    *         You MUST NOT assume that this collection with have a size of one.
-   * @throws IOException 
-   * @throws NigoriCryptographyException 
-   * @throws UnauthorisedException 
+   * @throws IOException something went wrong while communicating with the server
+   * @throws NigoriCryptographyException relevant cryptographic libraries not available
+   * @throws UnauthorisedException server denied authorisation
    */
-  Collection<RevValue> get(Index index) throws NigoriCryptographyException, IOException, UnauthorisedException;
+  Collection<RevValue> get(Index index) throws NigoriCryptographyException, IOException,
+      UnauthorisedException;
 
   /**
    * Get the whole history for an index as a DAG
    * 
    * @param index
    * @return a DAG representing the history for index or null if there is none
-   * @throws IOException 
-   * @throws NigoriCryptographyException 
-   * @throws UnauthorisedException 
+   * @throws IOException something went wrong while communicating with the server
+   * @throws NigoriCryptographyException relevant cryptographic libraries not available
+   * @throws UnauthorisedException server denied authorisation
    */
-  DAG<Revision> getHistory(Index index) throws NigoriCryptographyException, IOException, UnauthorisedException;
+  DAG<Revision> getHistory(Index index) throws NigoriCryptographyException, IOException,
+      UnauthorisedException;
 
   /**
    * Put the value for the index specifying that its parents are parents. The parents will be made
@@ -77,11 +86,12 @@ public interface MigoriDatastore extends Datastore {
    * @param value the value
    * @param parents the parent revisions
    * @return the value that was put along with its revision.
-   * @throws NigoriCryptographyException 
-   * @throws IOException 
-   * @throws UnauthorisedException 
+   * @throws IOException something went wrong while communicating with the server
+   * @throws NigoriCryptographyException relevant cryptographic libraries not available
+   * @throws UnauthorisedException server denied authorisation
    */
-  RevValue put(Index index, byte[] value, RevValue... parents) throws IOException, NigoriCryptographyException, UnauthorisedException;
+  RevValue put(Index index, byte[] value, RevValue... parents) throws IOException,
+      NigoriCryptographyException, UnauthorisedException;
 
   /**
    * Set the value for the index to be deleted but preserve all history - this is safe delete in
@@ -100,12 +110,13 @@ public interface MigoriDatastore extends Datastore {
    * @param index
    * @param position the head revision at which this index is being deleted, there must only be one
    *          head at this point or it will be very hard to do synchronisation.
-   * @return
-   * @throws IOException 
-   * @throws NigoriCryptographyException 
-   * @throws UnauthorisedException 
+   * @return whether this was successful
+   * @throws IOException something went wrong while communicating with the server
+   * @throws NigoriCryptographyException relevant cryptographic libraries not available
+   * @throws UnauthorisedException server denied authorisation
    */
-  boolean removeIndex(Index index, Revision position) throws NigoriCryptographyException, IOException, UnauthorisedException;
+  boolean removeIndex(Index index, Revision position) throws NigoriCryptographyException,
+      IOException, UnauthorisedException;
 
   /**
    * Merges together the head revisions of existing branches of history to produce one single
@@ -118,15 +129,18 @@ public interface MigoriDatastore extends Datastore {
    */
   public interface MigoriMerger {
     /**
+     * Merge the heads to end up with one dominating head which is returned after being put
+     * (intermediate nodes may also be created).
      * 
      * @param store the store we are merging for
      * @param index the index we are merging for
      * @param heads the current heads of the branches of history
      * @return the RevValue which has been put into the store and dominates all the heads.
-     * @throws NigoriCryptographyException 
-     * @throws IOException 
-     * @throws UnauthorisedException 
+     * @throws IOException something went wrong while communicating with the server
+     * @throws NigoriCryptographyException relevant cryptographic libraries not available
+     * @throws UnauthorisedException server denied authorisation
      */
-    RevValue merge(MigoriDatastore store, Index index, Collection<RevValue> heads) throws IOException, NigoriCryptographyException, UnauthorisedException;
+    RevValue merge(MigoriDatastore store, Index index, Collection<RevValue> heads)
+        throws IOException, NigoriCryptographyException, UnauthorisedException;
   }
 }
