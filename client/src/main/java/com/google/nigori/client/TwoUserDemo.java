@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 import com.google.nigori.common.Index;
+import com.google.nigori.common.NigoriCryptographyException;
 import com.google.nigori.common.RevValue;
 import com.google.nigori.common.UnauthorisedException;
 

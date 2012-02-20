@@ -25,6 +25,7 @@ import java.io.UnsupportedEncodingException;
 import org.junit.Test;
 
 import com.google.nigori.common.MessageLibrary;
+import com.google.nigori.common.NigoriCryptographyException;
 
 public abstract class KeyManagerTest {
 

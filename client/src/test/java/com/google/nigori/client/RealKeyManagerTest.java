@@ -15,6 +15,8 @@
  */
 package com.google.nigori.client;
 
+import com.google.nigori.common.NigoriCryptographyException;
+
 /**
  * @author drt24
  *

@@ -23,10 +23,10 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.google.nigori.client.CryptoNigoriDatastore;
-import com.google.nigori.client.NigoriCryptographyException;
 import com.google.nigori.client.NigoriDatastore;
 import com.google.nigori.client.SyncingNigoriDatastore;
 import com.google.nigori.client.accept.AcceptanceTests;
+import com.google.nigori.common.NigoriCryptographyException;
 
 /**
  * @author drt24

@@ -20,8 +20,8 @@ import java.io.IOException;
 import com.google.nigori.client.CryptoNigoriDatastore;
 import com.google.nigori.client.HashMigoriDatastore;
 import com.google.nigori.client.MigoriDatastore;
-import com.google.nigori.client.NigoriCryptographyException;
 import com.google.nigori.client.accept.AcceptanceTests;
+import com.google.nigori.common.NigoriCryptographyException;
 
 /**
  * @author drt24

@@ -15,6 +15,7 @@
  */
 package com.google.nigori.client;
 
+import com.google.nigori.common.NigoriCryptographyException;
 import com.google.nigori.common.SchnorrSign;
 
 /**

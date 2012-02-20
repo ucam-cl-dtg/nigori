@@ -30,8 +30,8 @@ import java.util.List;
 import org.junit.Test;
 
 import com.google.nigori.client.MigoriDatastore;
-import com.google.nigori.client.NigoriCryptographyException;
 import com.google.nigori.common.Index;
+import com.google.nigori.common.NigoriCryptographyException;
 import com.google.nigori.common.RevValue;
 import com.google.nigori.common.UnauthorisedException;
 import com.google.nigori.common.Util;

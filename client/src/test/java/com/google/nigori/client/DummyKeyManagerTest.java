@@ -19,6 +19,8 @@ import java.io.UnsupportedEncodingException;
 
 import org.junit.Test;
 
+import com.google.nigori.common.NigoriCryptographyException;
+
 /**
  * 
  * Tests that the DummyKeyManager does not pass the KeyManager tests so that it can't get used in deployment.

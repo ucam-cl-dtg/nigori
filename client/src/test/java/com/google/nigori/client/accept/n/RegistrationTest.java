@@ -21,8 +21,8 @@ import java.io.IOException;
 import org.junit.Test;
 
 import com.google.nigori.client.Datastore;
-import com.google.nigori.client.NigoriCryptographyException;
 import com.google.nigori.client.accept.AcceptanceTests;
+import com.google.nigori.common.NigoriCryptographyException;
 import com.google.nigori.common.UnauthorisedException;
 
 /**

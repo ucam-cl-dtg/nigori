@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.nigori.client;
+package com.google.nigori.common;
 
 /**
  * Exception used whenever an internal error occurs inside KeyManager.

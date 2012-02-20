@@ -18,12 +18,12 @@ package com.google.nigori.client;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.nigori.common.Index;
 import com.google.nigori.common.MessageLibrary;
+import com.google.nigori.common.NigoriCryptographyException;
 import com.google.nigori.common.NigoriMessages.GetIndicesResponse;
 import com.google.nigori.common.NigoriMessages.GetResponse;
 import com.google.nigori.common.NigoriMessages.GetRevisionsResponse;
@@ -133,35 +133,18 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
 
   @Override
   public boolean authenticate() throws IOException, NigoriCryptographyException {
-    try {
-      return protocol.authenticate(MessageLibrary.authenticateRequestAsProtobuf(keyManager.signer()));
-    } catch (NoSuchAlgorithmException e) {
-      throw new NigoriCryptographyException("Platform does have required crypto support:" +
-          e.getMessage());
-    }
+    return protocol.authenticate(MessageLibrary.authenticateRequestAsProtobuf(keyManager.signer()));
   }
 
 	@Override
 	public boolean register() throws IOException, NigoriCryptographyException {
-
-		try{
-		  byte[] token = {};
-		  return protocol.register(MessageLibrary.registerRequestAsProtobuf(keyManager.signer(), token));
-		} catch (NoSuchAlgorithmException e) {
-			throw new NigoriCryptographyException("Platform does have required crypto support:" +
-					e.getMessage());
-		}
+	  byte[] token = {};
+	  return protocol.register(MessageLibrary.registerRequestAsProtobuf(keyManager.signer(), token));
 	}
 
 	@Override
   public boolean unregister() throws IOException, NigoriCryptographyException, UnauthorisedException {
-
-    try{
-      return protocol.unregister(MessageLibrary.unregisterRequestAsProtobuf(keyManager.signer()));
-    } catch (NoSuchAlgorithmException e) {
-      throw new NigoriCryptographyException("Platform does have required crypto support:" +
-          e.getMessage());
-    }
+	  return protocol.unregister(MessageLibrary.unregisterRequestAsProtobuf(keyManager.signer()));
   }
 
 	@Override
@@ -231,8 +214,6 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
         }
       }
       return answer;
-    } catch (NoSuchAlgorithmException e) {
-      throw new NigoriCryptographyException(e);
     } catch (NotFoundException e) {
       return null;
     }
@@ -253,9 +234,6 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
         answer.add(new Index(keyManager.decrypt(index.toByteArray())));
       }
       return answer;
-    } catch (NoSuchAlgorithmException e) {
-      throw new NigoriCryptographyException("Platform does have required crypto support:"
-          + e.getMessage());
     } catch (NotFoundException e) {
       return null;
     }
@@ -279,9 +257,6 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
       }
       return answer;
 
-    } catch (NoSuchAlgorithmException e) {
-      throw new NigoriCryptographyException("Platform does have required crypto support:"
-          + e.getMessage());
     } catch (NotFoundException e) {
       return null;
     }
@@ -317,13 +292,7 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
   		encRevision = keyManager.encryptDeterministically(encKey, revision.getBytes());
   		encValue = keyManager.encrypt(encKey, value);
   	}
-  
-  	try {
-  	  return protocol.put(MessageLibrary.putRequestAsProtobuf(keyManager.signer(), encIndex, encRevision, encValue));
-  	} catch (NoSuchAlgorithmException e) {
-  		throw new NigoriCryptographyException("Platform does have required crypto support:" +
-  				e.getMessage());
-  	}
+  	return protocol.put(MessageLibrary.putRequestAsProtobuf(keyManager.signer(), encIndex, encRevision, encValue));
   }
 
   @Override
@@ -340,10 +309,7 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
 	  }
 	  try{
 	    return protocol.delete(MessageLibrary.deleteRequestAsProtobuf(keyManager.signer(), encIndex));
-	  } catch (NoSuchAlgorithmException e) {
-	    throw new NigoriCryptographyException("Platform does have required crypto support:" +
-	        e.getMessage());
-    } catch (NotFoundException e) {
+	  } catch (NotFoundException e) {
       return false;
     }
 	}

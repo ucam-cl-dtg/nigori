@@ -38,6 +38,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
 
 import com.google.nigori.common.NigoriConstants;
+import com.google.nigori.common.NigoriCryptographyException;
 import com.google.nigori.common.SchnorrSign;
 
 /**
