@@ -16,6 +16,7 @@
  */
 package com.google.nigori.common;
 
+import java.io.Serializable;
 import java.security.SecureRandom;
 
 /**
@@ -24,11 +25,13 @@ import java.security.SecureRandom;
  * @author Alastair Beresford
  *
  */
-public class Nonce {
+public class Nonce implements Serializable {
 
+  private static final long serialVersionUID = 1L;
   private final static int SINCE_EPOCH_OFFSET = 4;
   private final static int RANDOM_OFFSET = 0;
   private final static SecureRandom randomGenerator = new SecureRandom();
+
   private final int sinceEpoch;
   private final int random;
 

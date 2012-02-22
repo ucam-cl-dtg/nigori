@@ -16,7 +16,9 @@
 package com.google.nigori.server;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,7 +30,6 @@ import java.util.Set;
 
 import com.google.nigori.common.Nonce;
 import com.google.nigori.common.RevValue;
-import com.google.protobuf.ByteString;
 
 /**
  * An in-memory database used for system testing.
@@ -39,12 +40,13 @@ import com.google.protobuf.ByteString;
  * @author Alastair Beresford
  *
  */
-public class HashMapDatabase extends AbstractDatabase {
+public class HashMapDatabase extends AbstractDatabase implements Serializable {
 
+  private static final long serialVersionUID = 1L;
   // TODO(drt24) provide a WeakHashMap version so this can be used as a cache
-	private HashMap<User,Map<ByteString, Map<ByteString,ByteString>>> stores = new HashMap<User,Map<ByteString, Map<ByteString,ByteString>>>();
-	private HashMap<ByteString,User> users = new HashMap<ByteString,User>();
-	private HashMap<ByteString,Set<Nonce>> nonces = new HashMap<ByteString,Set<Nonce>>();
+	private HashMap<User,Map<Bytes, Map<Bytes,Bytes>>> stores = new HashMap<User,Map<Bytes, Map<Bytes,Bytes>>>();
+	private HashMap<Bytes,User> users = new HashMap<Bytes,User>();
+	private HashMap<Bytes,Set<Nonce>> nonces = new HashMap<Bytes,Set<Nonce>>();
 
 	@Override
 	public boolean addUser(byte[] publicKey) {
@@ -53,20 +55,20 @@ public class HashMapDatabase extends AbstractDatabase {
 	    return false;
 	  }
 	  User user = new JUser(publicKey, new Date());
-		users.put(ByteString.copyFrom(publicKey),user);
-		stores.put(user, new HashMap<ByteString, Map<ByteString,ByteString>>());
+		users.put(Bytes.copyFrom(publicKey),user);
+		stores.put(user, new HashMap<Bytes, Map<Bytes,Bytes>>());
 		return true;
 	}
 	
 	@Override
 	public boolean haveUser(byte[] publicKey) {
-		return users.containsKey(ByteString.copyFrom(publicKey));
+		return users.containsKey(Bytes.copyFrom(publicKey));
 	}
 
 	@Override
 	public boolean deleteUser(User existingUser) {
 		//TODO(beresford): check authority to carry out action
-	  User user = users.remove(ByteString.copyFrom(existingUser.getPublicKey()));
+	  User user = users.remove(Bytes.copyFrom(existingUser.getPublicKey()));
 	  return user != null && stores.remove(user) != null;
 	}
 
@@ -74,7 +76,7 @@ public class HashMapDatabase extends AbstractDatabase {
   public User getUser(byte[] publicKey) throws UserNotFoundException {
     assert publicKey != null;
     assert publicKey.length > 0;
-    User user = users.get(ByteString.copyFrom(publicKey));
+    User user = users.get(Bytes.copyFrom(publicKey));
     if (user == null) {
       throw new UserNotFoundException();
     }
@@ -89,10 +91,10 @@ public class HashMapDatabase extends AbstractDatabase {
       return null;
     }
 
-    Map<ByteString, ByteString> revisions = stores.get(user).get(ByteString.copyFrom(key));
+    Map<Bytes, Bytes> revisions = stores.get(user).get(Bytes.copyFrom(key));
     if (revisions != null) {
       List<RevValue> answer = new ArrayList<RevValue>(revisions.size());
-      for (Map.Entry<ByteString, ByteString> rv : revisions.entrySet()) {
+      for (Map.Entry<Bytes, Bytes> rv : revisions.entrySet()) {
         answer.add(new RevValue(rv.getKey().toByteArray(), rv.getValue().toByteArray()));
       }
 
@@ -108,9 +110,9 @@ public class HashMapDatabase extends AbstractDatabase {
       return null;
     }
 
-    Map<ByteString, ByteString> revisions = stores.get(user).get(ByteString.copyFrom(key));
+    Map<Bytes, Bytes> revisions = stores.get(user).get(Bytes.copyFrom(key));
     if (revisions != null) {
-      ByteString value = revisions.get(ByteString.copyFrom(revision));
+      Bytes value = revisions.get(Bytes.copyFrom(revision));
       if (value != null) {
         return new RevValue(revision, value.toByteArray());
       }
@@ -120,9 +122,9 @@ public class HashMapDatabase extends AbstractDatabase {
 
   @Override
   public Collection<byte[]> getIndices(User user) {
-    Set<ByteString> indices = stores.get(user).keySet();
+    Set<Bytes> indices = stores.get(user).keySet();
     List<byte[]> answer = new ArrayList<byte[]>(indices.size());
-    for (ByteString index : indices){
+    for (Bytes index : indices){
       answer.add(index.toByteArray());
     }
     return answer;
@@ -135,10 +137,10 @@ public class HashMapDatabase extends AbstractDatabase {
       return null;
     }
 
-    Map<ByteString, ByteString> revisions = stores.get(user).get(ByteString.copyFrom(key));
+    Map<Bytes, Bytes> revisions = stores.get(user).get(Bytes.copyFrom(key));
     if (revisions != null) {
       List<byte[]> answer = new ArrayList<byte[]>(revisions.size());
-      for (ByteString rev : revisions.keySet()) {
+      for (Bytes rev : revisions.keySet()) {
         answer.add(rev.toByteArray());
       }
 
@@ -154,14 +156,14 @@ public class HashMapDatabase extends AbstractDatabase {
     if (key == null || revision == null || value == null) {
       return false;
     }
-    Map<ByteString, ByteString> revisions = stores.get(user).get(ByteString.copyFrom(key));
+    Map<Bytes, Bytes> revisions = stores.get(user).get(Bytes.copyFrom(key));
     if (revisions == null) {
-      revisions = new HashMap<ByteString, ByteString>();
-      stores.get(user).put(ByteString.copyFrom(key), revisions);
+      revisions = new HashMap<Bytes, Bytes>();
+      stores.get(user).put(Bytes.copyFrom(key), revisions);
     }
-    ByteString bRevision = ByteString.copyFrom(revision);
-    ByteString bValue = ByteString.copyFrom(value);
-    ByteString existing = revisions.get(bRevision);
+    Bytes bRevision = Bytes.copyFrom(revision);
+    Bytes bValue = Bytes.copyFrom(value);
+    Bytes existing = revisions.get(bRevision);
     if (existing == null) {
       revisions.put(bRevision, bValue);
     } else if (!existing.equals(bValue)) {
@@ -173,7 +175,7 @@ public class HashMapDatabase extends AbstractDatabase {
 	@Override
 	public boolean deleteRecord(User user, byte[] key) {
 		//TODO(beresford): check authority to carry out action
-	  return stores.get(user).remove(ByteString.copyFrom(key)) != null;
+	  return stores.get(user).remove(Bytes.copyFrom(key)) != null;
 	}
 
   @Override
@@ -186,7 +188,7 @@ public class HashMapDatabase extends AbstractDatabase {
     if (!nonce.isRecent()){
       return false;
     }
-    ByteString pk = ByteString.copyFrom(publicKey);
+    Bytes pk = Bytes.copyFrom(publicKey);
     Set<Nonce> nonceSet = nonces.get(pk);
     if (nonceSet == null){
       nonceSet = new HashSet<Nonce>();
@@ -212,5 +214,53 @@ public class HashMapDatabase extends AbstractDatabase {
         }
       }
     }
+  }
+
+  private static class Bytes implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private final byte[] bytes;
+
+    private Bytes(byte[] bytes) {
+      this.bytes = bytes;
+    }
+
+    /**
+     * @param publicKey
+     * @return
+     */
+    public static Bytes copyFrom(byte[] publicKey) {
+      return new Bytes(Arrays.copyOf(publicKey, publicKey.length));
+    }
+
+    /**
+     * @return
+     */
+    public byte[] toByteArray() {
+      return bytes;
+    }
+
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + Arrays.hashCode(bytes);
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      Bytes other = (Bytes) obj;
+      if (!Arrays.equals(bytes, other.bytes))
+        return false;
+      return true;
+    }
+
   }
 }
