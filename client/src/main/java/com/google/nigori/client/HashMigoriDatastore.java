@@ -32,6 +32,9 @@ import com.google.nigori.common.Revision;
 import com.google.nigori.common.UnauthorisedException;
 
 /**
+ * The canonical implementation of {@link MigoriDatastore} providing versioning using SHA-1 hashes
+ * on the values and parent revisions.
+ * 
  * @author drt24
  * 
  */
@@ -195,6 +198,16 @@ public class HashMigoriDatastore implements MigoriDatastore {
     return validateHash(store.getRevision(index, revision), revision);
   }
 
+  /**
+   * Thrown if a hash is found to be invalid.
+   * 
+   * This either means that there has been some corruption between decryption and use (unlikely) or
+   * that there is a bug, or that someone has used some other incompatible implementation of
+   * MigoriDatastore or directly used NigoriDatstore or that the server is being malicious.
+   * 
+   * @author drt24
+   * 
+   */
   public static class InvalidHashException extends IOException {
 
     private static final long serialVersionUID = 1L;

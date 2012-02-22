@@ -41,9 +41,10 @@ public interface Datastore {
    * Unregister from the server.
    * 
    * @return true if the unregistration was successful; false otherwise.
-   * @throws UnauthorisedException 
+   * @throws UnauthorisedException
    */
-  public boolean unregister() throws IOException, NigoriCryptographyException, UnauthorisedException;
+  public boolean unregister() throws IOException, NigoriCryptographyException,
+      UnauthorisedException;
 
   /**
    * Evaluate whether this NigoriDatastore can authenticate to the server.
@@ -53,7 +54,9 @@ public interface Datastore {
   public boolean authenticate() throws IOException, NigoriCryptographyException;
 
   /**
-   * @return
+   * Get a list of all the indices in the store
+   * 
+   * @return all the {@link Index Indices} in the store
    * @throws NigoriCryptographyException
    * @throws IOException
    * @throws UnauthorisedException
