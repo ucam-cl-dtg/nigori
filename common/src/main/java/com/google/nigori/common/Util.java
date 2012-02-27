@@ -1,5 +1,8 @@
 package com.google.nigori.common;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class Util {
 
   public static final int INT = 4;
@@ -54,5 +57,49 @@ public final class Util {
   }
   public static long bin2long(byte[] array){
     return bin2long(array,0);
+  }
+
+  public static byte[] joinBytes(byte[]... bytes){
+    int length = 0;
+    for (byte[] byt : bytes){
+      length += byt.length;
+    }
+    byte[] answer = new byte[length + bytes.length * INT];// Content length + length fields
+    int offset = 0;
+    for (byte[] byt : bytes){
+      System.arraycopy(Util.int2bin(byt.length), 0, answer, offset, INT);
+      offset += INT;
+      System.arraycopy(byt, 0, answer, offset, byt.length);
+      offset += byt.length;
+    }
+    return answer;
+  }
+
+  public static List<byte[]> splitBytes(byte[] bytes){
+    if (bytes == null){
+      throw new IllegalArgumentException("bytes cannot be null");
+    }
+    List<byte[]> answer = new ArrayList<byte[]>();
+    if (bytes.length != 0){
+      if (bytes.length > INT){
+        int offset = 0;
+        while (offset < bytes.length) {
+          int length = Util.bin2int(bytes, offset);
+          if (bytes.length >= offset + length) {
+            offset += INT;
+            byte[] dest = new byte[length];
+            System.arraycopy(bytes, offset, dest, 0, length);
+            offset += length;
+            answer.add(dest);
+          } else {
+            throw new IllegalArgumentException(
+                "bytes not long enough to contain as much as it says it does");
+          }
+        }
+      } else {
+        throw new IllegalArgumentException("bytes must be at least big enough to have one length field in it or 0 length but was: " +bytes.length);
+      }
+    }
+    return answer;
   }
 }
