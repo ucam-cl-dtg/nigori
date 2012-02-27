@@ -90,7 +90,7 @@ public class MConcurrencyTest extends AcceptanceTest {
       assertTrue(migori.removeIndex(index, head.getRevision()));
 
     } finally {
-      assertTrue(migori.unregister());
+      assertTrue("Not unregistered", migori.unregister());
     }
   }
 
@@ -145,7 +145,7 @@ public class MConcurrencyTest extends AcceptanceTest {
       assertTrue(migori.removeIndex(index, deleteAt.getRevision()));
 
     } finally {
-      assertTrue(migori.unregister());
+      assertTrue("Not unregistered", migori.unregister());
     }
   }
 

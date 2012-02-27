@@ -47,15 +47,10 @@ public class Index {
   public Index(String index) {
     byte[] temp;
 
-    try {
-      if (index != null) {
-        temp = index.getBytes(MessageLibrary.CHARSET);
-      } else {
-        temp = null;
-      }
-    } catch (UnsupportedEncodingException e) {
+    if (index != null) {
+      temp = MessageLibrary.toBytes(index);
+    } else {
       temp = null;
-      throw new RuntimeException(e);
     }
     this.index = temp;
     this.token = null;

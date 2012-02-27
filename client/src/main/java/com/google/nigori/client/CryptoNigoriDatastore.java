@@ -16,6 +16,8 @@
  */
 package com.google.nigori.client;
 
+import static com.google.nigori.common.MessageLibrary.toBytes;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -51,9 +53,7 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
 
 	public CryptoNigoriDatastore(NigoriProtocol protocol, String username, String password, String serverName) throws UnsupportedEncodingException, NigoriCryptographyException {
 	  this.protocol = protocol;
-	  this.keyManager = new RealKeyManager(serverName.getBytes(MessageLibrary.CHARSET),
-        username.getBytes(MessageLibrary.CHARSET),
-        password.getBytes(MessageLibrary.CHARSET));
+	  this.keyManager = new RealKeyManager(toBytes(serverName), toBytes(username), toBytes(password));
 	}
 
   /**
@@ -71,9 +71,7 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
 			String password) throws NigoriCryptographyException, UnsupportedEncodingException {
 		String servername = server + ":" + port;
 		protocol = new JsonHTTPProtocol(server,port,serverPrefix);
-		keyManager = new RealKeyManager(servername.getBytes(MessageLibrary.CHARSET),
-				username.getBytes(MessageLibrary.CHARSET),
-				password.getBytes(MessageLibrary.CHARSET));
+		keyManager = new RealKeyManager(toBytes(servername), toBytes(username), toBytes(password));
 	}
 
 	/**

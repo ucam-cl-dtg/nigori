@@ -15,6 +15,8 @@
  */
 package com.google.nigori.server;
 
+import static com.google.nigori.common.MessageLibrary.toBytes;
+
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.aryEq;
 import static org.easymock.EasyMock.capture;
@@ -57,7 +59,6 @@ import com.google.nigori.common.Nonce;
 import com.google.nigori.common.RevValue;
 import com.google.nigori.server.appengine.AEUser;
 import com.google.protobuf.Descriptors.FieldDescriptor;
-
 public class NigoriServletTest {
 
 	private static LocalServiceTestHelper helper;
@@ -79,9 +80,7 @@ public class NigoriServletTest {
 		request = createMock(HttpServletRequest.class);
 		response = createMock(HttpServletResponse.class);
 		servlet = new NigoriServlet(database);
-		keyManager = new RealKeyManager("localhost:8888".getBytes(MessageLibrary.CHARSET),
-				"username".getBytes(MessageLibrary.CHARSET),
-				"password".getBytes(MessageLibrary.CHARSET));
+		keyManager = new RealKeyManager(toBytes("localhost:8888"), toBytes("username"), toBytes("password"));
 		//TODO need to correctly create user
 		user = AEUser.Factory.getInstance().getUser(keyManager.signer().getPublicKey(), new Date());
 	}
@@ -95,7 +94,7 @@ public class NigoriServletTest {
 		ByteArrayInputStream in;
 		TestInputStream(String s) throws UnsupportedEncodingException {
 			
-			in = new ByteArrayInputStream(s.getBytes(MessageLibrary.CHARSET));
+			in = new ByteArrayInputStream(toBytes(s));
 		}
 		@Override
 		public int read() throws IOException {
@@ -172,7 +171,7 @@ public class NigoriServletTest {
 	@Test
 	public void testGetRequestKeyDoesNotExist() throws Exception {
 
-		final byte[] key = "a key".getBytes(MessageLibrary.CHARSET);
+		final byte[] key = toBytes("a key");
 		final byte[] publicKey = keyManager.signer().getPublicKey();
 		
 		final String json = MessageLibrary.getRequestAsJson(keyManager.signer(), key, null);
@@ -187,9 +186,9 @@ public class NigoriServletTest {
 	@Test
 	public void testPutRequest() throws Exception {
 		
-		final byte[] index = "an index".getBytes(MessageLibrary.CHARSET);
-		final byte[] revision = "a revision".getBytes(MessageLibrary.CHARSET);
-		final byte[] value = "a value".getBytes(MessageLibrary.CHARSET);
+		final byte[] index = toBytes("an index");
+		final byte[] revision = toBytes("a revision");
+		final byte[] value = toBytes("a value");
 		final byte[] publicKey = keyManager.signer().getPublicKey();
 		
 		final String jsonPut = MessageLibrary.putRequestAsJson(keyManager.signer(), index, revision, value);
@@ -204,9 +203,9 @@ public class NigoriServletTest {
 	@Test
 	public void testGetRequestKeyExists() throws Exception {
 
-		final byte[] key = "a key".getBytes(MessageLibrary.CHARSET);
-		final byte[] revision = "a revision".getBytes(MessageLibrary.CHARSET);
-		final byte[] value = "a value".getBytes(MessageLibrary.CHARSET);
+		final byte[] key = toBytes("a key");
+		final byte[] revision = toBytes("a revision");
+		final byte[] value = toBytes("a value");
 		final byte[] publicKey = keyManager.signer().getPublicKey();
 
 		final String jsonGet = MessageLibrary.getRequestAsJson(keyManager.signer(), key, null);
@@ -256,7 +255,7 @@ public class NigoriServletTest {
 	public void testJSONGetRequestWithCorrectFieldsButCorruptedValues() throws Exception {
 
 		//Build a broken version of the JSON request which has valid keys but invalid values
-		byte[] key = "a key".getBytes(MessageLibrary.CHARSET);
+		byte[] key = toBytes("a key");
 		GetRequest get = MessageLibrary.getRequestAsProtobuf(keyManager.signer(), key, null);
 		Map<FieldDescriptor, Object> fieldMap = get.getAllFields();
 		

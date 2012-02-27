@@ -13,6 +13,7 @@
  */
 package com.google.nigori.server;
 
+import static com.google.nigori.common.MessageLibrary.toBytes;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -31,7 +32,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.Nonce;
 import com.google.nigori.common.RevValue;
 
@@ -47,7 +47,7 @@ public abstract class AbstractDatabaseTest {
 
   @BeforeClass
   public static void initPublicKey() throws UnsupportedEncodingException {
-    publicKey = "test-user's public key".getBytes(MessageLibrary.CHARSET);
+    publicKey = toBytes("test-user's public key");
   }
   @Before
   public void setupDatabase() {
@@ -126,11 +126,11 @@ public abstract class AbstractDatabaseTest {
     try {
       assertTrue(database.addUser(publicKey));
       user = database.getUser(publicKey);
-      final byte[] index = "index".getBytes(MessageLibrary.CHARSET);
-      final byte[] revisiona = "revisiona".getBytes(MessageLibrary.CHARSET);
-      final byte[] revisionb = "revisionb".getBytes(MessageLibrary.CHARSET);
-      final byte[] a = "a".getBytes(MessageLibrary.CHARSET);
-      final byte[] b = "b".getBytes(MessageLibrary.CHARSET);
+      final byte[] index = toBytes("index");
+      final byte[] revisiona = toBytes("revisiona");
+      final byte[] revisionb = toBytes("revisionb");
+      final byte[] a = toBytes("a");
+      final byte[] b = toBytes("b");
       assertTrue(database.putRecord(user, index, revisiona, a));
       assertTrue(database.putRecord(user, index, revisionb, b));
       Collection<byte[]> revisions = database.getRevisions(user, index);
@@ -151,7 +151,7 @@ public abstract class AbstractDatabaseTest {
     try {
       assertTrue(database.addUser(publicKey));
       user = database.getUser(publicKey);
-      assertTrue(database.putRecord(user, "foo".getBytes(), "bar".getBytes(), "baz".getBytes()));
+      assertTrue(database.putRecord(user, toBytes("foo"), toBytes("bar"), toBytes("baz")));
     } finally {
       if (user != null)
         database.deleteUser(user);
@@ -159,7 +159,7 @@ public abstract class AbstractDatabaseTest {
     try {
       assertTrue(database.addUser(publicKey));
       user = database.getUser(publicKey);
-      assertNull(database.getRevision(user, "foo".getBytes(), "bar".getBytes()));
+      assertNull(database.getRevision(user, toBytes("foo"), toBytes("bar")));
     } finally {
       if (user != null)
         database.deleteUser(user);
@@ -171,12 +171,12 @@ public abstract class AbstractDatabaseTest {
     try {
       assertTrue(database.addUser(publicKey));
       user = database.getUser(publicKey);
-      final byte[] indexa = "indexa".getBytes(MessageLibrary.CHARSET);
-      final byte[] indexb = "indexb".getBytes(MessageLibrary.CHARSET);
-      final byte[] revisiona = "revisiona".getBytes(MessageLibrary.CHARSET);
-      final byte[] revisionb = "revisionb".getBytes(MessageLibrary.CHARSET);
-      final byte[] a = "a".getBytes(MessageLibrary.CHARSET);
-      final byte[] b = "b".getBytes(MessageLibrary.CHARSET);
+      final byte[] indexa = toBytes("indexa");
+      final byte[] indexb = toBytes("indexb");
+      final byte[] revisiona = toBytes("revisiona");
+      final byte[] revisionb = toBytes("revisionb");
+      final byte[] a = toBytes("a");
+      final byte[] b = toBytes("b");
       assertTrue(database.putRecord(user, indexa, revisiona, a));
       assertTrue(database.putRecord(user, indexb, revisionb, b));
       Collection<byte[]> indices = database.getIndices(user);

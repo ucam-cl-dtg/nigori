@@ -76,7 +76,7 @@ public class CommandLineExample {
 				usage();
 				return;
 			}
-			RevValue success = nigori.put(new Index(args[5]), args[6].getBytes(MessageLibrary.CHARSET));
+			RevValue success = nigori.put(new Index(args[5]), MessageLibrary.toBytes(args[6]));
 			System.out.println("Success: " + success);
 		}
 		else if (action.equals("get")) {

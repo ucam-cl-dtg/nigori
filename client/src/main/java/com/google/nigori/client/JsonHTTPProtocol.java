@@ -13,6 +13,8 @@
  */
 package com.google.nigori.client;
 
+import static com.google.nigori.common.MessageLibrary.toBytes;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -103,24 +105,21 @@ public class JsonHTTPProtocol implements NigoriProtocol {
   @Override
   public boolean authenticate(AuthenticateRequest request) throws IOException {
     String json = MessageLibrary.toJson(request);
-    HttpResponse resp =
-        http.post(MessageLibrary.REQUEST_AUTHENTICATE, json.getBytes(MessageLibrary.CHARSET));
+    HttpResponse resp = http.post(MessageLibrary.REQUEST_AUTHENTICATE, toBytes(json));
     return success(resp);
   }
 
   @Override
   public boolean register(RegisterRequest request) throws IOException {
     String json = MessageLibrary.toJson(request);
-    HttpResponse resp =
-        http.post(MessageLibrary.REQUEST_REGISTER, json.getBytes(MessageLibrary.CHARSET));
+    HttpResponse resp = http.post(MessageLibrary.REQUEST_REGISTER, toBytes(json));
     return success(resp);
   }
 
   @Override
   public boolean unregister(UnregisterRequest request) throws IOException {
     String json = MessageLibrary.toJson(request);
-    HttpResponse resp =
-        http.post(MessageLibrary.REQUEST_UNREGISTER, json.getBytes(MessageLibrary.CHARSET));
+    HttpResponse resp = http.post(MessageLibrary.REQUEST_UNREGISTER, toBytes(json));
     return success(resp);
   }
 
@@ -183,8 +182,7 @@ public class JsonHTTPProtocol implements NigoriProtocol {
   @Override
   public boolean put(PutRequest request) throws IOException {
     String json = MessageLibrary.toJson(request);
-    HttpResponse resp =
-        http.post(MessageLibrary.REQUEST_PUT, json.getBytes(MessageLibrary.CHARSET));
+    HttpResponse resp = http.post(MessageLibrary.REQUEST_PUT, toBytes(json));
     return success(resp);
   }
 
@@ -206,7 +204,7 @@ public class JsonHTTPProtocol implements NigoriProtocol {
   private Response postResponse(String request, String jsonRequest)
       throws UnsupportedEncodingException, IOException {
 
-    HttpResponse resp = http.post(request, jsonRequest.getBytes(MessageLibrary.CHARSET));
+    HttpResponse resp = http.post(request, toBytes(jsonRequest));
 
     BufferedInputStream in = new BufferedInputStream(resp.getInputStream());
     StringBuilder jsonResponse = new StringBuilder();

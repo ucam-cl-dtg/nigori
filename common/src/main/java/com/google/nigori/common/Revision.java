@@ -47,7 +47,7 @@ public class Revision {
     if (revision == null){
       throw new NullPointerException("Null revisons not allowed");
     }
-    this.revision = revision.getBytes(MessageLibrary.CHARSET);
+    this.revision = MessageLibrary.toBytes(revision);
   }
 
   @Override

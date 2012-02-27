@@ -15,6 +15,7 @@
  */
 package com.google.nigori.client.accept.n;
 
+import static com.google.nigori.common.MessageLibrary.toBytes;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -52,7 +53,7 @@ public class SetGetDeleteTest extends AcceptanceTest {
 
     public IndexValue(String index, String revision, String value, boolean later) {
       this.index = new Index(index);
-      this.revvalue = new RevValue(revision.getBytes(),value.getBytes());
+      this.revvalue = new RevValue(toBytes(revision),toBytes(value));
       this.later = later;
     }
   }
@@ -81,7 +82,7 @@ public class SetGetDeleteTest extends AcceptanceTest {
           final Revision revision = iv.revvalue.getRevision();
           final byte[] value = iv.revvalue.getValue();
 
-          assertTrue("Not put" + i, nigori.put(index, revision, value));
+          assertTrue("Not put " + i, nigori.put(index, revision, value));
           List<RevValue> revs = nigori.get(index);
           assertFalse("Revisions must exist", revs.isEmpty());
           assertEquals("Not one revision", 1, revs.size());
@@ -134,8 +135,8 @@ public class SetGetDeleteTest extends AcceptanceTest {
       final Index index = new Index("index");
       final Revision a = new Revision("a");
       final Revision b = new Revision("b");
-      assertTrue("Not put", nigori.put(index, a, "aa".getBytes(MessageLibrary.CHARSET)));
-      assertTrue("Not put", nigori.put(index, b, "bb".getBytes(MessageLibrary.CHARSET)));
+      assertTrue("Not put", nigori.put(index, a, toBytes("aa")));
+      assertTrue("Not put", nigori.put(index, b, toBytes("bb")));
       try {
         List<Revision> revisions = nigori.getRevisions(index);
         assertNotNull("No revisions", revisions);
@@ -158,8 +159,8 @@ public class SetGetDeleteTest extends AcceptanceTest {
       final Index indexa = new Index("indexa");
       final Index indexb = new Index("indexb");
       final Revision revision = new Revision("a");
-      assertTrue("Not put", nigori.put(indexa, revision, "aa".getBytes(MessageLibrary.CHARSET)));
-      assertTrue("Not put", nigori.put(indexb, revision, "bb".getBytes(MessageLibrary.CHARSET)));
+      assertTrue("Not put", nigori.put(indexa, revision, toBytes("aa")));
+      assertTrue("Not put", nigori.put(indexb, revision, toBytes("bb")));
       try {
         List<Index> indices = nigori.getIndices();
         assertNotNull("No indices", indices);
