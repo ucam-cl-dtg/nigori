@@ -103,9 +103,15 @@
         </dependencies>
         <configuration>
           <unpackVersion>${appengine.version}</unpackVersion>
-          <sdkDir> ${settings.localRepository}/com/google/appengine/appengine-java-sdk/${appengine.version}/appengine-java-sdk-${appengine.version}</sdkDir>
+          <sdkDir>
+            ${settings.localRepository}/com/google/appengine/appengine-java-sdk/${appengine.version}/appengine-java-sdk-${appengine.version}</sdkDir>
           <port>8888</port>
           <monitorPort>8889</monitorPort>
+          <!-- Timezone setting to workaround http://code.google.com/p/googleappengine/issues/detail?id=6928 -->
+          <jvmFlags>
+            <jvmFlag>-Dappengine.user.timezone=UTC</jvmFlag>
+            <jvmFlag>-Dappengine.user.timezone.impl=UTC</jvmFlag>
+          </jvmFlags>
         </configuration>
       </plugin>
       <plugin>
@@ -129,7 +135,8 @@
     </plugins>
     <pluginManagement>
       <plugins>
-        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+        <!--This plugin's configuration is used to store Eclipse m2e settings 
+          only. It has no influence on the Maven build itself. -->
         <plugin>
           <groupId>org.eclipse.m2e</groupId>
           <artifactId>lifecycle-mapping</artifactId>
@@ -153,7 +160,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <execute/>
+                    <execute />
                   </action>
                 </pluginExecution>
               </pluginExecutions>
