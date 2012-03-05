@@ -33,7 +33,6 @@ import org.junit.Test;
 import com.google.nigori.client.NigoriDatastore;
 import com.google.nigori.client.accept.AcceptanceTests;
 import com.google.nigori.common.Index;
-import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.NigoriCryptographyException;
 import com.google.nigori.common.RevValue;
 import com.google.nigori.common.Revision;
