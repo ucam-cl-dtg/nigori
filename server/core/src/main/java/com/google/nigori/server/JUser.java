@@ -13,14 +13,13 @@
  */
 package com.google.nigori.server;
 
+import static com.google.nigori.common.MessageLibrary.bytesToString;
+
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Date;
 
 import org.apache.commons.codec.binary.Base64;
-
-import com.google.nigori.common.MessageLibrary;
 
 /**
  * Plain java implementation of User
@@ -42,11 +41,7 @@ public class JUser implements User, Serializable {
 
   @Override
   public String getName() {
-    try {
-      return new String(Base64.encodeBase64(getPublicKey()),MessageLibrary.CHARSET);
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
-    }
+    return bytesToString(Base64.encodeBase64(getPublicKey()));
   }
 
   @Override
@@ -62,13 +57,15 @@ public class JUser implements User, Serializable {
   public static class Factory implements UserFactory {
 
     private static final Factory instance = new Factory();
+
     public static Factory getInstance() {
       return instance;
     }
+
     @Override
     public User getUser(byte[] publicKey, Date registrationDate) {
       return new JUser(publicKey, registrationDate);
     }
-    
+
   }
 }

@@ -13,6 +13,8 @@
  */
 package com.google.nigori.common;
 
+import static com.google.nigori.common.MessageLibrary.bytesToString;
+
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
@@ -74,10 +76,6 @@ public class Revision {
 
   @Override
   public String toString() {
-    try {
-      return new String(Base64.encodeBase64(revision),MessageLibrary.CHARSET);
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
-    }
+    return bytesToString(Base64.encodeBase64(revision));
   }
 }

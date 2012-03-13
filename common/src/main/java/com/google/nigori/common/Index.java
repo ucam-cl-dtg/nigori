@@ -13,7 +13,8 @@
  */
 package com.google.nigori.common;
 
-import java.io.UnsupportedEncodingException;
+import static com.google.nigori.common.MessageLibrary.bytesToString;
+
 import java.util.Arrays;
 
 /**
@@ -90,10 +91,6 @@ public class Index {
 
   @Override
   public String toString() {
-    try {
-      return new String(index, MessageLibrary.CHARSET);
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
-    }
+    return bytesToString(index);
   }
 }

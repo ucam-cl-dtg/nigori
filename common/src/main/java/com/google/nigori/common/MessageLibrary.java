@@ -52,6 +52,13 @@ public class MessageLibrary {
       throw new RuntimeException(e);// never happens as UTF-8 is supported
     }
   }
+  public static String bytesToString(byte[] bytes){
+    try {
+      return new String(bytes,CHARSET);
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);// never happens as UTF-8 is supported
+    }
+  }
 
 	//The mimetypes used for all supported communication formats in Nigori
 	public static final String MIMETYPE_JSON = "application/json";

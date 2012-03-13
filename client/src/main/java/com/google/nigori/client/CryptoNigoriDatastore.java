@@ -17,6 +17,7 @@
 package com.google.nigori.client;
 
 import static com.google.nigori.common.MessageLibrary.toBytes;
+import static com.google.nigori.common.MessageLibrary.bytesToString;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -91,34 +92,26 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
 		String servername = server + ":" + port;
 		protocol = new JsonHTTPProtocol(server,port,serverPrefix);
 
-		keyManager = new RealKeyManager(servername.getBytes(MessageLibrary.CHARSET));
+		keyManager = new RealKeyManager(toBytes(servername));
 	}
 
-	/**
-	 * Retrieve the username used to connect with the Nigori datastore.
-	 * 
-	 * @return the username.
-	 */
-	public String getUsername() {
-		try {
-			return new String(keyManager.getUsername(), MessageLibrary.CHARSET);
-		} catch (UnsupportedEncodingException uee) {
-			return new String(keyManager.getUsername());
-		}
-	}
+  /**
+   * Retrieve the username used to connect with the Nigori datastore.
+   * 
+   * @return the username.
+   */
+  public String getUsername() {
+    return bytesToString(keyManager.getUsername());
+  }
 
 	/**
 	 * Retrieve the password used to connect with the Nigori datastore.
 	 * 
 	 * @return the password.
 	 */
-	public String getPassword() {
-		try {
-			return new String(keyManager.getPassword(), MessageLibrary.CHARSET);
-		} catch (UnsupportedEncodingException uee) {
-			return new String(keyManager.getPassword());
-		}		
-	}
+  public String getPassword() {
+    return bytesToString(keyManager.getPassword());
+  }
 
 	/**
 	 * Retrieve the public key associated with the username and password.

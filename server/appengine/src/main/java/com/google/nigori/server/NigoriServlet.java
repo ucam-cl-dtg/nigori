@@ -15,6 +15,8 @@
  */
 package com.google.nigori.server;
 
+import static com.google.nigori.common.MessageLibrary.toBytes;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -79,8 +81,8 @@ public class NigoriServlet extends HttpServlet {
 			resp.setContentType(MessageLibrary.MIMETYPE_JSON);
 			resp.setCharacterEncoding(MessageLibrary.CHARSET);
 			resp.setStatus(getStatusCode());
-			resp.getOutputStream().write(this.getMessage().getBytes(MessageLibrary.CHARSET));		
-		}			
+			resp.getOutputStream().write(toBytes(this.getMessage()));
+		}
 	}
 
 	private String getJsonAsString(HttpServletRequest req, int maxLength) 
