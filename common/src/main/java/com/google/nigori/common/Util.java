@@ -102,4 +102,21 @@ public final class Util {
     }
     return answer;
   }
+  
+
+  private static final int MIN_LENGTH = 8;
+  private static final String SHORT_PASSWORD = "Password too short, must be at least " + MIN_LENGTH;
+  private static final String SHORT_USERNAME = "Username too short, must be at least " + MIN_LENGTH;
+
+  public static void checkPassword(final String password) throws UnauthorisedException {
+    if (password.length() < MIN_LENGTH) {
+      throw new UnauthorisedException(SHORT_PASSWORD);
+    }
+  }
+
+  public static void checkUsername(final String username) throws UnauthorisedException {
+    if (username.length() < MIN_LENGTH) {
+      throw new UnauthorisedException(SHORT_USERNAME);
+    }
+  }
 }
