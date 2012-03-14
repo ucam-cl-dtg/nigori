@@ -1,5 +1,6 @@
 package com.google.nigori.common;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -118,5 +119,30 @@ public final class Util {
     if (username.length() < MIN_LENGTH) {
       throw new UnauthorisedException(SHORT_USERNAME);
     }
+  }
+  
+
+  /**
+   * Deletes all files and subdirectories under dir. Returns true if all deletions were successful.
+   * If a deletion fails, the method stops attempting to delete and returns false.
+   * 
+   * From http://www.exampledepot.com/egs/java.io/DeleteDir.html
+   * 
+   * @param dir
+   * @return
+   */
+  public static boolean deleteDir(File dir) {
+    if (dir.isDirectory()) {
+      String[] children = dir.list();
+      for (int i = 0; i < children.length; i++) {
+        boolean success = deleteDir(new File(dir, children[i]));
+        if (!success) {
+          return false;
+        }
+      }
+    }
+
+    // The directory is now empty so delete it
+    return dir.delete();
   }
 }
