@@ -35,8 +35,6 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.commons.codec.binary.Base64;
-
 import com.google.nigori.common.NigoriConstants;
 import com.google.nigori.common.NigoriCryptographyException;
 import com.google.nigori.common.SchnorrSign;
@@ -68,7 +66,8 @@ public class RealKeyManager implements KeyManager {
   private byte[] username;
   private byte[] password;
   
-  private SecureRandom random = new SecureRandom();
+  private final SecureRandom random = new SecureRandom();
+  private final PasswordGenerator pwgen = new PasswordGenerator();
 
   /**
    * Given a ({@code servername}, {@code username}, {@code password}) triple, generate Nigori keys.
@@ -91,17 +90,7 @@ public class RealKeyManager implements KeyManager {
    * @throws NigoriCryptographyException
    */
   public RealKeyManager(byte[] servername) throws NigoriCryptographyException {
-
-  	byte[] username = new byte[24];
-  	byte[] password = new byte[24];
-  	random.nextBytes(username);
-  	random.nextBytes(password);
-  	
-  	//Ensure the username and password are printable strings without further encoding
-  	byte[] encodedUsername = Base64.encodeBase64(username);
-  	byte[] encodedPassword = Base64.encodeBase64(password);
-  	
-  	initialiseKeys(servername, encodedUsername, encodedPassword);
+  	initialiseKeys(servername, pwgen.generate(), pwgen.generate());
   }
   
   private void initialiseKeys(byte[] servername, byte[] username, byte[] password) throws
