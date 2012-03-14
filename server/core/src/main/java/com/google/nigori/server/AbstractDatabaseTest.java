@@ -49,6 +49,7 @@ public abstract class AbstractDatabaseTest {
   public static void initPublicKey() throws UnsupportedEncodingException {
     publicKey = toBytes("test-user's public key");
   }
+
   @Before
   public void setupDatabase() {
     database = getDatabase();
@@ -71,7 +72,8 @@ public abstract class AbstractDatabaseTest {
 
   @Test
   public void deleteNotPresent() {
-    assertFalse(database.deleteUser(database.getUserFactory().getUser("non existant user key".getBytes(), new Date())));
+    assertFalse(database.deleteUser(database.getUserFactory().getUser(
+        "non existant user key".getBytes(), new Date())));
   }
 
   @Test
@@ -88,14 +90,14 @@ public abstract class AbstractDatabaseTest {
   @Test
   public void newNoncePasses() {
     Nonce nonce = new Nonce();
-    assertTrue(database.checkAndAddNonce(nonce,publicKey));
+    assertTrue(database.checkAndAddNonce(nonce, publicKey));
   }
 
   @Test
   public void repeatedNonceFails() {
     Nonce nonce = new Nonce();
-    assertTrue(database.checkAndAddNonce(nonce,publicKey));
-    assertFalse(database.checkAndAddNonce(nonce,publicKey));
+    assertTrue(database.checkAndAddNonce(nonce, publicKey));
+    assertFalse(database.checkAndAddNonce(nonce, publicKey));
   }
 
   @Test
@@ -120,6 +122,7 @@ public abstract class AbstractDatabaseTest {
       assertTrue(database.deleteUser(user));
     }
   }
+
   @Test
   public void getRevisions() throws UserNotFoundException, IOException {
     User user = null;
@@ -134,17 +137,31 @@ public abstract class AbstractDatabaseTest {
       assertTrue(database.putRecord(user, index, revisiona, a));
       assertTrue(database.putRecord(user, index, revisionb, b));
       Collection<byte[]> revisions = database.getRevisions(user, index);
-      assertNotNull("No revisions",revisions);
+      assertNotNull("No revisions", revisions);
       assertEquals(2, revisions.size());
-      assertThat(revisions,hasItem(revisiona));
-      assertThat(revisions,hasItem(revisionb));
-      assertArrayEquals(a,database.getRevision(user, index, revisiona).getValue());
-      assertArrayEquals(b,database.getRevision(user, index, revisionb).getValue());
+      assertThat(revisions, hasItem(revisiona));
+      assertThat(revisions, hasItem(revisionb));
+      assertArrayEquals(a, database.getRevision(user, index, revisiona).getValue());
+      assertArrayEquals(b, database.getRevision(user, index, revisionb).getValue());
       assertTrue(database.deleteRecord(user, index));
     } finally {
       assertTrue(database.deleteUser(user));
     }
   }
+
+  @Test
+  public void getNoRevisions() throws UserNotFoundException, IOException {
+    User user = null;
+    try {
+      assertTrue(database.addUser(publicKey));
+      user = database.getUser(publicKey);
+      final byte[] index = toBytes("index");
+      assertNull(database.getRevisions(user, index));
+    } finally {
+      assertTrue(database.deleteUser(user));
+    }
+  }
+
   @Test
   public void userDataDeletion() throws UserNotFoundException, IOException {
     User user = null;
@@ -165,6 +182,7 @@ public abstract class AbstractDatabaseTest {
         database.deleteUser(user);
     }
   }
+
   @Test
   public void getIndices() throws UserNotFoundException, IOException {
     User user = null;
@@ -180,10 +198,10 @@ public abstract class AbstractDatabaseTest {
       assertTrue(database.putRecord(user, indexa, revisiona, a));
       assertTrue(database.putRecord(user, indexb, revisionb, b));
       Collection<byte[]> indices = database.getIndices(user);
-      assertNotNull("No indices",indices);
+      assertNotNull("No indices", indices);
       assertEquals(2, indices.size());
-      assertThat(indices,hasItem(indexa));
-      assertThat(indices,hasItem(indexb));
+      assertThat(indices, hasItem(indexa));
+      assertThat(indices, hasItem(indexb));
       assertTrue(database.deleteRecord(user, indexa));
       assertTrue(database.deleteRecord(user, indexb));
     } finally {

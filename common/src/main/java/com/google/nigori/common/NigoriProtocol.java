@@ -44,6 +44,14 @@ public interface NigoriProtocol {
 
   GetIndicesResponse getIndices(GetIndicesRequest request) throws IOException, NotFoundException, UnauthorisedException;
 
+  /**
+   * 
+   * @param request
+   * @return a GetRevisionsResponse if there is such an index
+   * @throws IOException
+   * @throws NotFoundException if there is no such index
+   * @throws UnauthorisedException
+   */
   GetRevisionsResponse getRevisions(GetRevisionsRequest request) throws IOException, NotFoundException, UnauthorisedException;
 
   boolean put(PutRequest request) throws IOException, UnauthorisedException;

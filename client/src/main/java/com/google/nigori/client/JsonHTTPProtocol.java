@@ -37,6 +37,7 @@ import com.google.nigori.common.NigoriMessages.PutRequest;
 import com.google.nigori.common.NigoriMessages.RegisterRequest;
 import com.google.nigori.common.NigoriMessages.UnregisterRequest;
 import com.google.nigori.common.NigoriProtocol;
+import com.google.nigori.common.NotFoundException;
 
 /**
  * Implements the NigoriProtocol using Json and HTTP
@@ -161,13 +162,13 @@ public class JsonHTTPProtocol implements NigoriProtocol {
   }
 
   @Override
-  public GetRevisionsResponse getRevisions(GetRevisionsRequest request) throws IOException {
+  public GetRevisionsResponse getRevisions(GetRevisionsRequest request) throws IOException, NotFoundException {
     try {
       Response response =
           postResponse(MessageLibrary.REQUEST_GET_REVISIONS, MessageLibrary.toJson(request));
 
       if (response.notFound()) {
-        return null; // request was successful, but no data key by that name was found.
+        throw new NotFoundException(response.jsonResponse);// request was successful, but no data key by that name was found.
       }
 
       if (!success(response.resp)) {

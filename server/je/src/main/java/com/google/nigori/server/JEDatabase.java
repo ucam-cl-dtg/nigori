@@ -373,6 +373,9 @@ public class JEDatabase extends AbstractDatabase {
         cursor.close();
       }
       txn.commit();
+      if (revisions.size() == 0){
+        return null;
+      }
       return revisions;
     } catch (DatabaseException e) {
       if (txn != null) {
