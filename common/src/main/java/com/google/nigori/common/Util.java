@@ -164,4 +164,23 @@ public final class Util {
     // The directory is now empty so delete it
     return dir.delete();
   }
+  
+  public static int compareByteArrays(byte[] first, byte[] second) {
+    if (first.length < second.length) {
+      return -1;
+    } else if (first.length > second.length) {
+      return 1;
+    }
+    if (Arrays.equals(first, second)) {
+      return 0;
+    }
+    for (int i = 0; i < first.length; ++i) {
+      if (first[i] < second[i]) {
+        return -1;
+      } else if (first[i] > second[i]) {
+        return 1;
+      }
+    }
+    return 0;
+  }
 }

@@ -84,17 +84,7 @@ public class RevValue implements Comparable<RevValue> {
     }
     byte[] thisBytes = this.revision.getBytes();
     byte[] argBytes = arg0.revision.getBytes();
-    if (Arrays.equals(thisBytes, argBytes)){
-      return 0;
-    }
-    for (int i = 0; i < thisBytes.length; ++i){
-      if (thisBytes[i] < argBytes[i]){
-        return -1;
-      } else if (thisBytes[i] > argBytes[i]){
-        return 1;
-      }
-    }
-    return 0;
+    return Util.compareByteArrays(thisBytes,argBytes);
   }
   @Override
   public String toString() {

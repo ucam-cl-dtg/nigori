@@ -21,7 +21,7 @@ import java.util.Arrays;
  * @author drt24
  * 
  */
-public class Index {
+public class Index implements Comparable<Index> {
 
   private final byte[] index;
   private final byte[] token;
@@ -92,5 +92,19 @@ public class Index {
   @Override
   public String toString() {
     return bytesToString(index);
+  }
+
+  @Override
+  public int compareTo(Index o) {
+    if (equals(o)){
+      return 0;
+    } else {
+      int idxcomp = Util.compareByteArrays(index, o.index);
+      if (idxcomp != 0){
+        return idxcomp;
+      } else {
+        return Util.compareByteArrays(token, o.token);
+      }
+    }
   }
 }
