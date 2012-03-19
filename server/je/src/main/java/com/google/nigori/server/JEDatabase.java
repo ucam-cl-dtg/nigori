@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.logging.Logger;
 
 import com.google.nigori.common.Nonce;
@@ -46,22 +48,36 @@ public class JEDatabase extends AbstractDatabase {
 
   private static final Logger log = Logger.getLogger(JEDatabase.class.getSimpleName());
   static {
-    //log.addHandler(new ConsoleHandler());
+    // log.addHandler(new ConsoleHandler());
   }
   private static final DatabaseEntry USERS = new DatabaseEntry("users".getBytes());
   private static final byte[] SEPARATOR = "/".getBytes();
-  
-  public JEDatabase(File dataDirectory) {
-    if(!dataDirectory.exists()){
+  private static Map<String, JEDatabase> databaseMap = new WeakHashMap<String, JEDatabase>();
+
+  public static JEDatabase getInstance(File dataDirectory) {
+    String key = dataDirectory.getAbsolutePath();
+    JEDatabase instance = databaseMap.get(key);
+    if (instance != null) {
+      return instance;
+    } else {
+      instance = new JEDatabase(dataDirectory);
+      databaseMap.put(key, instance);
+      return instance;
+    }
+  }
+
+  private JEDatabase(File dataDirectory) {
+    if (!dataDirectory.exists()) {
       throw new IllegalArgumentException("Data directory must exist: " + dataDirectory);
     }
-    if(!dataDirectory.isDirectory()){
+    if (!dataDirectory.isDirectory()) {
       throw new IllegalArgumentException("Data directory must be a directory: " + dataDirectory);
     }
-    
+
     final EnvironmentConfig envConfig = new EnvironmentConfig();
     envConfig.setTransactional(true);
     envConfig.setAllowCreate(true);
+
     env = new Environment(dataDirectory, envConfig);
     final DatabaseConfig dbConfig = new DatabaseConfig();
     dbConfig.setTransactional(true);

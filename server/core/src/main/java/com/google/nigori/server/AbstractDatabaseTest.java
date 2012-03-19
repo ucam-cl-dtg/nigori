@@ -41,9 +41,9 @@ import com.google.nigori.common.RevValue;
  */
 public abstract class AbstractDatabaseTest {
 
-  private static byte[] publicKey;
+  protected static byte[] publicKey;
 
-  private Database database;
+  protected Database database;
 
   @BeforeClass
   public static void initPublicKey() throws UnsupportedEncodingException {
