@@ -10,6 +10,9 @@ public final class Util {
   public static final int INT = 4;
   public static final int LONG = 8;
   public static final int DOUBLE = LONG;
+  public static final int BOOLEAN = 1;
+  static final byte TRUE = (byte) 0xFF;
+  static final byte FALSE = 0;
 
   /**
    * Don't allow instantiation
@@ -55,6 +58,16 @@ public final class Util {
     long2bin(out, offset, Double.doubleToLongBits(d));
   }
 
+  public static byte[] boolean2bin(boolean b) {
+    byte[] answer = new byte[1];
+    answer[0] = ((b) ? TRUE : FALSE);
+    return answer;
+  }
+
+  public static void boolean2bin(byte[] out, int offset, boolean b) {
+    out[offset] = ((b) ? TRUE : FALSE);
+  }
+
   public static int bin2int(byte[] array, int offset) {
     return ((array[offset + 0] & 0xff) << 24) + ((array[offset + 1] & 0xff) << 16)
         + ((array[offset + 2] & 0xff) << 8) + (array[offset + 3] & 0xff);
@@ -77,6 +90,14 @@ public final class Util {
 
   public static double bin2double(byte[] array) {
     return Double.longBitsToDouble(bin2long(array));
+  }
+
+  public static boolean bin2boolean(byte[] array, int offset) {
+    return array[offset] == TRUE;
+  }
+
+  public static boolean bin2boolean(byte[] array) {
+    return array[0] == TRUE;
   }
 
   public static byte[] joinBytes(byte[]... bytes) {
@@ -164,7 +185,7 @@ public final class Util {
     // The directory is now empty so delete it
     return dir.delete();
   }
-  
+
   public static int compareByteArrays(byte[] first, byte[] second) {
     if (first.length < second.length) {
       return -1;
