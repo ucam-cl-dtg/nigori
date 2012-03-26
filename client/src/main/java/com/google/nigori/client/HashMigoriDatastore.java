@@ -88,6 +88,7 @@ public class HashMigoriDatastore implements MigoriDatastore {
       }
       throw new IllegalStateException("Can never happen as must be one head to return");
     } else {
+      assert heads.size() > 1 : "Must be more than one head before we merge and we tested for 0 and 1, was: " + heads.size();
       return merger.merge(this, index, heads);
     }
   }

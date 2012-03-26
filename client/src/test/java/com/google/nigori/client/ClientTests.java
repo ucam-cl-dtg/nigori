@@ -27,6 +27,7 @@ import com.google.nigori.client.accept.AcceptanceTests;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses ({
+  ComparableMergerTest.class,
   DAGTest.class,
   DummyKeyManagerTest.class,
   RealKeyManagerTest.class,

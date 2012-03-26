@@ -41,101 +41,108 @@ public class ComparableMerger<T extends Comparable<T>> implements MigoriMerger {
   @Override
   public RevValue merge(MigoriDatastore store, Index index, Collection<RevValue> heads)
       throws IOException, NigoriCryptographyException, UnauthorisedException {
-    assert heads.size() > 0;// caller must ensure that this is true
-    List<T> passwords = new ArrayList<T>();
+    assert heads.size() > 1;// caller must ensure that this is true
+    List<T> items = new ArrayList<T>(heads.size());
     Map<T, RevValue> mapBack = new HashMap<T, RevValue>();
     for (RevValue value : heads) {
-      T password;
+      T item;
       try {
-        password = converter.fromBytes(index, value.getValue());
+        item = converter.fromBytes(index, value.getValue());
       } catch (ConversionException e) {
         throw new IOException(e);
       }
-      passwords.add(password);
-      mapBack.put(password, value);
+      items.add(item);
+      mapBack.put(item, value);
     }
-    findEquivalences(store, index, passwords, mapBack);
-    T latest = passwords.get(passwords.size() - 1);
-    T newPassword = converter.fromLatest(latest);
-    return store.put(index, converter.toBytes(newPassword), map(passwords, mapBack).toArray(
-        new RevValue[0]));
+    findEquivalences(store, index, items, mapBack);
+    T latest = items.get(items.size() - 1);
+    if (items.size() == 1){// we have already reduced it to one so don't need to do anything more
+      return mapBack.get(latest);
+    }
+    T newItem = converter.fromLatest(latest);
+    return store.put(index, converter.toBytes(newItem), map(items, mapBack)
+        .toArray(new RevValue[0]));
   }
 
-  private Collection<RevValue> map(List<T> passwords, Map<T, RevValue> mapBack) {
+  private Collection<RevValue> map(List<T> items, Map<T, RevValue> mapBack) {
     Collection<RevValue> answer = new ArrayList<RevValue>();
-    for (T password : passwords) {
-      answer.add(mapBack.get(password));
+    for (T item : items) {
+      answer.add(mapBack.get(item));
     }
     return answer;
   }
 
-  private void findEquivalences(MigoriDatastore store, Index index, List<T> passwords,
+  private void findEquivalences(MigoriDatastore store, Index index, List<T> items,
       Map<T, RevValue> mapBack) throws IOException, NigoriCryptographyException,
       UnauthorisedException {
-    Collections.sort(passwords);
+    Collections.sort(items);
     // Daniel's magic find things which are the same and merge them together by means of delicate
     // loops algorithm
     // NEEDS thorough testing, many edge cases.
     Collection<T> equivalence = new ArrayList<T>();
     Collection<T> toRemove = new ArrayList<T>();
+    Collection<T> toAdd = new ArrayList<T>();
     T last = null;
     boolean changed = false;
-    for (T password : passwords) {
+    for (T item : items) {
       if (null == last) {
-        last = password;
+        last = item;
         continue;
       }
-      if (password.equals(last)) {
+      if (item.equals(last)) {
         equivalence.add(last);
       } else {
         if (!equivalence.isEmpty()) {
           equivalence.add(last);
           TypeValue<T> newValue = putEquivalence(store, index, equivalence, mapBack);
-          mapBack.put(newValue.password, newValue.value);
-          passwords.add(newValue.password);
+          mapBack.put(newValue.item, newValue.value);
+          toAdd.add(newValue.item);
           toRemove.addAll(equivalence);
           equivalence.clear();
           changed = true;
         }
       }
-      last = password;
+      last = item;
     }
     if (!equivalence.isEmpty()) {
       equivalence.add(last);
       TypeValue<T> newValue = putEquivalence(store, index, equivalence, mapBack);
-      mapBack.put(newValue.password, newValue.value);
-      passwords.add(newValue.password);
+      mapBack.put(newValue.item, newValue.value);
       toRemove.addAll(equivalence);
       equivalence.clear();
+      toAdd.add(newValue.item);
       changed = true;
     }
-    passwords.removeAll(toRemove);
-    Collections.sort(passwords);
+    items.removeAll(toRemove);
+    items.addAll(toAdd);
+
+    Collections.sort(items);
     if (changed) {
-      findEquivalences(store, index, passwords, mapBack);
+      findEquivalences(store, index, items, mapBack);
     }
   }
 
   private TypeValue<T> putEquivalence(MigoriDatastore store, Index index,
       Collection<T> equivalence, Map<T, RevValue> mapBack) throws IOException,
       NigoriCryptographyException, UnauthorisedException {
+    assert equivalence.size() > 1;
     List<RevValue> values = new ArrayList<RevValue>();
     T value = null;
-    for (T password : equivalence) {
-      value = password;
-      values.add(mapBack.get(password));
+    for (T item : equivalence) {
+      value = item;
+      values.add(mapBack.get(item));
     }
-    T password = converter.fromLatest(value);
-    return new TypeValue<T>(password, store.put(index, converter.toBytes(password), values
-        .toArray(new RevValue[0])));
+    T item = converter.fromLatest(value);
+    RevValue rv = store.put(index, converter.toBytes(item), values.toArray(new RevValue[0]));
+    return new TypeValue<T>(item, rv);
   }
 
   private static class TypeValue<T> {
-    public final T password;
+    public final T item;
     public final RevValue value;
 
-    public TypeValue(T password, RevValue value) {
-      this.password = password;
+    public TypeValue(T item, RevValue value) {
+      this.item = item;
       this.value = value;
     }
   }
