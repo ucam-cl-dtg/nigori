@@ -21,7 +21,7 @@ import com.google.nigori.common.NigoriCryptographyException;
  * @author drt24
  *
  */
-public class RealKeyManagerTest extends KeyManagerTest {
+public class RealKeyManagerTest extends AbstractKeyManagerTest {
 
   @Override
   protected KeyManager getKeyManager(byte[] serverName, byte[] userName, byte[] password) throws NigoriCryptographyException {

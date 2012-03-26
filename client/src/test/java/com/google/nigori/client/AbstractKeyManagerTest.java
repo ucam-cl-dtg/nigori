@@ -27,7 +27,7 @@ import org.junit.Test;
 
 import com.google.nigori.common.NigoriCryptographyException;
 
-public abstract class KeyManagerTest {
+public abstract class AbstractKeyManagerTest {
 
   protected abstract KeyManager getKeyManager(byte[] serverName, byte[] userName, byte[] password) throws NigoriCryptographyException;
   protected abstract KeyManager getKeyManager(byte[] serverName) throws NigoriCryptographyException;
