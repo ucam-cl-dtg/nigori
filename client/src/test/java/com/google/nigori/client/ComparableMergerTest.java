@@ -79,4 +79,42 @@ public class ComparableMergerTest {
     verify(store);
     assertEquals(rv, value);
   }
+
+  @Test
+  public void mergeTwoEquivOneGreater() throws IOException, NigoriCryptographyException,
+      UnauthorisedException {
+    Collection<RevValue> heads = new ArrayList<RevValue>();
+    byte[] test = MessageLibrary.toBytes("test");
+    byte[] test1 = MessageLibrary.toBytes("test1");
+    RevValue rv = new RevValue(Revision.EMPTY, test);
+    RevValue rv1 = new RevValue(Revision.EMPTY, test);
+    RevValue rv2 = new RevValue(Revision.EMPTY, test1);
+    heads.add(rv);
+    heads.add(rv1);
+    heads.add(rv2);
+    MigoriDatastore store = createMock(MigoriDatastore.class);
+    expect(store.put(eq(INDEX), aryEq(test), eq(rv), eq(rv1))).andReturn(rv);
+    expect(store.put(eq(INDEX), aryEq(test1), eq(rv), eq(rv2))).andReturn(rv2);
+    replay(store);
+    RevValue value = merger.merge(store, INDEX, heads);
+    verify(store);
+    assertEquals(rv2, value);
+  }
+
+  @Test
+  public void mergeTwoDiff() throws IOException, NigoriCryptographyException, UnauthorisedException {
+    Collection<RevValue> heads = new ArrayList<RevValue>();
+    byte[] test = MessageLibrary.toBytes("test");
+    byte[] test1 = MessageLibrary.toBytes("test1");
+    RevValue rv = new RevValue(Revision.EMPTY, test);
+    RevValue rv1 = new RevValue(Revision.EMPTY, test1);
+    heads.add(rv);
+    heads.add(rv1);
+    MigoriDatastore store = createMock(MigoriDatastore.class);
+    expect(store.put(eq(INDEX), aryEq(test1), eq(rv), eq(rv1))).andReturn(rv1);
+    replay(store);
+    RevValue value = merger.merge(store, INDEX, heads);
+    verify(store);
+    assertEquals(rv1, value);
+  }
 }
