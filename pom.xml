@@ -71,6 +71,7 @@
     </plugins>
   </build>
   <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <appengine.version>1.6.1</appengine.version>
   </properties>
   <distributionManagement>
