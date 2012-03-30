@@ -19,6 +19,7 @@ import static com.google.nigori.client.accept.n.ConcurrencyTest.THREADS;
 import static com.google.nigori.client.accept.n.ConcurrencyTest.ifFailedPrintFailures;
 import static com.google.nigori.client.accept.n.ConcurrencyTest.startThenJoinThreads;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -59,6 +60,7 @@ public class MConcurrencyTest extends AcceptanceTest {
           Collections.synchronizedList(new LinkedList<Throwable>());
       for (int j = 0; j < THREADS; ++j) {
         threads[j] = new Thread() {
+          @Override
           public void run() {
             boolean succeeded = false;
             try {
@@ -109,6 +111,7 @@ public class MConcurrencyTest extends AcceptanceTest {
       for (int j = 0; j < THREADS; ++j) {
         final int startFactor = j;
         threads[j] = new Thread() {
+          @Override
           public void run() {
             boolean succeeded = false;
             try {
@@ -142,6 +145,8 @@ public class MConcurrencyTest extends AcceptanceTest {
         total += value;
       }
       assertEquals(206, total);
+      assertNotNull(deleteAt);
+      if (deleteAt != null)
       assertTrue(migori.removeIndex(index, deleteAt.getRevision()));
 
     } finally {

@@ -27,6 +27,7 @@ public interface User extends Principal {
    * Handle for representing the user, based on their public key - a human supplied identifier
    * should never reach the server unencrypted.
    */
+  @Override
   String getName();
   /**
    * 

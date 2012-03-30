@@ -58,6 +58,7 @@ public class AcceptanceTests {
     public GaeThread(String command){
       gaeCommand = command;
     }
+    @Override
     public void run() {
 
       try {

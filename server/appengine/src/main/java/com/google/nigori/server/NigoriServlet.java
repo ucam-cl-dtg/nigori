@@ -174,6 +174,7 @@ public class NigoriServlet extends HttpServlet {
 
   private class JsonGetRequestHandler implements RequestHandler {
 
+    @Override
     public void handle(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
         IOException, JsonConversionException, NotFoundException, UnauthorisedException {
 
@@ -193,6 +194,7 @@ public class NigoriServlet extends HttpServlet {
 
   private class JsonGetIndicesRequestHandler implements RequestHandler {
 
+    @Override
     public void handle(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
         IOException, NotFoundException, UnauthorisedException, JsonConversionException {
 
@@ -212,6 +214,7 @@ public class NigoriServlet extends HttpServlet {
 
 	private class JsonGetRevisionsRequestHandler implements RequestHandler {
 
+    @Override
     public void handle(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
         IOException, NotFoundException, UnauthorisedException, JsonConversionException {
 
@@ -231,7 +234,8 @@ public class NigoriServlet extends HttpServlet {
 
 	private class JsonPutRequestHandler implements RequestHandler {
 
-	  public void handle(HttpServletRequest req, HttpServletResponse resp) 
+	  @Override
+    public void handle(HttpServletRequest req, HttpServletResponse resp) 
 	      throws ServletException, JsonConversionException, IOException, UnauthorisedException {
 	    String json = getJsonAsString(req, maxJsonQueryLength);
 	    if (DEBUG_JSON) {
@@ -250,7 +254,8 @@ public class NigoriServlet extends HttpServlet {
 
 	private class JsonDeleteRequestHandler implements RequestHandler {
 
-	  public void handle(HttpServletRequest req, HttpServletResponse resp)
+	  @Override
+    public void handle(HttpServletRequest req, HttpServletResponse resp)
 	      throws ServletException, JsonConversionException, IOException, UnauthorisedException, NotFoundException {
 	    String json = getJsonAsString(req, maxJsonQueryLength);
 
@@ -271,7 +276,8 @@ public class NigoriServlet extends HttpServlet {
 
 	private class JsonAuthenticateRequestHandler implements RequestHandler {
 
-	  public void handle(HttpServletRequest req, HttpServletResponse resp)
+	  @Override
+    public void handle(HttpServletRequest req, HttpServletResponse resp)
 	      throws ServletException, JsonConversionException, IOException, UnauthorisedException {
 	    String json = getJsonAsString(req, maxJsonQueryLength);
 	    AuthenticateRequest auth = MessageLibrary.authenticateRequestFromJson(json);
@@ -286,7 +292,8 @@ public class NigoriServlet extends HttpServlet {
 
 	private class JsonRegisterRequestHandler implements RequestHandler {
 
-	  public void handle(HttpServletRequest req, HttpServletResponse resp)
+	  @Override
+    public void handle(HttpServletRequest req, HttpServletResponse resp)
 	      throws ServletException, JsonConversionException, IOException {
 
 	    String json = getJsonAsString(req, maxJsonQueryLength);
@@ -303,7 +310,8 @@ public class NigoriServlet extends HttpServlet {
 
 	private class JsonUnregisterRequestHandler implements RequestHandler {
 
-	  public void handle(HttpServletRequest req, HttpServletResponse resp)
+	  @Override
+    public void handle(HttpServletRequest req, HttpServletResponse resp)
 	      throws ServletException, IOException, UnauthorisedException, JsonConversionException {
 	    String json = getJsonAsString(req, maxJsonQueryLength);
 	    UnregisterRequest request = MessageLibrary.unregisterRequestFromJson(json);

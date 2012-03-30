@@ -154,14 +154,17 @@ public class RealKeyManager implements KeyManager {
     }
   }
 
+  @Override
   public byte[] getUsername() {
   	return username.clone();
   }
   
+  @Override
   public byte[] getPassword() {
   	return password.clone();
   }
   
+  @Override
   public byte[] decrypt(byte[] ciphertext) throws NigoriCryptographyException {
   	return decrypt(encryptionSecretKey, ciphertext);
   }
@@ -178,6 +181,7 @@ public class RealKeyManager implements KeyManager {
    * not match the decoded data, or if something goes wrong with AES/CBC/PKCS5Padding inside the 
    * JCE library.
    */
+  @Override
   public byte[] decrypt(byte[] encryptionKey, byte[] ciphertext) throws NigoriCryptographyException {
 
     byte[] iv = new byte[NigoriConstants.B_SYMENC];
@@ -236,18 +240,22 @@ public class RealKeyManager implements KeyManager {
    * 
    * @throws NigoriCryptographyException
    */
+  @Override
   public byte[] encrypt(byte[] plaintext) throws NigoriCryptographyException {
   	return encrypt(encryptionSecretKey, plaintext, true);
   }
   
+  @Override
   public byte[] encrypt(byte[] key, byte[] plaintext) throws NigoriCryptographyException {
     return encrypt(key, plaintext, true);
   }
 
+  @Override
   public byte[] encryptDeterministically(byte[] plaintext) throws NigoriCryptographyException {
   	return encrypt(encryptionSecretKey, plaintext, false);
   }
   
+  @Override
   public byte[] encryptDeterministically(byte[] key, byte[] plaintext) throws
   NigoriCryptographyException {
     return encrypt(key, plaintext, false);
@@ -306,6 +314,7 @@ public class RealKeyManager implements KeyManager {
    * Return an instance of {@code SchnorrSign} which is capable of signing user-encrypted data.
    * 
    */
+  @Override
   public SchnorrSign signer() {
     return new SchnorrSign(userSecretKey);
   }

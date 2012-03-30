@@ -83,11 +83,13 @@ public class AEUser implements User {
     return Base64.encodeBase64String(getPublicKey());
   }
 
+  @Override
   public byte[] getPublicKey() {
     byte[] pkB = publicKey.getBytes();
     return Arrays.copyOf(pkB, pkB.length);
   }
 
+  @Override
   public Date getRegistrationDate() {
     return registrationDate;
   }

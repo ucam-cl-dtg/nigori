@@ -56,12 +56,14 @@ public class AcceptanceTest {
         NigoriCryptographyException, IOException;
   }
   private static class HTTPDatastoreFactory implements DatastoreFactory {
+    @Override
     public NigoriDatastore makeDatastore() throws UnsupportedEncodingException,
         NigoriCryptographyException {
       return new CryptoNigoriDatastore(AcceptanceTests.HOST, AcceptanceTests.PORT, AcceptanceTests.PATH);
     }
   }
   private static class SyncingDatastoreFactory implements DatastoreFactory {
+    @Override
     public NigoriDatastore makeDatastore() throws NigoriCryptographyException, IOException {
       return new SyncingNigoriDatastore(
           new CryptoNigoriDatastore(AcceptanceTests.HOST, AcceptanceTests.PORT, AcceptanceTests.PATH),

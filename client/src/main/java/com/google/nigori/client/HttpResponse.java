@@ -49,7 +49,8 @@ class HttpResponse {
 		return responseMessage;
 	}
 
-	public String toString() {
+	@Override
+  public String toString() {
 
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("Response: " + getResponseCode() + " (" + getResponseMessage() + ")\n");

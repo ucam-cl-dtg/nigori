@@ -48,7 +48,8 @@ public class TwoUserDemo {
 			this.sharedIndex =sharedIndex;
 		}
 
-		public void run() {
+		@Override
+    public void run() {
 			byte count = 0;
 			try {
 				MigoriDatastore sharedStore = new HashMigoriDatastore(new CryptoNigoriDatastore(HOST, PORT, "nigori", username,

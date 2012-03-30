@@ -85,6 +85,7 @@ public class ConcurrencyTest extends AcceptanceTest {
     final List<Throwable> exceptionList = Collections.synchronizedList(new LinkedList<Throwable>());
     for (int j = 0; j < THREADS; ++j) {
       threads[j] = new Thread() {
+        @Override
         public void run() {
           boolean succeeded = false;
           try {
@@ -138,6 +139,7 @@ public class ConcurrencyTest extends AcceptanceTest {
       final List<Throwable> exceptionList = Collections.synchronizedList(new LinkedList<Throwable>());
       for (int j = 0; j < THREADS; ++j) {
         threads[j] = new Thread() {
+          @Override
           public void run() {
             boolean succeeded = false;
             try {

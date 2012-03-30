@@ -35,38 +35,47 @@ public class DummyKeyManager implements KeyManager {
     this.username = username;
     this.password = password;
   }
+  @Override
   public byte[] getUsername() {
     return username.clone();
   }
   
+  @Override
   public byte[] getPassword() {
     return password.clone();
   }
   
+  @Override
   public byte[] decrypt(byte[] ciphertext) throws NigoriCryptographyException {
     return ciphertext;
   }
   
+  @Override
   public byte[] decrypt(byte[] encryptionKey, byte[] ciphertext) {
     return ciphertext;
   }
+  @Override
   public byte[] encrypt(byte[] plaintext) throws NigoriCryptographyException {
     return plaintext;
   }
   
+  @Override
   public byte[] encrypt(byte[] key, byte[] plaintext) throws NigoriCryptographyException {
     return plaintext;
   }
 
+  @Override
   public byte[] encryptDeterministically(byte[] plaintext) throws NigoriCryptographyException {
     return plaintext;
   }
   
+  @Override
   public byte[] encryptDeterministically(byte[] key, byte[] plaintext) throws
   NigoriCryptographyException {
     return plaintext;
   }  
 
+  @Override
   public SchnorrSign signer() {
     return new SchnorrSign(userSecretKey);
   }

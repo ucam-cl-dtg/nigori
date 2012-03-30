@@ -339,6 +339,7 @@ public class HashDAG implements DAG<Revision> {
   }
 
   public static class HashDAGFactory implements DAGFactory {
+    @Override
     public DAG<Revision> getDag(Collection<Revision> values) {
       return new HashDAG(values);
     }
