@@ -45,7 +45,6 @@ import com.google.nigori.server.UserFactory;
 import com.google.nigori.server.UserNotFoundException;
 
 public final class AppEngineDatabase implements Database {
-  // TODO(drt24) schedule clearOldNonces
 
   private static final Logger log = Logger.getLogger(AppEngineDatabase.class.getName());
   protected static final String STORE = "store";
@@ -343,8 +342,23 @@ public final class AppEngineDatabase implements Database {
 
   @Override
   public void clearOldNonces() {
-    // TODO(drt24) implement clearOldNonces
-    
+    PersistenceManager pm = pmfInstance.getPersistenceManager();
+    try {
+      Query getAllNonces = new Query(AENonce.class.getSimpleName());
+      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+      List<Entity> results =
+          datastore.prepare(getAllNonces).asList(FetchOptions.Builder.withDefaults());
+      for (Entity entity : results) {
+        int sinceEpoch = (int)(long)((Long) entity.getProperty("sinceEpoch"));
+        if (!Nonce.isRecent(sinceEpoch)) {
+          pm.deletePersistent(pm.getObjectById(AENonce.class, entity.getKey()));
+        }
+      }
+
+    } finally {
+      pm.close();
+    }
   }
 
 }

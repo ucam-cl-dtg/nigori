@@ -13,14 +13,18 @@
  */
 package com.google.nigori.server;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.UnsupportedEncodingException;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Test;
 
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
+import com.google.nigori.common.Nonce;
 import com.google.nigori.server.appengine.AppEngineDatabase;
 
 /**
@@ -49,5 +53,34 @@ public class AppEngineDatabaseTest extends AbstractDatabaseTest {
   @Override
   protected Database getDatabase() {
     return new AppEngineDatabase();
+  }
+
+  @Test
+  public void clearOldNonces() throws UserNotFoundException {
+    database.clearOldNonces();
+    Nonce oldNonce = new LyingNonce(0);
+    Nonce freshNonce = new Nonce();
+    database.addUser(publicKey);
+    User user = database.getUser(publicKey);
+    try {
+      assertTrue(database.checkAndAddNonce(oldNonce, publicKey));
+      assertTrue(database.checkAndAddNonce(freshNonce, publicKey));
+      database.clearOldNonces();
+    } finally {
+      database.deleteUser(user);
+    }
+  }
+
+  private static class LyingNonce extends Nonce {
+    private static final long serialVersionUID = 1L;
+
+    public LyingNonce(int sinceEpoch) {
+      super(sinceEpoch);
+    }
+
+    @Override
+    public boolean isRecent() {
+      return true;
+    }
   }
 }
