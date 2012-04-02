@@ -32,6 +32,7 @@ import com.google.nigori.client.accept.AcceptanceTests;
   DummyKeyManagerTest.class,
   RealKeyManagerTest.class,
   AcceptanceTests.class,
+  PasswordGeneratorTest.class
   })
 public class ClientTests {
 

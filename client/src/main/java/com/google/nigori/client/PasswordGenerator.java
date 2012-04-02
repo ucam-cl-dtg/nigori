@@ -16,10 +16,11 @@ package com.google.nigori.client;
 import java.security.SecureRandom;
 import java.util.Random;
 
-import org.apache.commons.codec.binary.Base64;
-
 /**
- * Securely generate passwords using {@link SecureRandom}
+ * Securely generate impossible to remember passwords using {@link SecureRandom} these are not
+ * intended to ever be displayed to the user or input from them, but are typeable and so can be if
+ * necessary.
+ * 
  * @author drt24
  * 
  */
@@ -27,14 +28,20 @@ public class PasswordGenerator {
 
   private final Random random = new SecureRandom();
 
+  private static final char[] VALID_CHARS =
+      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890\\,./<>?;:'@#~[]{}-=+`|!\"$%^&*()"
+          .toCharArray();
+
   /**
    * 
-   * @return a sufficiently long Base64 encoded random String
+   * @return a sufficiently long random String
    */
   public byte[] generate() {
-    byte[] password = new byte[24];
-    random.nextBytes(password);
-    // Ensure the username and password are printable strings without further encoding
-    return Base64.encodeBase64(password);
+    byte[] password = new byte[30];// 192 bits of entropy
+    for (int i = 0; i < password.length; ++i) {
+      int index = random.nextInt(VALID_CHARS.length);
+      password[i] = (byte) VALID_CHARS[index];
+    }
+    return password;
   }
 }
