@@ -13,7 +13,6 @@ public final class Util {
   public static final int BOOLEAN = 1;
   static final byte TRUE = (byte) 0xFF;
   static final byte FALSE = 0;
-
   /**
    * Don't allow instantiation
    */
@@ -150,13 +149,22 @@ public final class Util {
   private static final String SHORT_PASSWORD = "Password too short, must be at least " + MIN_LENGTH;
   private static final String SHORT_USERNAME = "Username too short, must be at least " + MIN_LENGTH;
 
+  private static final String NULL_PASSWORD = "Password null, must be at least " + MIN_LENGTH;
+  private static final String NULL_USERNAME = "Username null, must be at least " + MIN_LENGTH;
+
   public static void checkPassword(final String password) throws UnauthorisedException {
+    if (password == null){
+      throw new UnauthorisedException(NULL_PASSWORD);
+    }
     if (password.length() < MIN_LENGTH) {
       throw new UnauthorisedException(SHORT_PASSWORD);
     }
   }
 
   public static void checkUsername(final String username) throws UnauthorisedException {
+    if (username == null){
+      throw new UnauthorisedException(NULL_USERNAME);
+    }
     if (username.length() < MIN_LENGTH) {
       throw new UnauthorisedException(SHORT_USERNAME);
     }
