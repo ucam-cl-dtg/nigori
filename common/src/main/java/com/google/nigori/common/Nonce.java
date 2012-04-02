@@ -31,6 +31,11 @@ public class Nonce implements Serializable {
   private final static int SINCE_EPOCH_OFFSET = 4;
   private final static int RANDOM_OFFSET = 0;
   private final static SecureRandom randomGenerator = new SecureRandom();
+  private static final int TWO_DAYS = 60 * 60 * 24 * 2;
+  /**
+   * Time into the future which the sinceEpoch is allowed to be - to allow for clock skew.
+   */
+  private static final int SKEW_ALLOWANCE = 60 * 60;
 
   private final int sinceEpoch;
   private final int random;
@@ -38,7 +43,16 @@ public class Nonce implements Serializable {
   public Nonce() {
     random = randomGenerator.nextInt();
     sinceEpoch = (int) (System.currentTimeMillis() / 1000);
-   }
+  }
+
+  /**
+   * Only for use in testing where constructing nonces for times other than now is required.
+   * @param sinceEpoch
+   */
+  protected Nonce(int sinceEpoch) {
+    random = randomGenerator.nextInt();
+    this.sinceEpoch = sinceEpoch;
+  }
 
   public Nonce(byte[] token) {
     this.random = Util.bin2int(token, RANDOM_OFFSET);
@@ -46,7 +60,7 @@ public class Nonce implements Serializable {
   }
 
   public byte[] toToken() {
-    byte[] token = new byte[8];
+    byte[] token = new byte[Util.INT*2];
     Util.int2bin(token, RANDOM_OFFSET, random);
     Util.int2bin(token, SINCE_EPOCH_OFFSET, sinceEpoch);
     return token;
@@ -56,7 +70,14 @@ public class Nonce implements Serializable {
   	return sinceEpoch;
   }
   public boolean isRecent() {
-    return sinceEpoch - System.currentTimeMillis() / 1000 < 60 * 60 * 24 * 2;
+    return isRecent(sinceEpoch);
+  }
+
+  public static boolean isRecent(int sinceEpoch) {
+    int currentTime = (int) (System.currentTimeMillis() / 1000);
+    int timeAgo = currentTime - sinceEpoch;
+    // Less than two days into the past and SKEW_ALLOWANCE into the future
+    return timeAgo < TWO_DAYS && timeAgo > -SKEW_ALLOWANCE;
   }
   
   public int getRandon() {
