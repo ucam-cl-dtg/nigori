@@ -183,4 +183,9 @@ public class AsyncNigoriDatastoreWrapper implements AsyncNigoriDatastore {
 
   }
 
+  @Override
+  public void execute(Runnable command) {
+    executor.execute(command);
+  }
+
 }
