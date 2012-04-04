@@ -259,6 +259,9 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
 
 	@Override
   public boolean put(Index index, Revision revision, byte[] value)  throws IOException, NigoriCryptographyException, UnauthorisedException {
+	  if (value == null){
+	    throw new IllegalArgumentException("Null values not yet supported");
+	  }
   	return put(null, index, revision, value);
   }
 
