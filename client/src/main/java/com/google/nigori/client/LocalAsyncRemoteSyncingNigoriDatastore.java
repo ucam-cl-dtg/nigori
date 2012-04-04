@@ -364,7 +364,7 @@ public class LocalAsyncRemoteSyncingNigoriDatastore implements NigoriDatastore {
         }
       });
       return localValue;
-//    }
+    }
   }
 
   @Override
