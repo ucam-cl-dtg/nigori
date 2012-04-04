@@ -115,15 +115,10 @@ public class LocalAsyncRemoteSyncingNigoriDatastore implements NigoriDatastore {
   @Override
   public boolean authenticate() throws IOException, NigoriCryptographyException {
     final boolean localAuth = local.authenticate();
-    remote.authenticate(new AsyncCallback<Boolean>() {
+    remote.authenticate(new FAsyncCallback<Boolean>() {
 
       @Override
-      public void onFailure(Throwable caught) {
-        failure(caught);
-      }
-
-      @Override
-      public void onSuccess(Boolean result) {
+      public void success(Boolean result) {
         if (localAuth != (boolean) result) {
           log.warning(String.format("local and remote authenticate() differ: %b and %b", localAuth,
               result));
@@ -369,23 +364,14 @@ public class LocalAsyncRemoteSyncingNigoriDatastore implements NigoriDatastore {
         }
       });
       return localValue;
-    }
+//    }
   }
 
   @Override
   public boolean put(Index index, Revision revision, byte[] value) throws IOException,
       NigoriCryptographyException, UnauthorisedException {
     final boolean localPut = local.put(index, revision, value);
-    remote.put(index, revision, value, new FAsyncCallback<Boolean>() {
-      @Override
-      public void success(Boolean result) {
-        if (localPut != (boolean) result) {
-          log.warning(String.format("local and remote put() differ: %b and %b", localPut, result));
-        } else {
-          ensureSynced();
-        }
-      }
-    });
+    remote.put(index, revision, value, new BAsyncCallback("put", localPut));
 
     return localPut;
   }
@@ -463,25 +449,15 @@ public class LocalAsyncRemoteSyncingNigoriDatastore implements NigoriDatastore {
   public boolean delete(Index index, byte[] token) throws NigoriCryptographyException, IOException,
       UnauthorisedException {
     final boolean localDelete = local.delete(index, token);
-    remote.delete(index, token, new FAsyncCallback<Boolean>() {
-
-      @Override
-      public void success(Boolean result) {
-        if (localDelete != (boolean) result) {
-          log.warning(String.format("local and remote delete() differ: %b and %b", localDelete,
-              result));
-        } else {
-          ensureSynced();
-        }
-      }
-    });
+    remote.delete(index, token, new BAsyncCallback("delete", localDelete));
     return localDelete;
   }
 
   /**
    * Log onFailure and exceptions thrown by {@link #success(T)}
+   * 
    * @author drt24
-   *
+   * 
    * @param <T>
    */
   protected abstract class FAsyncCallback<T> implements AsyncCallback<T> {
@@ -504,4 +480,26 @@ public class LocalAsyncRemoteSyncingNigoriDatastore implements NigoriDatastore {
         UnauthorisedException;
 
   }
+  protected class BAsyncCallback extends FAsyncCallback<Boolean> {
+
+    protected String method;
+    protected boolean localResult;
+
+    public BAsyncCallback(String method, boolean localResult) {
+      this.method = method;
+      this.localResult = localResult;
+    }
+
+    @Override
+    public void success(Boolean result) throws IOException, NigoriCryptographyException,
+        UnauthorisedException {
+      if (localResult != (boolean) result) {
+        log.warning(String.format("local and remote " + method + " differ: %b and %b", localResult,
+            result));
+      } else {
+        ensureSynced();
+      }
+    }
+  }
+
 }
