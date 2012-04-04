@@ -25,6 +25,7 @@ import com.google.nigori.common.NigoriCryptographyException;
 import com.google.nigori.common.RevValue;
 import com.google.nigori.common.Revision;
 import com.google.nigori.common.UnauthorisedException;
+import com.google.nigori.common.Util;
 
 /**
  * TODO(drt24) Potentially we want to make sure calls don't ever block on talking to the remote -
@@ -147,6 +148,7 @@ public class LocalAsyncRemoteSyncingNigoriDatastore implements NigoriDatastore {
       synchronized (syncLock) {
         if (!syncing) {
           syncing = true;
+          final Throwable from = new Throwable();
           remote.execute(new Runnable() {
 
             @Override
@@ -159,6 +161,7 @@ public class LocalAsyncRemoteSyncingNigoriDatastore implements NigoriDatastore {
                   syncAll();
                 }
               } catch (Exception e) {
+                Util.addFrom(e, from);
                 failure(e);
               }
               synchronized (syncLock) {
