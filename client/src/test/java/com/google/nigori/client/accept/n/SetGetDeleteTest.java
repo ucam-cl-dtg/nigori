@@ -75,6 +75,7 @@ public class SetGetDeleteTest extends AcceptanceTest {
     for (int i = 0; i < AcceptanceTests.REPEAT; ++i) {// check we can do this more than once
       try {
         assertTrue("Not registered" + i, nigori.register());
+        assertTrue("Not a clean store " + i, nigori.getIndices().isEmpty());
 
         for (IndexValue iv : testCases) {// once round for each
           final Index index = iv.index;
@@ -83,11 +84,9 @@ public class SetGetDeleteTest extends AcceptanceTest {
 
           assertTrue("Not put " + i, nigori.put(index, revision, value));
           List<RevValue> revs = nigori.get(index);
-          assertFalse("Revisions must exist", revs.isEmpty());
-          assertEquals("Not one revision", 1, revs.size());
-          RevValue rv = revs.get(0);
-          assertArrayEquals("Got different" + i, value, rv.getValue());
-          assertEquals("Got different" + i, revision, rv.getRevision());
+          assertFalse("Revisions must exist" + i, revs.isEmpty());
+          assertThat(revs,hasItem(iv.revvalue));
+          assertEquals("Not one revision " + i, 1, revs.size());
           assertTrue("Not deleted" + i, nigori.delete(index,NULL_DELETE_TOKEN));
           assertNull("Not deleted" + i, nigori.get(index));
           assertFalse("Could redelete", nigori.delete(index,NULL_DELETE_TOKEN));
@@ -118,7 +117,7 @@ public class SetGetDeleteTest extends AcceptanceTest {
         }
         for (IndexValue iv : testCases) {
           final Index index = iv.index;
-          assertNull("Not deleted" + i, nigori.get(index));
+          assertNull("Still there after deletion " + i, nigori.get(index));
         }
       } finally {
         assertTrue("Not unregistered", nigori.unregister());

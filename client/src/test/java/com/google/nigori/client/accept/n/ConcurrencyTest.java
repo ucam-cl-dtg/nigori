@@ -101,8 +101,8 @@ public class ConcurrencyTest extends AcceptanceTest {
                   final Revision revision = iv.revvalue.getRevision();
                   assertTrue("Not put" + i, nigori.put(index, revision, value));
                   assertArrayEquals("Got different" + i, value, nigori.getRevision(index, revision));
-                  assertTrue("Not deleted" + i, nigori.delete(index,NULL_DELETE_TOKEN));
-                  assertNull("Not deleted" + i, nigori.get(index));
+                  assertTrue("Not deleted " + i, nigori.delete(index,NULL_DELETE_TOKEN));
+                  assertNull("Still there after deletion " + i, nigori.get(index));
                 }
               } finally {
                 assertTrue(nigori.unregister());
