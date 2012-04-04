@@ -13,10 +13,13 @@
  */
 package com.google.nigori.client;
 
+import java.io.IOException;
 import java.util.List;
 
 import com.google.nigori.common.Index;
+import com.google.nigori.common.NigoriCryptographyException;
 import com.google.nigori.common.Revision;
+import com.google.nigori.common.UnauthorisedException;
 
 /**
  * An asynchronous version of {@link Datastore}
@@ -26,9 +29,21 @@ import com.google.nigori.common.Revision;
  */
 public interface AsyncDatastore {
 
-  void register(AsyncCallback<Boolean> callback);
+  /**
+   * Synchronous
+   * @return
+   * @throws IOException
+   * @throws NigoriCryptographyException
+   */
+  boolean register() throws IOException, NigoriCryptographyException;
 
-  void unregiser(AsyncCallback<Boolean> callback);
+  /**
+   * Synchronous
+   * @throws UnauthorisedException 
+   * @throws NigoriCryptographyException 
+   * @throws IOException 
+   */
+  boolean unregister() throws IOException, NigoriCryptographyException, UnauthorisedException;
 
   void authenticate(AsyncCallback<Boolean> callback);
 

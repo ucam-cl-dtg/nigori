@@ -91,8 +91,8 @@ public class LocalAsyncRemoteSyncingNigoriDatastore implements NigoriDatastore {
    */
   @Override
   public boolean register() throws IOException, NigoriCryptographyException {
+    boolean remoteReg = remote.register();
     boolean localReg = local.register();
-    boolean remoteReg = synchronousRemote.register();
     return localReg && remoteReg;
   }
 
@@ -105,8 +105,9 @@ public class LocalAsyncRemoteSyncingNigoriDatastore implements NigoriDatastore {
   @Override
   public boolean unregister() throws IOException, NigoriCryptographyException,
       UnauthorisedException {
+    boolean remoteReg = remote.unregister();
     boolean localReg = local.unregister();
-    boolean remoteReg = synchronousRemote.unregister();
+
     return localReg && remoteReg;
   }
 
