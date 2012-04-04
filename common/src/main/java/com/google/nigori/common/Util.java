@@ -212,4 +212,16 @@ public final class Util {
     }
     return 0;
   }
+
+  /**
+   * Add a Throwable containing information about where this method was originally called from to t
+   * 
+   * @param t
+   * @param from
+   */
+  public static void addFrom(Throwable t, Throwable from) {
+    if (t.getCause() == null) {
+      t.initCause(from);
+    }
+  }
 }

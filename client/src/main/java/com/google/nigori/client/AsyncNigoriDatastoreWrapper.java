@@ -13,13 +13,18 @@
  */
 package com.google.nigori.client;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import com.google.nigori.common.Index;
+import com.google.nigori.common.NigoriCryptographyException;
 import com.google.nigori.common.RevValue;
 import com.google.nigori.common.Revision;
+import com.google.nigori.common.UnauthorisedException;
+import com.google.nigori.common.Util;
 
 /**
  * @author drt24
@@ -75,6 +80,7 @@ public class AsyncNigoriDatastoreWrapper implements AsyncNigoriDatastore {
 
   @Override
   public void authenticate(final AsyncCallback<Boolean> callback) {
+    final Throwable from = new Throwable();
     executor.execute(new Runnable() {
 
       @Override
@@ -82,6 +88,7 @@ public class AsyncNigoriDatastoreWrapper implements AsyncNigoriDatastore {
         try {
           callback.onSuccess(store.authenticate());
         } catch (Throwable t) {
+          Util.addFrom(t, from);
           callback.onFailure(t);
         }
       }
@@ -91,6 +98,7 @@ public class AsyncNigoriDatastoreWrapper implements AsyncNigoriDatastore {
 
   @Override
   public void getIndices(final AsyncCallback<List<Index>> callback) {
+    final Throwable from = new Throwable();
     executor.execute(new Runnable() {
 
       @Override
@@ -98,6 +106,7 @@ public class AsyncNigoriDatastoreWrapper implements AsyncNigoriDatastore {
         try {
           callback.onSuccess(store.getIndices());
         } catch (Throwable t) {
+          Util.addFrom(t, from);
           callback.onFailure(t);
         }
       }
@@ -107,6 +116,7 @@ public class AsyncNigoriDatastoreWrapper implements AsyncNigoriDatastore {
   @Override
   public void getRevision(final Index index, final Revision revision,
       final AsyncCallback<byte[]> callback) {
+    final Throwable from = new Throwable();
     executor.execute(new Runnable() {
 
       @Override
@@ -114,6 +124,7 @@ public class AsyncNigoriDatastoreWrapper implements AsyncNigoriDatastore {
         try {
           callback.onSuccess(store.getRevision(index, revision));
         } catch (Throwable t) {
+          Util.addFrom(t, from);
           callback.onFailure(t);
         }
       }
@@ -123,6 +134,7 @@ public class AsyncNigoriDatastoreWrapper implements AsyncNigoriDatastore {
   @Override
   public void put(final Index index, final Revision revision, final byte[] value,
       final AsyncCallback<Boolean> callback) {
+    final Throwable from = new Throwable();
     executor.execute(new Runnable() {
 
       @Override
@@ -130,6 +142,7 @@ public class AsyncNigoriDatastoreWrapper implements AsyncNigoriDatastore {
         try {
           callback.onSuccess(store.put(index, revision, value));
         } catch (Throwable t) {
+          Util.addFrom(t, from);
           callback.onFailure(t);
         }
       }
@@ -138,6 +151,7 @@ public class AsyncNigoriDatastoreWrapper implements AsyncNigoriDatastore {
 
   @Override
   public void get(final Index index, final AsyncCallback<List<RevValue>> callback) {
+    final Throwable from = new Throwable();
     executor.execute(new Runnable() {
 
       @Override
@@ -145,6 +159,7 @@ public class AsyncNigoriDatastoreWrapper implements AsyncNigoriDatastore {
         try {
           callback.onSuccess(store.get(index));
         } catch (Throwable t) {
+          Util.addFrom(t, from);
           callback.onFailure(t);
         }
       }
@@ -154,6 +169,7 @@ public class AsyncNigoriDatastoreWrapper implements AsyncNigoriDatastore {
 
   @Override
   public void getRevisions(final Index index, final AsyncCallback<List<Revision>> callback) {
+    final Throwable from = new Throwable();
     executor.execute(new Runnable() {
 
       @Override
@@ -161,6 +177,7 @@ public class AsyncNigoriDatastoreWrapper implements AsyncNigoriDatastore {
         try {
           callback.onSuccess(store.getRevisions(index));
         } catch (Throwable t) {
+          Util.addFrom(t, from);
           callback.onFailure(t);
         }
       }
@@ -169,6 +186,7 @@ public class AsyncNigoriDatastoreWrapper implements AsyncNigoriDatastore {
 
   @Override
   public void delete(final Index index, final byte[] token, final AsyncCallback<Boolean> callback) {
+    final Throwable from = new Throwable();
     executor.execute(new Runnable() {
 
       @Override
@@ -176,6 +194,7 @@ public class AsyncNigoriDatastoreWrapper implements AsyncNigoriDatastore {
         try {
           callback.onSuccess(store.delete(index, token));
         } catch (Throwable t) {
+          Util.addFrom(t, from);
           callback.onFailure(t);
         }
       }
