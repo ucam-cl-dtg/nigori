@@ -192,7 +192,7 @@ public class LocalAsyncRemoteSyncingNigoriDatastore implements NigoriDatastore {
       secondMFirst.removeAll(firstIndices);
       addAllIndices(secondMFirst, synchronousRemote, synchronousRemote);
       // make sure firstIndices has all the indices
-      firstIndices.addAll(secondIndices);
+      firstIndices.addAll(secondMFirst);
     }
     // Now need to sync revisions.
     List<Index> indices = firstIndices;
@@ -211,16 +211,23 @@ public class LocalAsyncRemoteSyncingNigoriDatastore implements NigoriDatastore {
    */
   private void syncRevisions(Index index) throws NigoriCryptographyException, IOException,
       UnauthorisedException {
-    List<Revision> firstRevisions = local.getRevisions(index);
-    List<Revision> secondRevisions = synchronousRemote.getRevisions(index);
-    if (!(firstRevisions.containsAll(secondRevisions) && secondRevisions
-        .containsAll(firstRevisions))) {
+    List<Revision> localRevisions = local.getRevisions(index);
+    List<Revision> remoteRevisions = synchronousRemote.getRevisions(index);
+    if (localRevisions == null) {
+      if (remoteRevisions != null) {
+        addAllRevisions(index, remoteRevisions, synchronousRemote, local);
+      }// else both null
+    } else if (remoteRevisions == null) {
+      // localRevisions != null
+      addAllRevisions(index, localRevisions, local, synchronousRemote);
+    } else if (!(localRevisions.containsAll(remoteRevisions) && remoteRevisions
+        .containsAll(localRevisions))) {
       // revisions not already synced
-      List<Revision> firstMSecond = new ArrayList<Revision>(firstRevisions);
-      firstMSecond.removeAll(secondRevisions);
+      List<Revision> firstMSecond = new ArrayList<Revision>(localRevisions);
+      firstMSecond.removeAll(remoteRevisions);
       addAllRevisions(index, firstMSecond, local, synchronousRemote);
-      List<Revision> secondMFirst = new ArrayList<Revision>(secondRevisions);
-      secondMFirst.removeAll(firstRevisions);
+      List<Revision> secondMFirst = new ArrayList<Revision>(remoteRevisions);
+      secondMFirst.removeAll(localRevisions);
       addAllRevisions(index, secondMFirst, synchronousRemote, local);
     }
   }
@@ -245,7 +252,10 @@ public class LocalAsyncRemoteSyncingNigoriDatastore implements NigoriDatastore {
   private static void addAllRevisions(Index index, List<Revision> revisions, NigoriDatastore from,
       NigoriDatastore to) throws IOException, NigoriCryptographyException, UnauthorisedException {
     for (Revision revision : revisions) {
-      to.put(index, revision, from.getRevision(index, revision));
+      byte[] value = from.getRevision(index, revision);
+      if (value != null) {
+        to.put(index, revision, value);
+      }
     }
   }
 
@@ -263,8 +273,10 @@ public class LocalAsyncRemoteSyncingNigoriDatastore implements NigoriDatastore {
       throws IOException, NigoriCryptographyException, UnauthorisedException {
     for (Index index : indices) {
       List<RevValue> revs = from.get(index);
-      for (RevValue rev : revs) {
-        to.put(index, rev.getRevision(), rev.getValue());
+      if (revs != null) {
+        for (RevValue rev : revs) {
+          to.put(index, rev.getRevision(), rev.getValue());
+        }
       }
     }
   }
