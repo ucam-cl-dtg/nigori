@@ -63,7 +63,7 @@ public class SyncingNigoriDatastore implements NigoriDatastore {
       secondMFirst.removeAll(firstIndices);
       addAllIndices(secondMFirst, second, first);
       // make sure firstIndices has all the indices
-      firstIndices.addAll(secondIndices);
+      firstIndices.addAll(secondMFirst);
     }
     // Now need to sync revisions.
     List<Index> indices = firstIndices;
