@@ -34,12 +34,4 @@ public interface AsyncNigoriDatastore extends AsyncDatastore {
   void getRevisions(Index index, AsyncCallback<List<Revision>> callback);
 
   void delete(Index index, byte[] token, AsyncCallback<Boolean> callback);
-
-  /**
-   * Use whatever service the AsyncNigoriDatastore is using to provide asynchronous services to run
-   * command
-   * 
-   * @param command
-   */
-  void execute(Runnable command);
 }

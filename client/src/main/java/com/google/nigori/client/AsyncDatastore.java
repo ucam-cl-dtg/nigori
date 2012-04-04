@@ -35,4 +35,12 @@ public interface AsyncDatastore {
   void getIndices(AsyncCallback<List<Index>> callback);
 
   void getRevision(Index index, Revision revision, AsyncCallback<byte[]> callback);
+
+  /**
+   * Use whatever service the AsyncNigoriDatastore is using to provide asynchronous services to run
+   * command
+   * 
+   * @param command
+   */
+  void execute(Runnable command);
 }
