@@ -38,6 +38,7 @@ import com.google.nigori.common.NigoriMessages.RegisterRequest;
 import com.google.nigori.common.NigoriMessages.UnregisterRequest;
 import com.google.nigori.common.NigoriProtocol;
 import com.google.nigori.common.NotFoundException;
+import com.google.nigori.common.UnauthorisedException;
 
 /**
  * Implements the NigoriProtocol using Json and HTTP
@@ -124,8 +125,15 @@ public class JsonHTTPProtocol implements NigoriProtocol {
     return success(resp);
   }
 
+  private static void failure(Response response) throws IOException, UnauthorisedException{
+    if (response.resp.getResponseCode() == Http.UNAUTHORIZED){
+      throw new UnauthorisedException(response.jsonResponse);
+    }
+    throw new IOException("Server did not accept request(" + response.resp.getResponseCode()
+        + "). " + response.jsonResponse);
+  }
   @Override
-  public GetResponse get(GetRequest request) throws IOException {
+  public GetResponse get(GetRequest request) throws IOException, UnauthorisedException {
     try {
       Response response = postResponse(MessageLibrary.REQUEST_GET, MessageLibrary.toJson(request));
 
@@ -134,7 +142,7 @@ public class JsonHTTPProtocol implements NigoriProtocol {
       }
 
       if (!success(response.resp)) {
-        throw new IOException("Server did not accept request. " + response.jsonResponse);
+        failure(response);
       }
       return MessageLibrary.getResponseFromJson(response.jsonResponse);
     } catch (JsonConversionException jce) {
@@ -143,7 +151,7 @@ public class JsonHTTPProtocol implements NigoriProtocol {
   }
 
   @Override
-  public GetIndicesResponse getIndices(GetIndicesRequest request) throws IOException {
+  public GetIndicesResponse getIndices(GetIndicesRequest request) throws IOException, UnauthorisedException {
     try {
       Response response =
           postResponse(MessageLibrary.REQUEST_GET_INDICES, MessageLibrary.toJson(request));
@@ -153,7 +161,7 @@ public class JsonHTTPProtocol implements NigoriProtocol {
       }
 
       if (!success(response.resp)) {
-        throw new IOException("Server did not accept request. " + response.jsonResponse);
+        failure(response);
       }
       return MessageLibrary.getIndicesResponseFromJson(response.jsonResponse);
     } catch (JsonConversionException jce) {
@@ -162,7 +170,7 @@ public class JsonHTTPProtocol implements NigoriProtocol {
   }
 
   @Override
-  public GetRevisionsResponse getRevisions(GetRevisionsRequest request) throws IOException, NotFoundException {
+  public GetRevisionsResponse getRevisions(GetRevisionsRequest request) throws IOException, NotFoundException, UnauthorisedException {
     try {
       Response response =
           postResponse(MessageLibrary.REQUEST_GET_REVISIONS, MessageLibrary.toJson(request));
@@ -172,7 +180,7 @@ public class JsonHTTPProtocol implements NigoriProtocol {
       }
 
       if (!success(response.resp)) {
-        throw new IOException("Server did not accept request. " + response.jsonResponse);
+        failure(response);
       }
       return MessageLibrary.getRevisionsResponseFromJson(response.jsonResponse);
     } catch (JsonConversionException jce) {
@@ -188,7 +196,7 @@ public class JsonHTTPProtocol implements NigoriProtocol {
   }
 
   @Override
-  public boolean delete(DeleteRequest request) throws IOException {
+  public boolean delete(DeleteRequest request) throws IOException, UnauthorisedException {
     Response response = postResponse(MessageLibrary.REQUEST_DELETE, MessageLibrary.toJson(request));
 
     if (response.notFound()) {
@@ -196,8 +204,7 @@ public class JsonHTTPProtocol implements NigoriProtocol {
     }
 
     if (!success(response.resp)) {
-      throw new IOException("Server did not accept request(" + response.resp.getResponseCode()
-          + "). " + response.jsonResponse);
+      failure(response);
     }
     return true;
   }

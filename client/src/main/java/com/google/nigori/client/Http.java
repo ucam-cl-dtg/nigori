@@ -31,6 +31,8 @@ import com.google.nigori.common.MessageLibrary;
  *
  */
 public class Http {
+  public static final int UNAUTHORIZED = HttpURLConnection.HTTP_UNAUTHORIZED;
+
   private final String serverUrl;
   public Http(String serverUrl){
     this.serverUrl = serverUrl;
