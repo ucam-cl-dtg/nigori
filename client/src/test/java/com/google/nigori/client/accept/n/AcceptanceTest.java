@@ -23,6 +23,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.google.nigori.client.CryptoNigoriDatastore;
+import com.google.nigori.client.LocalAsyncRemoteSyncingNigoriDatastore;
 import com.google.nigori.client.NigoriDatastore;
 import com.google.nigori.client.SyncingNigoriDatastore;
 import com.google.nigori.client.accept.AcceptanceTests;
@@ -38,7 +39,7 @@ public class AcceptanceTest {
 
   @Parameters
   public static Collection<DatastoreFactory[]> stores() {
-    return Arrays.asList(new DatastoreFactory[][] {{new HTTPDatastoreFactory()}, {new SyncingDatastoreFactory()}});
+    return Arrays.asList(new DatastoreFactory[][] {{new HTTPDatastoreFactory()}, {new SyncingDatastoreFactory()}, /*{new LocalAsyncRemoteDatastoreFactory()}*/});
   }
 
   private DatastoreFactory datastore;
@@ -69,5 +70,17 @@ public class AcceptanceTest {
           new CryptoNigoriDatastore(AcceptanceTests.HOST, AcceptanceTests.PORT, AcceptanceTests.PATH),
           new CryptoNigoriDatastore(AcceptanceTests.HOST, AcceptanceTests.PORT, AcceptanceTests.PATH));
     }
+  }
+
+  private static class LocalAsyncRemoteDatastoreFactory implements DatastoreFactory {
+
+    @Override
+    public NigoriDatastore makeDatastore() throws UnsupportedEncodingException,
+        NigoriCryptographyException, IOException {
+      return new LocalAsyncRemoteSyncingNigoriDatastore(
+          new CryptoNigoriDatastore(AcceptanceTests.HOST, AcceptanceTests.PORT, AcceptanceTests.PATH),
+          new CryptoNigoriDatastore(AcceptanceTests.HOST, AcceptanceTests.PORT, AcceptanceTests.PATH));
+    }
+
   }
 }
