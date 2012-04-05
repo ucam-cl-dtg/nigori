@@ -45,6 +45,7 @@
     <dependency>
       <groupId>com.google.appengine</groupId>
       <artifactId>appengine-api-labs</artifactId>
+      <scope>test</scope>
       <version>${appengine.version}</version>
     </dependency>
     <dependency>
@@ -60,7 +61,7 @@
     <dependency>
       <groupId>javax.jdo</groupId>
       <artifactId>jdo-api</artifactId>
-      <version>3.0.1</version>
+      <version>[3.0, 4.0)</version>
     </dependency>
     <dependency>
       <groupId>org.datanucleus</groupId>
@@ -69,20 +70,9 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.openjpa</groupId>
-      <artifactId>openjpa-all</artifactId>
-      <version>2.1.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.datanucleus</groupId>
-      <artifactId>datanucleus-jpa</artifactId>
-      <version>2.1.8</version>
-    </dependency>
-    <dependency>
       <groupId>org.datanucleus</groupId>
       <artifactId>datanucleus-api-jdo</artifactId>
       <version>[3.0, 3.1)</version>
-      <optional>true</optional>
     </dependency>
   </dependencies>
   <build>
