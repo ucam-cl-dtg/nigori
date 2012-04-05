@@ -72,7 +72,7 @@
   </build>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <appengine.version>1.6.1</appengine.version>
+    <appengine.version>1.6.4</appengine.version>
   </properties>
   <distributionManagement>
     <!-- use the following if you're not using a snapshot version. -->
