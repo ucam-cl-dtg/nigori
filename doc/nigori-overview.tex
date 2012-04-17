@@ -62,6 +62,8 @@ requirements,
 
   \item Modification of stored secrets should be detectable.
 
+  \item The user should be able to use more than one device.
+
 \end{enumerate}
 
 \section{Non-requirements}
@@ -131,23 +133,20 @@ password-based key derivation, respectively.
 
 In both cases, three keys are derived, $K_{user}$, used to
 authenticate the user to service providers, $K_{enc}$, used to encrypt
-secrets and $K_{mac}$, used to check the integrity of encrypted
+secrets, $K_{mac}$, used to check the integrity of encrypted
 secrets (that is, to allow the detection of accidental or malicious
-tampering).
+tampering) and $K_{iv}$ used to generate intialisation vectors and
+prevent common prefix attacks.
 
 \subsubsection{Unassisted Password-based Key Derivation}
 
 
-In the unassisted mode, $K_{user}$, $K_{enc}$ and $K_{mac}$ are all derived from the master password in such a way that they are not derivable from each other.
+In the unassisted mode, $K_{user}$, $K_{enc}$, $K_{mac}$ and $K_{iv}$ are all derived from the master password in such a way that they are not derivable from each other.
 
 For example, in the current protocol, we use PBKDF2 [Kaliski, B
   (2000), ``RFC 2898: PKCS \#5: Password-Based Cryptography
   Specification Version 2.0'', http://tools.ietf.org/html/rfc2898]
-with a different count for each secret. Note that the current protocol
-does not include the server name in these, because it is instead
-included elsewhere in the authentication mechanism, but for other
-mechanisms it might be more appropriate to instead include it in key
-derivation.
+with a different count for each secret.
 
 \subsubsection{Assisted Password-based Key Derivation}
 
@@ -160,7 +159,7 @@ whatever other means he uses to log in to it). For example, the
 recovery server could derive $K_{master}$ from the hash of the user's
 password that it presumably stores to use in password verification.
 
-The client then derives $K_{enc}$ and $K_{mac}$ from $K_{master}$, and
+The client then derives $K_{enc}$, $K_{mac}$ amd $K_{iv}$ from $K_{master}$, and
 $K_{user}$ from the user's master password (which may be the same as
 the password he uses to log in to the recovery server). Note that even
 if both passwords are the same, an honest recovery server cannot
@@ -174,16 +173,16 @@ via email or SMS, by proving knowledge of various other secrets, etc.)
 at the storage and/or recovery servers. The recovery server then
 provides the old $K_{master}$ (we recommend that it should change
 after account recovery) and this the client can still decrypt the
-user's secrets - and re-encrypt with the new $K_{enc}$ and $K_{mac}$.
+user's secrets - and re-encrypt with the new $K_{enc}$, $K_{mac}$ and $K_{iv}$.
 
 \subsection{Storage}
 
-Now that we've dealt with the derivation of the three keys, storage
+Now that we've dealt with the derivation of the four keys, storage
 and retrieval of secrets is relatively straightforward.
 
 Firstly, the user authenticates to the storage server using
 $K_{user}$, then either sends or retrieves secrets which are encrypted
-and authenticated with $K_{enc}$ and $K_{mac}$.
+and authenticated with $K_{enc}$, $K_{mac}$ and $K_{iv}$.
 
 There are a wide variety of ways the user could authenticate using
 $K_{user}$, but we have chosen to use a DSA signature (with $K_{user}$
@@ -194,7 +193,7 @@ has never been seen before and that the signature is valid. Note that
 the timestamp is needed to limit the size of the database used to
 prevent replays.
 
-The advantage of a DSA signature for this purpose is that it does not
+The advantage of a Schnoor signature for this purpose is that it does not
 give an attacker who has access to the communications (for example,
 one who has taken over the storage server, or a storage server that is
 evil) any kind of password equivalent.
@@ -234,8 +233,9 @@ interoperable implementations. Therefore the detailed protocol
 specifies bit-level formats for the various types of secrets (at this
 time, these are passwords [i.e. random blobs], RSA private keys and
 the locations of split storage servers).
+%TODO(drt24) this is not how we have actually implemented it - we have no concept of different types on the server.
 
-Each secret is stored against a lookup value (I hesitate to use the
+Each secret is stored against a index (I hesitate to use the
 traditional word ``key'' at this point!) which is the encryption of
 the information needed to use the resource (e.g. the URL at which the
 password is entered) and its type.
@@ -244,9 +244,11 @@ We also store all the old values of encrypted secrets in case of
 failed password change attempts, disaster recovery at the RPs and the
 like which might require a fallback to an older version of the
 secret. Obviously it would make sense to expire old values eventually.
+This is achieved by storing a set of revisions for each index with
+a value associated with each revision.
 
 Finally the storage servers should be prepared to list the (encrypted)
-lookup values so that users can manually deal with issues like sites
+indices so that users can manually deal with issues like sites
 which change their name or ownership, or sites where login is
 available at multiple URLs.
 
