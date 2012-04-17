@@ -4,6 +4,8 @@ server/index.yaml
 *.pyc
 server2/*
 doc/*.aux
+doc/*.bbl
+doc/*.blg
 doc/*.dvi
 doc/*.log
 doc/*.pdf
