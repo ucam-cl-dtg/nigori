@@ -15,11 +15,7 @@ package com.google.nigori.client;
 
 import static com.google.nigori.common.MessageLibrary.toBytes;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 
@@ -73,35 +69,9 @@ public class JsonHTTPProtocol implements NigoriProtocol {
     boolean success = resp.getResponseCode() == HttpURLConnection.HTTP_OK;
     if (!success && PRINTFAILRESPONSE) {
       System.err.println(resp.getResponseCode() + " : " + resp.getResponseMessage() + " : "
-          + inputStreamToString(resp.getInputStream()));
+          + resp.toString());
     }
     return success;
-  }
-
-  /**
-   * Turn an input stream into a String or in the case of an IO exception during that process return
-   * the empty string.
-   * 
-   * @param s
-   * @return
-   */
-  private static String inputStreamToString(InputStream s) {
-    if (s == null) {
-      return "";
-    }
-    try {
-      BufferedReader reader = new BufferedReader(new InputStreamReader(s));
-      StringBuilder builder = new StringBuilder();
-      String line = reader.readLine();
-      while (line != null) {
-        builder.append(line);
-        builder.append("\n");
-        line = reader.readLine();
-      }
-      return builder.toString();
-    } catch (IOException e) {
-      return "";
-    }
   }
 
   @Override
@@ -214,15 +184,7 @@ public class JsonHTTPProtocol implements NigoriProtocol {
 
     HttpResponse resp = http.post(request, toBytes(jsonRequest));
 
-    BufferedInputStream in = new BufferedInputStream(resp.getInputStream());
-    StringBuilder jsonResponse = new StringBuilder();
-    // TODO(beresford): optimise this buffer size
-    byte[] buffer = new byte[1024];
-    int bytesRead;
-    while ((bytesRead = in.read(buffer)) != -1) {
-      jsonResponse.append(new String(buffer, 0, bytesRead, MessageLibrary.CHARSET));
-    }
-    return new Response(resp, jsonResponse.toString());
+    return new Response(resp, resp.toOutputString());
   }
 
   private static class Response {
