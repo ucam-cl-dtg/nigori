@@ -10,6 +10,7 @@
        <property name="javax.jdo.option.NontransactionalRead" value="true"/>
        <property name="javax.jdo.option.NontransactionalWrite" value="true"/>
        <property name="javax.jdo.option.RetainValues" value="true"/>
+       <property name="javax.jdo.option.Multithreaded" value="true"/>
        <property name="datanucleus.appengine.autoCreateDatastoreTxns" value="true"/>
        <property name="datanucleus.plugin.pluginRegistryBundleCheck" value="LOG"/>
    </persistence-manager-factory>
