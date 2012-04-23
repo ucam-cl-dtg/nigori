@@ -4,7 +4,9 @@
      There has to be one entity for each item to be referenced. 
      An alternate method (rfc include) is described in the references. --> 
  
-<!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml"> 
+<!ENTITY RFC2104 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2104.xml">
+<!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC2898 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2898.xml">
 ]>
 <?rfc strict="no" ?>
 <?rfc private="Draft" ?>
@@ -95,7 +97,7 @@
 	characters, in ASCII, without termination. So, "abc" is the
 	octets (in hex) 61 62 63.</t>
 
-	<t>PBKDF2 is as defined in RFC 2898, with
+	<t>PBKDF2 is as defined in <xref target="RFC2898">RFC 2898</xref>, with
 	PRF=HMAC-SHA1. <cref>(Security note: although we'd prefer SHA-256,
 	SHA-1 is not actually broken for this use case, and PBKDF2
 	does not currently allow any other hash) [PBKDF2 test vectors,
@@ -110,7 +112,7 @@
 	00 00 00 05 64 65 66 67 68.</t>
 
 	<t>HMAC(K, T) means the HMAC of T with key K and hash function
-	SHA-256, as defined in RFC 2104.</t>
+	SHA-256, as defined in <xref target="RFC2104">RFC 2104</xref>.</t>
 
 	<t>Enc[k1, k2](P) means the encryption of plaintext P using
 	AES-256 in CBC mode with a random IV, standard padding (i.e. n
@@ -991,7 +993,9 @@ b431d76ac97e4e6d de7fcd80cba7ed31 1cf7bf400ad122b8 9999999999999999
      filing system or remote ones accessed by http (http://domain/dir/... ).--> 
 
     <references title="Normative References"> 
+      &RFC2104;
       &RFC2119;
+      &RFC2898;
     </references> 
  
     <references title="Informative References"> 
