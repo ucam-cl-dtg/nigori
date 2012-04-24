@@ -14,6 +14,7 @@
 <?rfc symrefs="yes"?>
 <?rfc comments="yes"?>
 <rfc category="info" docName="draft-laurie-nigori-01">
+<!-- TODO(drt2) specify ipr attribute -->
   <!-- category values: std, bcp, info, exp, and historic
      ipr values: full3667, noModification3667, noDerivatives3667
      you can add the attributes updates="NNNN" and obsoletes="NNNN" 
@@ -488,7 +489,7 @@ drt24: Need to talk more about revisions - whole section on them and how to gene
 
     <section title="Algorithms">
 
-      <t>I'll describe the algorithms in psuedocode here. There are
+      <t>TODO: I'll describe the algorithms in psuedocode here. There are
 	also Python implementations available at
 	http://code.google.com/p/nigori/</t>
 
