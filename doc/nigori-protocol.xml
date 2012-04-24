@@ -346,9 +346,11 @@ drt24: Need to talk more about revisions - whole section on them and how to gene
 
     <section title="Storage of Secrets">
 
-      <t>The index (I) sent to the server to be associated with the value (V) is
-      EncDet[Kenc,Kmac,Kiv](index), The value sent to the server is
-      Enc[Kenc,Kmac](V).</t><!--TODO(drt24) Revision sent to server -->
+      <t>The index (I), revision (R) and value (V) sent to the server are
+      encrypted as follows:
+      I = EncDet[Kenc,Kmac,Kiv](index).
+      R = EncDet[Kenc,Kmac,Kiv](revision).
+      V = Enc[Kenc,Kmac](V).</t>
 
       <t>Note: if instead of Kenc we use Kv which is (for example:
       anything that depends on both P and I will do):
