@@ -174,6 +174,9 @@ drt24: Need to talk more about revisions - whole section on them and how to gene
         excess bytes xored in, standard padding (i.e. n bytes of value n s.t.
         the plaintext is extended to a multiple of 16 bytes, n > 0) and key k1,
         giving ciphertext C, followed by HMAC(k2, C).</t>
+
+        <t>Pub(k) means the Schnorr public key for signature verification for
+        the secret key k.</t>
       </section>
 
       <section title="Constants">
@@ -271,6 +274,8 @@ drt24: Need to talk more about revisions - whole section on them and how to gene
 
       <section title="Assisted Password-based Key Derivation">
 
+        <t>Note: this has not been implemented.</t>
+
 	<t>In this mode, the user has an account at some server which
 	will supply a master encryption key, Kmaster, if the user
 	successfully authenticates. How this is done is up to the
@@ -316,19 +321,18 @@ drt24: Need to talk more about revisions - whole section on them and how to gene
 
     <section title="Authentication">
 
-      <t>When the user registers at a server, he presents g ^ Kuser mod p. Then
-      to authenticate to the server he presents his username (u), the server
+      <t>When the user registers at a server, he presents Pub(Kuser). Then
+      to authenticate to the server he presents his public key (pk), the server
       name (ns), the time in seconds since Jan 1 1970 (nt) and random string
-      (nr) and a Schnorr signature using Kuser over u || ns || nt || nr || p
+      (nr) and a Schnorr signature using Kuser over pk || ns || nt || nr || p
       where p is the payload being authenticated. At least one of these must be
       different every time they are used, in order to defeat replay attacks.
       Clients MUST ensure that nt || nr is different for every request</t>
 
-      <!-- TODO(drt24) is g ^ Kuser what we should be using for Schnorri
-           Registerng, token etc. Notation for public key-->
+      <!-- TODO(drt24) Registerng, token etc. -->
       <t>The server checks that nt is recent (so it can drop old
-      entries from its replay database), checks that it has not seen u
-      || ns || nt || nr before, looks up g ^ Kuser for the user u, and
+      entries from its replay database), checks that it has not seen pk
+      || ns || nt || nr before, looks up the user for the pk, and
       verifies the Schnorr signature. If all these checks pass, the
       user is authenticated.</t>
 
@@ -415,7 +419,7 @@ drt24: Need to talk more about revisions - whole section on them and how to gene
 	<texttable>
 	  <ttcol>Parameter</ttcol>
 	  <ttcol>Value</ttcol>
-	  <c>u</c>	<c>user name</c>
+	  <c>pk</c>	<c>public key</c>
 	  <c>ns</c>	<c>server name</c>
 	  <c>nt</c>	<c>time</c>
 	  <c>nr</c>	<c>random</c>
@@ -441,7 +445,7 @@ drt24: Need to talk more about revisions - whole section on them and how to gene
 	<texttable>
 	  <ttcol>Parameter</ttcol>
 	  <ttcol>Value</ttcol>
-	  <c>u</c>	<c>user name</c>
+	  <c>pk</c>	<c>public key</c>
 	  <c>ns</c>	<c>server name</c>
 	  <c>nt</c>	<c>time</c>
 	  <c>nr</c>	<c>random</c>
