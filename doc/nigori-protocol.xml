@@ -345,7 +345,7 @@ drt24: Need to talk more about revisions - whole section on them and how to gene
 
     </section>
 
-    <section title="Storage of Secrets">
+    <section title="Encryption of Secrets">
 
       <t>The index (I), revision (R) and value (V) sent to the server are
       encrypted as follows:
@@ -370,6 +370,26 @@ drt24: Need to talk more about revisions - whole section on them and how to gene
       the crypto SP, which in turn would have OAuth access to the
       appropriate secret in Nigori.</t>
 
+    </section>
+
+    <section title="Encoding of Revisions">
+      <t>To allow for distributed asynchronous access to the nigori store
+      revisions are required which encode a directed acyclic graph (DAG) of the
+      history of a value. This encoding needs to be deterministic so that it
+      can be performed on multiple devices and should detect any interference
+      with past history (such as the removal of old revisions) by the server.
+      It also needs to encode sufficient information that it is not necessar to
+      download the values to construct the DAG.</t>
+
+      <t>The byte array (in network byte order) of a revision is interpreted
+      consisting of an ID,revlist where the size of the ID is the size of the
+      output of SHA-1 and revlist consists of a (possily empty) sequence of
+      ID entries for the revisions preceding. Where the "," operator specifies
+      direct concatenation</t>
+      <t>The ID is constructed by taking SHA-1(value,revlist)</t>
+      <section title="Examples">
+      <!-- TODO(drt24) -->
+      </section>
     </section>
 
     <section title="Secret Storage at a Single Server">
