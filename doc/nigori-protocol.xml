@@ -40,30 +40,30 @@ drt24: Need to talk more about revisions - whole section on them and how to gene
  
     <!-- Another author who claims to be an editor --> 
  
-    <author fullname="Ben Laurie" initials="B.L." surname="Laurie"> 
-      <organization>Google Ltd.</organization> 
- 
-      <address> 
-        <postal> 
-          <street></street> 
- 
-          <!-- Reorder these if your country does things differently --> 
- 
-          <city>London</city> 
- 
-          <region></region> 
- 
-          <code></code> 
- 
-          <country>UK</country> 
-        </postal> 
- 
-        <email>benl@google.com</email> 
- 
-        <!-- uri and facsimile elements may also be added --> 
-      </address> 
-    </author> 
-    <author fullname="Daniel Thomas" initials="D.R.T." surname="Thomas">
+    <author fullname="Ben Laurie" initials="B." surname="Laurie">
+      <organization>Google Ltd.</organization>
+
+      <address>
+        <postal>
+          <street></street>
+
+          <!-- Reorder these if your country does things differently -->
+
+          <city>London</city>
+
+          <region></region>
+
+          <code></code>
+
+          <country>UK</country>
+        </postal>
+
+        <email>benl@google.com</email>
+
+        <!-- uri and facsimile elements may also be added -->
+      </address>
+    </author>
+    <author fullname="Daniel Thomas" initials="D.R." surname="Thomas">
       <organization>University of Cambridge</organization>
 
       <address>
@@ -84,7 +84,7 @@ drt24: Need to talk more about revisions - whole section on them and how to gene
         <!-- uri and facsimile elements may also be added -->
       </address>
     </author>
-    <author fullname="Alastair Beresford" initials="A.R.B." surname="Beresford">
+    <author fullname="Alastair Beresford" initials="A.R." surname="Beresford">
       <organization>University of Cambridge</organization>
 
       <address>
