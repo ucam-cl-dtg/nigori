@@ -26,7 +26,9 @@ drt24: Need to talk more about revisions - whole section on them and how to gene
        Talk about JSON (MUST) and Protobuf (MAY)
        Further rationalisation of spec and implemenation.
        This spec focuses on a particular useage of Nigori for storing specific
-       types of secrets, its emphasis wants to be changed - remov type section.
+       types of secrets, its emphasis wants to be changed.
+       Administration of a store server and specifing of who has the right to
+       store and how much storage they are allowed.
 --> 
   <front> 
     <!-- The abbreviated title is used in the page header - it is only necessary if the 
@@ -321,15 +323,19 @@ drt24: Need to talk more about revisions - whole section on them and how to gene
 
     <section title="Authentication">
 
-      <t>When the user registers at a server, he presents Pub(Kuser). Then
-      to authenticate to the server he presents his public key (pk), the server
-      name (ns), the time in seconds since Jan 1 1970 (nt) and random string
-      (nr) and a Schnorr signature using Kuser over pk || ns || nt || nr || p
-      where p is the payload being authenticated. At least one of these must be
-      different every time they are used, in order to defeat replay attacks.
+      <t>When the user registers at a server, he presents Pub(Kuser) and a token
+      asserting his right to do so in the form of an arbitary byte array which
+      is implementation defined. Servers which require no token MUST accept the
+      empty byte array and clients SHOULD default to the empty byte array.</t>
+
+      <t>Then to authenticate to the server he presents his public key (pk), the
+      server name (ns), the time in seconds since Jan 1 1970 (nt) and random
+      string (nr) and a Schnorr signature using Kuser over pk || ns || nt || nr
+      || p where p is the payload being authenticated. At least one of these
+      must be different every time they are used, in order to defeat replay
+      attacks.
       Clients MUST ensure that nt || nr is different for every request</t>
 
-      <!-- TODO(drt24) Registerng, token etc. -->
       <t>The server checks that nt is recent (so it can drop old
       entries from its replay database), checks that it has not seen pk
       || ns || nt || nr before, looks up the user for the pk, and
