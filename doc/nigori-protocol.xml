@@ -61,6 +61,48 @@ drt24: Need to talk more about revisions
         <!-- uri and facsimile elements may also be added --> 
       </address> 
     </author> 
+    <author fullname="Daniel Thomas" initials="D.R.T." surname="Thomas">
+      <organization>University of Cambridge</organization>
+
+      <address>
+        <postal>
+          <street>15 JJ Thomson Avenue</street>
+
+          <city>Cambridge</city>
+
+          <region></region>
+
+          <code>CB3 0FD</code>
+
+          <country>UK</country>
+        </postal>
+
+        <email>Daniel.Thomas@cl.cam.ac.uk</email>
+
+        <!-- uri and facsimile elements may also be added -->
+      </address>
+    </author>
+    <author fullname="Alastair Beresford" initials="A.R.B." surname="Beresford">
+      <organization>University of Cambridge</organization>
+
+      <address>
+        <postal>
+          <street>15 JJ Thomson Avenue</street>
+
+          <city>Cambridge</city>
+
+          <region></region>
+
+          <code>CB3 0FD</code>
+
+          <country>UK</country>
+        </postal>
+
+        <email>Alastair.Beresford@cl.cam.ac.uk</email>
+
+        <!-- uri and facsimile elements may also be added -->
+      </address>
+    </author>
  
     <date year="2012" />
  
