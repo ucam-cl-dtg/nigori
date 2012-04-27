@@ -378,16 +378,62 @@ drt24: Need to talk more about revisions - whole section on them and how to gene
       history of a value. This encoding needs to be deterministic so that it
       can be performed on multiple devices and should detect any interference
       with past history (such as the removal of old revisions) by the server.
-      It also needs to encode sufficient information that it is not necessar to
+      It also needs to encode sufficient information that it is not necessary to
       download the values to construct the DAG.</t>
 
       <t>The byte array (in network byte order) of a revision is interpreted
       consisting of an ID,revlist where the size of the ID is the size of the
-      output of SHA-1 and revlist consists of a (possily empty) sequence of
+      output of SHA-1 and revlist consists of a (possily empty) sorted sequence of
       ID entries for the revisions preceding. Where the "," operator specifies
       direct concatenation</t>
       <t>The ID is constructed by taking SHA-1(value,revlist)</t>
+      <figure title="Revision format">
+        <artwork>
+No parents case:
+0                   1
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|   ID = SHA-1(value)           |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+At least one parent case:
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|   ID = SHA-1(value,revlist)   |    First parent revision ID   |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|   Second parent revision ID   |          And so on...         |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        </artwork>
+        <postamble>
+          Note that one tick mark represents one byte position.
+          Bytes 16 onward constitute the revlist hashed in SHA-1.
+        </postamble>
+      </figure>
       <section title="Examples">
+        <figure title="Example DAG of revision history">
+          <artwork>
+    +-+-+-+-+
+    | f:d,e |
+    +-+-+-+-+
+     /   \
++-+-+-+ +-+-+-+-+
+| d:b | | e:b,c |
++-+-+-+ +-+-+-+-+
+^       ^   ^
+|       /   |
+|      /    |
++-+-+-+     +-+-+-+
+| b:a |     | c:a |
++-+-+-+     +-+-+-+
+      ^     ^
+      |     |
+      +-+-+-+
+      | a:  |
+      +-+-+-+
+
+          </artwork>
+          <postamble>Here revision IDs have been abbreviated to the first character of their hex representation.</postamble>
+        </figure>
       <!-- TODO(drt24) -->
       </section>
     </section>
