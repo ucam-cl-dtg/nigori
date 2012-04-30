@@ -555,9 +555,8 @@ At least one parent case:
 
     <section title="Algorithms">
 
-      <t>TODO: I'll describe the algorithms in psuedocode here. There are
-	also Python implementations available at
-	http://code.google.com/p/nigori/</t>
+      <t>TODO: I'll describe the algorithms in psuedocode here. There are also 
+      <eref target="http://code.google.com/p/nigori/">Python implementations available</eref></t>
 
     <section title="Schnorr Signature">
 
