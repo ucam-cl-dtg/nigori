@@ -248,12 +248,6 @@ drt24: Need to talk more about revisions - whole section on them and how to gene
         </list>
       </t>
 
-      <t><cref>(Security note: there's no particular point using a
-        random salt per key or per encryption, though there is a point
-        in having a different salt for each user and each
-        server).</cref></t>
-      <!-- TODO(drt24) translate this into SHOULDs and MAY -->
-
 
       <section title="Unassisted Password-based Key Derivation">
 
