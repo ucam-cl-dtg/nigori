@@ -272,7 +272,9 @@ drt24: Need to talk more about revisions - whole section on them and how to gene
 
       <section title="Assisted Password-based Key Derivation">
 
-        <t>Note: this has not been implemented.</t>
+        <t><spanx style="emph">Note: this has not been implemented.</spanx>
+        It is unclear how to do so when the storage server does not know
+        the username as they need some way of identifying the user.</t>
 
         <t>In this mode, the user has an account at some server which
         will supply a master encryption key, Kmaster, if the user
