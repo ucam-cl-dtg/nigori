@@ -28,8 +28,6 @@ drt24: Need to talk more about revisions - whole section on them and how to gene
        Further rationalisation of spec and implementation.
        This spec focuses on a particular usage of Nigori for storing specific
        types of secrets, its emphasis wants to be changed.
-       Administration of a store server and specifying of who has the right to
-       store and how much storage they are allowed.
 --> 
   <front> 
     <!-- The abbreviated title is used in the page header - it is only necessary if the 
@@ -473,6 +471,26 @@ At least one parent case:
 
     </section>
 
+    <section title="Administration">
+      <t>Details of how administrative access to the storage server are provides are as yet undefined.</t>
+      <t>Depending on policy decisions made by the server administrator
+      registration may be restricted and not open to everyone.
+      To support this there is the opaque token byte array specified during
+      registration which can be interpreted as the server chooses.
+      TODO: useful definitions are required here before publication.</t>
+      <t>Another consideration is limiting the quantity of space which an
+      individual user can use through the imposition of quotas.
+      The server can <xref target="responses">provide a response</xref> that
+      indicates the user has insufficient quota to perform the requested operation.</t>
+      <t>TODO: some mechanism is required for users to be able to provide some
+      token from which the server can grant them additional resources.
+      Some out of band mechanism is required for obtaining these tokens,
+      perhaps some sort of ecash but that is an unsolved problem.</t>
+      <t>Administrators will require the ability to view the list of users and of administrators,
+      how much space they are using and what their quota limits are, to delete users,
+      to edit quotas and to create and delete administrators.</t>
+    </section>
+
     <section title="Protocol Details">
 
       <t>All octet strings are transmitted as websafe base64.</t>
@@ -538,12 +556,14 @@ At least one parent case:
 
       </section>
 
-      <section title="Responses">
+      <section anchor="responses" title="Responses">
 
-	<t>200 OK</t>
-	<t>401 Signature does not verify</t>
-	<t>401 This is a replay</t>
-	<t>403 Signature verifies but ACL doesn't</t>
+<!-- TODO(drt24) currently generated responses do not satisfy this. -->
+        <t>200 OK</t>
+        <t>401 Signature does not verify</t>
+        <t>401 This is a replay</t>
+        <t>403 Signature verifies but ACL doesn't</t>
+        <t>403 Insufficient quota</t>
 
       </section>
 
