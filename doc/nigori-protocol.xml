@@ -463,9 +463,7 @@ At least one parent case:
       split</xref>, with the k value (number of splits required for reconstruction)
       as determined by the user (n is equal to the number of servers).
       Each split is then stored at one of the servers as Enc[Kenc,Kmac](i ||
-      Si). <cref>(Security note: the servers can probably guess they're part
-      of a split because the value will be longer than a non-split
-      value)</cref></t>
+      Si).</t>
 
     </section>
 
@@ -1117,6 +1115,9 @@ b431d76ac97e4e6d de7fcd80cba7ed31 1cf7bf400ad122b8 9999999999999999
  
     <section anchor="Security" title="Security Considerations"> 
       <!-- TODO(arb33) remove fluff -->
+      <t>When storing at multiple servers using Shamir split, the
+      servers might guess they're part of a split because the value
+      will be longer than a non-split value.</t>
 
       <t>The role of the user's password is critical and must
       therefore be strongly protected. Obvious risks to the password
