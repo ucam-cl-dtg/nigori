@@ -139,7 +139,7 @@ drt24: Need to talk more about revisions - whole section on them and how to gene
         <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
         "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
         document are to be interpreted as described in <xref
-        target="RFC2119">RFC 2119</xref>.</t> 
+        target="RFC2119"/>.</t> 
       </section> 
 
       <section title="Notation">
@@ -147,7 +147,7 @@ drt24: Need to talk more about revisions - whole section on them and how to gene
         characters, in UTF-8, without termination. So, "abc" is the
         octets (in hex) 61 62 63.</t>
 
-        <t>PBKDF2 is as defined in <xref target="RFC2898">RFC 2898</xref>, with
+        <t>PBKDF2 is as defined in <xref target="RFC2898"/>, with
         PRF=HMAC-SHA1. <cref>(Security note: although we'd prefer SHA-256,
         SHA-1 is not actually broken for this use case, and PBKDF2
         does not currently allow any other hash) [PBKDF2 test vectors,
@@ -162,7 +162,7 @@ drt24: Need to talk more about revisions - whole section on them and how to gene
         00 00 00 05 64 65 66 67 68.</t>
 
         <t>HMAC(K, T) means the HMAC of T with key K and hash function
-        SHA-256, as defined in <xref target="RFC2104">RFC 2104</xref>.</t>
+        SHA-256, as defined in <xref target="RFC2104"/>.</t>
 
         <t>Enc[k1, k2](P) means the encryption of plaintext P using
         AES-256 in CBC mode with a random IV, standard padding (i.e. n
