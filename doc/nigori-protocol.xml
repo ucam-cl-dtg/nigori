@@ -7,6 +7,7 @@
 <!ENTITY RFC2104 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2104.xml">
 <!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY RFC2898 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2898.xml">
+<!ENTITY RFC4627 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4627.xml">
 ]>
 <?rfc strict="no" ?>
 <?rfc private="Draft" ?>
@@ -438,20 +439,15 @@ At least one parent case:
 
     <section title="Secret Storage at a Single Server">
 
-      <section title="Storage">
-
-        <t>The client sends authentication information as specified
-          above, with a payload of the key, revision and value.</t>
-
-      </section>
-
-      <section title="Retrieval">
-
-        <t>The client sends authentication information and the
-          key (and optionally the revision). The server returns the revision,
-          value pairs.</t>
-
-      </section>
+      <t>The client and server communicate by means of messages with the client
+      sending requests and receiving responses.</t>
+      <t>The following message types are defined with detailed specification in <xref target="protocol"/>:</t>
+      <t>
+        <list>
+          <t></t>
+          <!-- TODO(drt24) -->
+        </list>
+      </t>
 
     </section>
 
@@ -491,8 +487,6 @@ At least one parent case:
 
     <section title="Protocol Details" anchor="protocol">
 
-      <t>All octet strings are transmitted as websafe base64.</t>
-
       <t>[server] is the base URL for the server. All requests MUST be
       performed over HTTPS. The client MUST check the certificate
       (note: "check" may mean "is the same certificate as seen when
@@ -501,6 +495,29 @@ At least one parent case:
       certificate. There are also considerations for the case where the user
       has multiple devices as we would prefer the first certificate seen by the
       first device.</t>
+
+      <t>There are two possible encodings of data being transmitted over HTTPS
+      to the server: <xref target="RFC4627">JSON</xref> and <xref target="protobuf">Protobuf</xref>.
+      Clients and servers MUST implement the JSON encoding and SHOULD implement Protobuf.
+      Protobuf is significantly more efficient but not standardised.</t>
+      <t>Clients MUST specify which encodings they support in the Accept header they send.
+      If a client supports Protobuf it MUST send: `Accept : application/x-google-protobuf, application/json`
+      If a client only supports JSON it MUST send `Accept : application/json`.</t>
+      <t>If a server receives a request message with a mimetype it does not support
+      it MUST return <xref target="responses">406 (Not Acceptable) with a list of supported mimetypes</xref>.</t>
+      <t>If a server supports Protobuf and receives a message from a client
+      which indicates support for Protobuf then it should reply with Protobuf
+      regardless of the mimetype of the request.</t>
+      <t>Clients MAY try Protobuf first without having received a Protobuf
+      response from the server but MUST retry with JSON if this fails with
+      <xref target="responses">406 (Not Acceptable)</xref>.</t>
+      <t>Further mimetypes MAY be added in future but a specification is
+      required. Which mimetype to use should be determined as for Protobuf
+      and JSON with the ordering in the Accept header being used by the server
+      to determine which mimetype the client prefers.</t>
+
+      <t>When using JSON all octet strings are transmitted as websafe base64.</t>
+
 
       <section title="Storage">
 
@@ -562,6 +579,7 @@ At least one parent case:
         <t>401 This is a replay</t>
         <t>403 Signature verifies but ACL doesn't</t>
         <t>403 Insufficient quota</t>
+        <t>406 Request mime type not supported</t>
 
       </section>
 
@@ -1164,6 +1182,16 @@ b431d76ac97e4e6d de7fcd80cba7ed31 1cf7bf400ad122b8 9999999999999999
       &RFC2104;
       &RFC2119;
       &RFC2898;
+      &RFC4627;
+      <reference anchor="protobuf" target="https://developers.google.com/protocol-buffers/docs/overview">
+        <front>
+          <title>Protocol Buffers</title>
+          <author>
+            <organization>Google</organization>
+          </author>
+          <date month="April" year="2011"/>
+        </front>
+      </reference>
     </references> 
  
     <references title="Informative References"> 
