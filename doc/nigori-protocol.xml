@@ -444,8 +444,17 @@ At least one parent case:
       <t>The following message types are defined with detailed specification in <xref target="protocol"/>:</t>
       <t>
         <list>
-          <t></t>
-          <!-- TODO(drt24) -->
+          <t>RegisterRequest used to register at the server.</t>
+          <t>AuthenticateRequest used to determine that the client can connect to the server and authenticate it is also a component of all the other requests.</t>
+          <t>UnregisterRequest unregisters the user.</t>
+          <t>GetRequest request revision, value pair(s) from the server.</t>
+          <t>GetResponse the revision, value pair(s) requested.</t>
+          <t>GetIndicesRequest request the list of indices held by the server</t>
+          <t>GetIndicesResponse the list of indices requested.</t>
+          <t>GetRevisionsRequest request the list of revisions for an index.</t>
+          <t>GetRevisionsResponse the list of revisions requested.</t>
+          <t>PutRequest request that a value be put for a particular index and revision.</t>
+          <t>DeleteRequest delete a particular index or revision.</t>
         </list>
       </t>
 
