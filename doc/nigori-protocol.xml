@@ -526,60 +526,87 @@ At least one parent case:
       and JSON with the ordering in the Accept header being used by the server
       to determine which mimetype the client prefers.</t>
 
-      <t>When using JSON all octet strings are transmitted as websafe base64.</t>
+      <t>When using JSON all octet strings are transmitted as websafe <xref target="RFC4648">base64</xref>.</t><!-- TODO(drt24): is URLsafe what is meant here? We implement just normal Base64.-->
 
+      <t>It is easy to convert between JSON and Protobuf either statically or
+      dynamically however Protobuf lends itself to providing a specification
+      and a JSON specification does not supply tag numbers which need to be
+      identical for two Protobuf specifications to interoperate. Hence the
+      message specification is given as a .proto file.</t>
+      <figure title="Protobuf specification of nigori messages">
+        <artwork>
+package nigori;
 
-      <section title="Storage">
+message AuthenticateRequest {
+//TODO(drt24) we need to have the server name in here.
+  required bytes public_key = 1;
+  required bytes schnorr_s = 2;
+  required bytes schnorr_e = 3;
+  required bytes nonce = 4;
+}
 
-        <t>Storage is a POST request to [server]/store, with body
-        containing the following:</t> <!-- TODO(drt24): JSON? -->
+message RegisterRequest {
+  required bytes public_key = 1;
+  required bytes token = 2;
+}
 
-        <texttable>
-          <ttcol>Parameter</ttcol> <ttcol>Value</ttcol>
-          <c>pk</c>        <c>public key</c>
-          <c>ns</c>        <c>server name</c>
-          <c>nt</c>        <c>time</c>
-          <c>nr</c>        <c>random</c>
-          <c>k</c>         <c>key</c>
-          <c>v</c>         <c>value</c>
-          <c>s</c>         <c>Schnorr s signature</c>
-          <c>e</c>         <c>Schnorr e signature</c>
-        </texttable>
+message UnregisterRequest {
+  required AuthenticateRequest auth = 1;
+}
 
-        <t>The server adds the value to the list of values stored for
-        that key.</t>
+message RevisionValue {
+  required bytes revision = 1;
+  required bytes value = 2;
+}
 
-      </section>
+message GetRequest {
+  required AuthenticateRequest auth = 1;
+  required bytes key = 2;
+  optional bytes revision = 3;
+}
 
-      <section title="Retrieval">
+message GetResponse {
+  repeated RevisionValue revisions = 1;
+  optional bytes key = 2;// optional as may want to keep packet size down.
+}
 
-        <t>Retrieval is a GET request to [server]/get Suggest just
-        using "/store" here -- why multiply endpoints without
-        necessity -- assuming "store" could be a noun in this
-        context. -John Panzer 3/1/10 1:03 PM  with an empty body and
-        parameters as follows</t>
+message GetIndicesRequest {
+  required AuthenticateRequest auth = 1;
+}
 
-        <texttable>
-          <ttcol>Parameter</ttcol> <ttcol>Value</ttcol>
-          <c>pk</c>        <c>public key</c>
-          <c>ns</c>        <c>server name</c>
-          <c>nt</c>        <c>time</c>
-          <c>nr</c>        <c>random</c>
-          <c>k</c>         <c>key</c>
-          <c>s</c>         <c>Schnorr s signature</c>
-          <c>e</c>         <c>Schnorr e signature</c>
-        </texttable>
+message GetIndicesResponse {
+  repeated bytes indices = 1;
+}
 
-        <t>If successful, the body is a JSON value containing an array
-        of</t>
+message GetRevisionsRequest {
+  required AuthenticateRequest auth = 1;
+  required bytes key = 2;
+}
+message GetRevisionsResponse {
+  repeated bytes revisions = 1;
+  optional bytes key = 2;
+}
 
-        <texttable>
-          <ttcol>Parameter</ttcol> <ttcol>Value</ttcol>
-          <c>revision</c>          <c>the revision of the secret</c>
-          <c>value</c>             <c>the value associated with the key</c>
-        </texttable>
+message PutRequest {
+  required AuthenticateRequest auth = 1;
+  required bytes key = 2;
+  required bytes revision = 3;
+  required bytes value = 4;
+}
 
-      </section>
+message DeleteRequest {
+  required AuthenticateRequest auth = 1;
+  required bytes key = 2;
+  optional bytes revision = 3;
+}
+        </artwork>
+        <postamble>The Protobuf specification is converted to a JSON one by
+        encoding `bytes` as <xref target="RFC4648">base64</xref> strings, and keeping the field names
+        identical.</postamble>
+      </figure>
+
+      <t>Messages are sent to the server by a POST request to [server]/command where command is ????.</t>
+      <!-- TODO(drt24) specify what command is. -->
 
       <section anchor="responses" title="Responses">
 
