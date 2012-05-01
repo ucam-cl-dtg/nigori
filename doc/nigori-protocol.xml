@@ -8,6 +8,7 @@
 <!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY RFC2898 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2898.xml">
 <!ENTITY RFC4627 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4627.xml">
+<!ENTITY RFC4648 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4648.xml">
 ]>
 <?rfc strict="no" ?>
 <?rfc private="Draft" ?>
@@ -1192,6 +1193,7 @@ b431d76ac97e4e6d de7fcd80cba7ed31 1cf7bf400ad122b8 9999999999999999
       &RFC2119;
       &RFC2898;
       &RFC4627;
+      &RFC4648;
       <reference anchor="protobuf" target="https://developers.google.com/protocol-buffers/docs/overview">
         <front>
           <title>Protocol Buffers</title>
