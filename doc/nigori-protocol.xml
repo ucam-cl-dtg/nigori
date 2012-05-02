@@ -24,12 +24,8 @@
  
   <!-- ***** FRONT MATTER ***** --> 
 <!-- TODO: whole document TODOs
-drt24: Need to talk more about revisions - whole section on them and how to generate them
-       Ensure all methods specified in nigori_messages.proto included here
-       Talk about JSON (MUST) and Protobuf (MAY)
-       Further rationalisation of spec and implementation.
-       This spec focuses on a particular usage of Nigori for storing specific
-       types of secrets, its emphasis wants to be changed.
+drt24: Further rationalisation of spec and implementation.
+       Section specifying how to use Nigori for a password store
 --> 
   <front> 
     <!-- The abbreviated title is used in the page header - it is only necessary if the 
@@ -434,7 +430,6 @@ At least one parent case:
           </artwork>
           <postamble>Here revision IDs have been abbreviated to the first character of their hex representation.</postamble>
         </figure>
-      <!-- TODO(drt24) -->
       </section>
     </section>
 
@@ -526,7 +521,7 @@ At least one parent case:
       and JSON with the ordering in the Accept header being used by the server
       to determine which mimetype the client prefers.</t>
 
-      <t>When using JSON all octet strings are transmitted as websafe <xref target="RFC4648">base64</xref>.</t><!-- TODO(drt24): is URLsafe what is meant here? We implement just normal Base64.-->
+      <t>When using JSON all octet strings are transmitted as <xref target="RFC4648">base64</xref>.</t>
 
       <t>It is easy to convert between JSON and Protobuf either statically or
       dynamically however Protobuf lends itself to providing a specification
