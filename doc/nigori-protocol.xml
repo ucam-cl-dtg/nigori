@@ -9,6 +9,7 @@
 <!ENTITY RFC2898 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2898.xml">
 <!ENTITY RFC4627 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4627.xml">
 <!ENTITY RFC4648 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4648.xml">
+<!ENTITY RFC5849 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5849.xml">
 ]>
 <?rfc strict="no" ?>
 <?rfc private="Draft" ?>
@@ -223,8 +224,8 @@ drt24: Further rationalisation of spec and implementation.
             a dictionary attack against the master password from which
             it is derived.</t>
           <t>Kenc: Secret Encryption Key - this is used to encrypt the
-            user's secrets at the Nigori server(s) [note: may become a
-            per-secret key to enable OAuth, <xref target="encsecret">see below</xref>]</t>
+            user's secrets at the Nigori server(s) <!-- (save for a future specification)[note: may become a
+            per-secret key to enable OAuth, <xref target="encsecret">see below</xref>]--></t>
           <t>Kmac: Secret Authentication Key - this is used as a MAC
             to authenticate the encrypted secrets.</t>
           <t>Kiv: deterministic IV generation key - this is used to
@@ -349,6 +350,7 @@ drt24: Further rationalisation of spec and implementation.
       R = EncDet[Kenc,Kmac,Kiv](revision).
       V = Enc[Kenc,Kmac](V).</t>
 
+      <!-- This will be the subject of a future specification.
       <t>Note: if instead of Kenc we use Kv which is (for example:
       anything that depends on both P and I will do):
         <list>
@@ -357,7 +359,7 @@ drt24: Further rationalisation of spec and implementation.
       </t>
 
       <t>then we could also allow third parties access to single
-      secrets via protocols such as OAuth. The most general form of
+      secrets via protocols such as <xref target="RFC5849">OAuth</xref>. The most general form of
       this would give an the service provider (SP) the per-secret key
       and an OAuth token to retrieve the current value of that
       secret. A general purpose crypto service could be used which
@@ -365,6 +367,7 @@ drt24: Further rationalisation of spec and implementation.
       services - in this case, the final SP would have OAuth access to
       the crypto SP, which in turn would have OAuth access to the
       appropriate secret in Nigori.</t>
+      -->
 
     </section>
 
@@ -1232,7 +1235,8 @@ b431d76ac97e4e6d de7fcd80cba7ed31 1cf7bf400ad122b8 9999999999999999
       </reference>
     </references> 
  
-    <references title="Informative References"> 
+    <references title="Informative References">
+    <!-- Oauth: save for a future specification &RFC5849; --> 
     </references> 
    </back> 
 </rfc>
