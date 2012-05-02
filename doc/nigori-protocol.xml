@@ -26,8 +26,12 @@
   <!-- ***** FRONT MATTER ***** --> 
 <!-- TODO: whole document TODOs
 drt24: Further rationalisation of spec and implementation.
-       Section specifying how to use Nigori for a password store
---> 
+
+Future specifications:
+ * Specify how to use Nigori to store passwords.
+ * Specify how to use OAuth to provide access to values.
+-->
+
   <front> 
     <!-- The abbreviated title is used in the page header - it is only necessary if the 
          full title is longer than 39 characters --> 
@@ -325,15 +329,16 @@ drt24: Further rationalisation of spec and implementation.
       <t>When the user registers at a server, he presents Pub(Kuser) and a token
       asserting his right to do so in the form of an arbitrary octet array which
       is implementation defined. Servers which require no token MUST accept the
-      empty octet array and clients SHOULD default to the empty octet array.</t>
-      <!-- TODO(drt24) define some semantics for the token -->
+      empty octet array and clients SHOULD default to the empty octet array.
+      TODO(drt24) there should probably be some defined semantics and format for
+      the token to allow for cross compatibility.</t>
 
       <t>Then to authenticate to the server he presents his public key (pk), the
       server name (ns), the time in seconds since Jan 1 1970 (nt) and random
-      string (nr) and a <xref target="schnorr">Schnorr signature</xref> using Kuser over pk || ns || nt || nr <!-- TODO(drt24) we don't do exactly this in java and we should -->
-      || p where p is the payload being authenticated. At least one of these
-      must be different every time they are used, in order to defeat replay
-      attacks.
+      string (nr) and a <xref target="schnorr">Schnorr signature</xref> using
+      Kuser over ns || nt || nr || p where p is the payload being authenticated.
+      At least one of these must be different every time they are used, in order
+      to defeat replay attacks.
       Clients MUST ensure that nt || nr is different for every request</t>
 
       <t>The server checks that nt is recent (so it can drop old
@@ -481,12 +486,12 @@ At least one parent case:
       registration may be restricted and not open to everyone.
       To support this there is the opaque token octet array specified during
       registration which can be interpreted as the server chooses.
-      TODO: useful definitions are required here before publication.</t>
+      TODO(drt24): useful definitions are required here before publication.</t>
       <t>Another consideration is limiting the quantity of space which an
       individual user can use through the imposition of quotas.
       The server can <xref target="responses">provide a response</xref> that
       indicates the user has insufficient quota to perform the requested operation.</t>
-      <t>TODO: some mechanism is required for users to be able to provide some
+      <t>TODO(drt24): some mechanism is required for users to be able to provide some
       token from which the server can grant them additional resources.
       Some out of band mechanism is required for obtaining these tokens,
       perhaps some sort of ecash but that is an unsolved problem.</t>
@@ -501,10 +506,8 @@ At least one parent case:
       performed over HTTPS. The client MUST check the certificate
       (note: "check" may mean "is the same certificate as seen when
       the user registered at or first visited the server").</t>
-      <t>TODO: We need to have some mechanism allowing the server to change its
-      certificate. There are also considerations for the case where the user
-      has multiple devices as we would prefer the first certificate seen by the
-      first device.</t>
+      <t>TODO(drt24): We need to have some mechanism allowing the server to change its
+      certificate.</t>
 
       <t>There are two possible encodings of data being transmitted over HTTPS
       to the server: <xref target="RFC4627">JSON</xref> and <xref target="protobuf">Protobuf</xref>.
@@ -538,11 +541,11 @@ At least one parent case:
 package nigori;
 
 message AuthenticateRequest {
-//TODO(drt24) we need to have the server name in here.
   required bytes public_key = 1;
   required bytes schnorr_s = 2;
   required bytes schnorr_e = 3;
   required bytes nonce = 4;
+  required string server_name = 5;
 }
 
 message RegisterRequest {
@@ -601,8 +604,8 @@ message DeleteRequest {
 }
         </artwork>
         <postamble>The Protobuf specification is converted to a JSON one by
-        encoding `bytes` as <xref target="RFC4648">base64</xref> strings, and keeping the field names
-        identical.</postamble>
+        encoding both `bytes` and `string` as <xref target="RFC4648">base64</xref>
+        strings, and keeping the field names identical.</postamble>
       </figure>
 
       <t>Messages are sent to the server by a POST request to [server]/command
@@ -612,25 +615,22 @@ message DeleteRequest {
 
       <section anchor="responses" title="Responses">
 
+        <t>Responses are of the form HTTP error code, space, nigori minor error
+        code, description of the error.</t>
 <!-- TODO(drt24) currently generated responses do not satisfy this.
-                 Do we want to have a minor error code number for each response to disambiguate between
-                 different 403s in a language independent way?
 -->
         <t>200 OK</t>
-        <t>401 Signature does not verify</t>
-        <t>401 This is a replay</t>
-        <t>403 Signature verifies but ACL doesn't</t>
-        <t>403 Insufficient quota</t>
-        <t>406 Request mime type not supported</t>
+        <t>401 1 Signature does not verify</t>
+        <t>401 2 This is a replay</t>
+        <t>403 1 Signature verifies but ACL doesn't</t>
+        <t>403 1 Insufficient quota</t>
+        <t>406 1 Request mime type not supported</t>
 
       </section>
 
     </section>
 
     <section title="Algorithms">
-
-      <t>TODO: I'll describe the algorithms in psuedocode here. There are also 
-      <eref target="http://code.google.com/p/nigori/">Python implementations available</eref></t>
 
     <section title="Schnorr Signature" anchor="schnorr">
 
@@ -656,7 +656,7 @@ e13c167a8b547c8 d28e0a3ae1e2bb3a 675916ea37f0bfa2 13562f1fb627a012
 492a
         </artwork>
       </figure>
-      <t>[TODO: we should generate new parameters, so q is big enough to handle
+      <t>[TODO(benl): we should generate new parameters, so q is big enough to handle
       SHA-256 - seems to be sized for SHA-1 here]</t>
 
       <t>At registration time, the client gives the server g^Kuser mod p.</t>
@@ -803,12 +803,7 @@ DBBBC2DB04DE8EF9 2E8EFC141FBECAA6 287C59474E6BC05D 99B2964FA090C3A2
 
             (I have my doubts because of the cache, but I should test it)
             ]</cref></t>
-      </section>
-    </section>
 
-    <section title="Examples">
-
-    </section>
 
     <section title="Pre-calculated values for mod_inverse(x, p)">
 
@@ -1160,11 +1155,13 @@ b431d76ac97e4e6d de7fcd80cba7ed31 1cf7bf400ad122b8 9999999999999999
           </artwork>
         </figure>
     </section>
+    </section>
+    </section>
 
     <section anchor="Acknowledgements" title="Acknowledgements"> 
       <t>Thanks to Wan-Teh Chang, Adam Langley, Ian Goldberg and
       Daniel Bleichanbacher for feedback on earlier versions.
-      TODO: Update this list.</t>
+      TODO(benl): Update this list.</t>
     </section> 
  
     <!-- Possibly a 'Contributors' section ... --> 
@@ -1176,7 +1173,7 @@ b431d76ac97e4e6d de7fcd80cba7ed31 1cf7bf400ad122b8 9999999999999999
     </section> 
  
     <section anchor="Security" title="Security Considerations"> 
-      <!-- TODO(arb33) remove fluff -->
+      <!-- TODO(drt24) read the RFC on writing Security Considerations and rewrite this section -->
       <t>When storing at multiple servers using Shamir split, the
       servers might guess they're part of a split because the value
       will be longer than a non-split value.</t>
