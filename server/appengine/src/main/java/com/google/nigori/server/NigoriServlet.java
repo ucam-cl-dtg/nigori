@@ -327,6 +327,7 @@ public class NigoriServlet extends HttpServlet {
 
 	//TODO(beresford): double-check that Servlet instances are created rarely
 	private HashMap<RequestHandlerType, RequestHandler> handlers = initHandlers();
+	private String supportedTypes = null;
 	private HashMap<RequestHandlerType, RequestHandler> initHandlers() {
 		HashMap<RequestHandlerType, RequestHandler> h = 
 			new HashMap<RequestHandlerType, RequestHandler>();
@@ -346,6 +347,11 @@ public class NigoriServlet extends HttpServlet {
 				new JsonRegisterRequestHandler());
 		h.put(new RequestHandlerType(MessageLibrary.MIMETYPE_JSON, MessageLibrary.REQUEST_UNREGISTER),
 		    new JsonUnregisterRequestHandler());
+		StringBuilder supportedPairs = new StringBuilder("The following mimetypes and request pairs are supported: ");
+		for (RequestHandlerType type : h.keySet()){
+		  supportedPairs.append("(" + type.mimetype + " - " + type.requestType + ") ");
+		}
+		supportedTypes = supportedPairs.toString();
 		return h;
 	}
 
@@ -364,8 +370,8 @@ public class NigoriServlet extends HttpServlet {
 
 	    RequestHandler handler = handlers.get(handlerType);
 	    if (handler == null) {
-	      throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, 
-	          "Unsupported request pair:" + handlerType);
+	      throw new ServletException(HttpServletResponse.SC_NOT_ACCEPTABLE,
+	          "Unsupported request pair: " + handlerType + "\n" + supportedTypes);
 	    }
 	    try {
 	      handler.handle(req, resp);
