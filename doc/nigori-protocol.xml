@@ -180,6 +180,8 @@ drt24: Further rationalisation of spec and implementation.
 
         <t>Pub(k) means the <xref target="schnorr">Schnorr</xref> public key for signature verification for
         the secret key k.</t>
+
+        <t>[server] is the base URL for the server.</t>
       </section>
 
       <section title="Constants">
@@ -234,9 +236,9 @@ drt24: Further rationalisation of spec and implementation.
         </list>
       </t>
 
-      <t>Depending on user choice, these can be derived in different
-        ways, some allow easier recovery in exchange for more exposure
-        to evil servers.</t>
+      <t>There are two specified mechanisms for key derivation either
+      completely client side with no recovery if the user loses their
+      password or with recovery via a trusted third party.</t>
 
       <t>We also need a per-user, per-server salt value, which is
         always derived in the same way:
@@ -405,7 +407,8 @@ At least one parent case:
         </artwork>
         <postamble>
           Note that one tick mark represents one octet position.
-          Octets 16 onward constitute the revlist hashed in SHA-1.
+          Octets 16 onward constitute the revlist which is hashed using SHA-1
+          when generating the ID.
         </postamble>
       </figure>
       <section title="Examples">
@@ -468,8 +471,7 @@ At least one parent case:
       would store at a single server and splits it using a <xref target="shamir">Shamir
       split</xref>, with the k value (number of splits required for reconstruction)
       as determined by the user (n is equal to the number of servers).
-      Each split is then stored at one of the servers as Enc[Kenc,Kmac](i ||
-      Si).</t>
+      Each split is then stored at server i as Enc[Kenc,Kmac](i || Si).</t>
 
     </section>
 
@@ -495,7 +497,7 @@ At least one parent case:
 
     <section title="Protocol Details" anchor="protocol">
 
-      <t>[server] is the base URL for the server. All requests MUST be
+      <t>All requests MUST be
       performed over HTTPS. The client MUST check the certificate
       (note: "check" may mean "is the same certificate as seen when
       the user registered at or first visited the server").</t>
