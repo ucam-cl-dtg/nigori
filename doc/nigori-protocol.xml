@@ -605,8 +605,10 @@ message DeleteRequest {
         identical.</postamble>
       </figure>
 
-      <t>Messages are sent to the server by a POST request to [server]/command where command is ????.</t>
-      <!-- TODO(drt24) specify what command is. -->
+      <t>Messages are sent to the server by a POST request to [server]/command
+      where command is the result of removing the Request or Response from the
+      string inserting a - between words and making lower case.
+      e.g. GetRequest => get, GetIndicesRequest => get-indices.</t>
 
       <section anchor="responses" title="Responses">
 
