@@ -610,7 +610,10 @@ message DeleteRequest {
 
       <section anchor="responses" title="Responses">
 
-<!-- TODO(drt24) currently generated responses do not satisfy this. -->
+<!-- TODO(drt24) currently generated responses do not satisfy this.
+                 Do we want to have a minor error code number for each response to disambiguate between
+                 different 403s in a language independent way?
+-->
         <t>200 OK</t>
         <t>401 Signature does not verify</t>
         <t>401 This is a replay</t>
