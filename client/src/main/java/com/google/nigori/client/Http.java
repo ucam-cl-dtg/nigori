@@ -21,8 +21,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import com.google.nigori.common.MessageLibrary;
-
 /**
  * Encapsulates communication with server via http
  * 
@@ -33,12 +31,14 @@ public class Http {
   public static final int UNAUTHORIZED = HttpURLConnection.HTTP_UNAUTHORIZED;
 
   private final String serverUrl;
+  private final String supportedMimetypes;
 
-  public Http(String serverUrl) {
+  public Http(String serverUrl, String supportedMimetypes) {
     this.serverUrl = serverUrl;
+    this.supportedMimetypes = supportedMimetypes;
   }
 
-  public HttpResponse post(String requestType, byte[] data) throws IOException {
+  public HttpResponse post(String requestType, byte[] data, String mimeType) throws IOException {
 
     URL url = new URL(serverUrl + requestType);
     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -49,7 +49,8 @@ public class Http {
       conn.setDoOutput(true);
       conn.setRequestMethod("POST");
       conn.setRequestProperty("Content-Length", "" + data.length);
-      conn.setRequestProperty("Content-Type", MessageLibrary.MIMETYPE_JSON);
+      conn.setRequestProperty("Content-Type", mimeType);
+      conn.setRequestProperty("Accept", supportedMimetypes);
       BufferedOutputStream out =
           new BufferedOutputStream(new DataOutputStream(conn.getOutputStream()));
       try {

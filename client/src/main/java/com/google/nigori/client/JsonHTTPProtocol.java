@@ -53,7 +53,7 @@ public class JsonHTTPProtocol implements NigoriProtocol {
     if ("localhost".equals(server)) {
       protocol = "http://";
     }
-    http = new Http(protocol + server + ":" + port + "/" + serverPrefix + "/");
+    http = new Http(protocol + server + ":" + port + "/" + serverPrefix + "/", MessageLibrary.MIMETYPE_JSON);
   }
 
   /**
@@ -77,21 +77,21 @@ public class JsonHTTPProtocol implements NigoriProtocol {
   @Override
   public boolean authenticate(AuthenticateRequest request) throws IOException {
     String json = MessageLibrary.toJson(request);
-    HttpResponse resp = http.post(MessageLibrary.REQUEST_AUTHENTICATE, toBytes(json));
+    HttpResponse resp = http.post(MessageLibrary.REQUEST_AUTHENTICATE, toBytes(json), MessageLibrary.MIMETYPE_JSON);
     return success(resp);
   }
 
   @Override
   public boolean register(RegisterRequest request) throws IOException {
     String json = MessageLibrary.toJson(request);
-    HttpResponse resp = http.post(MessageLibrary.REQUEST_REGISTER, toBytes(json));
+    HttpResponse resp = http.post(MessageLibrary.REQUEST_REGISTER, toBytes(json), MessageLibrary.MIMETYPE_JSON);
     return success(resp);
   }
 
   @Override
   public boolean unregister(UnregisterRequest request) throws IOException {
     String json = MessageLibrary.toJson(request);
-    HttpResponse resp = http.post(MessageLibrary.REQUEST_UNREGISTER, toBytes(json));
+    HttpResponse resp = http.post(MessageLibrary.REQUEST_UNREGISTER, toBytes(json), MessageLibrary.MIMETYPE_JSON);
     return success(resp);
   }
 
@@ -161,7 +161,7 @@ public class JsonHTTPProtocol implements NigoriProtocol {
   @Override
   public boolean put(PutRequest request) throws IOException {
     String json = MessageLibrary.toJson(request);
-    HttpResponse resp = http.post(MessageLibrary.REQUEST_PUT, toBytes(json));
+    HttpResponse resp = http.post(MessageLibrary.REQUEST_PUT, toBytes(json), MessageLibrary.MIMETYPE_JSON);
     return success(resp);
   }
 
@@ -182,7 +182,7 @@ public class JsonHTTPProtocol implements NigoriProtocol {
   private Response postResponse(String request, String jsonRequest)
       throws UnsupportedEncodingException, IOException {
 
-    HttpResponse resp = http.post(request, toBytes(jsonRequest));
+    HttpResponse resp = http.post(request, toBytes(jsonRequest), MessageLibrary.MIMETYPE_JSON);
 
     return new Response(resp, resp.toOutputString());
   }
