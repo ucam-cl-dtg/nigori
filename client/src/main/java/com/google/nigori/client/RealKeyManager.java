@@ -38,6 +38,7 @@ import javax.crypto.spec.SecretKeySpec;
 import com.google.nigori.common.NigoriConstants;
 import com.google.nigori.common.NigoriCryptographyException;
 import com.google.nigori.common.SchnorrSign;
+import com.google.nigori.common.Util;
 
 /**
  * Manages the set of keys derived from a given (servername, username and password) triple.
@@ -93,15 +94,13 @@ public class RealKeyManager implements KeyManager {
   	initialiseKeys(servername, pwgen.generate(), pwgen.generate());
   }
   
-  private void initialiseKeys(byte[] servername, byte[] username, byte[] password) throws
-  NigoriCryptographyException {
-  	
-  	this.username = username;
-  	this.password = password;
+  private void initialiseKeys(byte[] servername, byte[] username, byte[] password)
+      throws NigoriCryptographyException {
 
-  	byte[] userAndServer = new byte[username.length + servername.length];
-  	System.arraycopy(username, 0, userAndServer, 0, username.length);
-  	System.arraycopy(servername, 0, userAndServer, username.length, servername.length);
+    this.username = username;
+    this.password = password;
+
+    byte[] userAndServer = Util.joinBytes(username, servername);
     byte[] salt = pbkdf2(userAndServer, NigoriConstants.USER_SALT, NigoriConstants.N_SALT, NigoriConstants.B_SUSER);
 
     this.userSecretKey = pbkdf2(password, salt, NigoriConstants.N_USER, NigoriConstants.B_DSA);
