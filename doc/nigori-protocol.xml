@@ -481,8 +481,8 @@ At least one parent case:
     </section>
 
     <section title="Administration">
-      <t>Details of how administrative access to the storage server are provides are as yet undefined.</t>
-      <t>Depending on policy decisions made by the server administrator
+      <t>Details of how administrative access to the storage server are provided are as yet undefined.</t>
+      <t>Depending on policy decisions made by the server administrator,
       registration may be restricted and not open to everyone.
       To support this there is the opaque token octet array specified during
       registration which can be interpreted as the server chooses.
