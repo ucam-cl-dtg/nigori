@@ -7,6 +7,9 @@
 <!ENTITY RFC2104 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2104.xml">
 <!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY RFC2898 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2898.xml">
+<!ENTITY RFC4627 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4627.xml">
+<!ENTITY RFC4648 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4648.xml">
+<!ENTITY RFC5849 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5849.xml">
 ]>
 <?rfc strict="no" ?>
 <?rfc private="Draft" ?>
@@ -14,6 +17,7 @@
 <?rfc symrefs="yes"?>
 <?rfc comments="yes"?>
 <rfc category="info" docName="draft-laurie-nigori-01">
+<!-- TODO(drt2) specify ipr attribute -->
   <!-- category values: std, bcp, info, exp, and historic
      ipr values: full3667, noModification3667, noDerivatives3667
      you can add the attributes updates="NNNN" and obsoletes="NNNN" 
@@ -21,13 +25,13 @@
  
   <!-- ***** FRONT MATTER ***** --> 
 <!-- TODO: whole document TODOs
-drt24: Need to talk more about revisions
-       Ensure all methods specified in nigori_messages.proto included here
-       Talk about JSON and Protobuf
-       Further rationalisation of spec and implemenation.
-       This spec focuses on a particular useage of Nigori for storing specific
-       types of secrets, its emphasis may want to be changed.
---> 
+drt24: Further rationalisation of spec and implementation.
+
+Future specifications:
+ * Specify how to use Nigori to store passwords.
+ * Specify how to use OAuth to provide access to values.
+-->
+
   <front> 
     <!-- The abbreviated title is used in the page header - it is only necessary if the 
          full title is longer than 39 characters --> 
@@ -38,29 +42,71 @@ drt24: Need to talk more about revisions
  
     <!-- Another author who claims to be an editor --> 
  
-    <author fullname="Ben Laurie" initials="B.L." surname="Laurie"> 
-      <organization>Google Ltd.</organization> 
- 
-      <address> 
-        <postal> 
-          <street></street> 
- 
-          <!-- Reorder these if your country does things differently --> 
- 
-          <city>London</city> 
- 
-          <region></region> 
- 
-          <code></code> 
- 
-          <country>UK</country> 
-        </postal> 
- 
-        <email>benl@google.com</email> 
- 
-        <!-- uri and facsimile elements may also be added --> 
-      </address> 
-    </author> 
+    <author fullname="Ben Laurie" initials="B." surname="Laurie">
+      <organization>Google Ltd.</organization>
+
+      <address>
+        <postal>
+          <street></street>
+
+          <!-- Reorder these if your country does things differently -->
+
+          <city>London</city>
+
+          <region></region>
+
+          <code></code>
+
+          <country>UK</country>
+        </postal>
+
+        <email>benl@google.com</email>
+
+        <!-- uri and facsimile elements may also be added -->
+      </address>
+    </author>
+    <author fullname="Daniel Thomas" initials="D.R." surname="Thomas">
+      <organization>University of Cambridge</organization>
+
+      <address>
+        <postal>
+          <street>15 JJ Thomson Avenue</street>
+
+          <city>Cambridge</city>
+
+          <region></region>
+
+          <code>CB3 0FD</code>
+
+          <country>UK</country>
+        </postal>
+
+        <email>Daniel.Thomas@cl.cam.ac.uk</email>
+
+        <!-- uri and facsimile elements may also be added -->
+      </address>
+    </author>
+    <author fullname="Alastair Beresford" initials="A.R." surname="Beresford">
+      <organization>University of Cambridge</organization>
+
+      <address>
+        <postal>
+          <street>15 JJ Thomson Avenue</street>
+
+          <city>Cambridge</city>
+
+          <region></region>
+
+          <code>CB3 0FD</code>
+
+          <country>UK</country>
+        </postal>
+
+        <email>Alastair.Beresford@cl.cam.ac.uk</email>
+
+        <!-- uri and facsimile elements may also be added -->
+      </address>
+    </author>
  
     <date year="2012" />
  
@@ -72,7 +118,7 @@ drt24: Need to talk more about revisions
  
     <!-- WG name at the upperleft corner of the doc,
          IETF is fine for individual submissions.  
-	 If this element is not present, the default is "Network Working Group",
+         If this element is not present, the default is "Network Working Group",
          which is used by the RFC Editor as a nod to the history of the IETF. --> 
  
     <keyword>nigori</keyword> 
@@ -96,73 +142,79 @@ drt24: Need to talk more about revisions
         <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
         "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
         document are to be interpreted as described in <xref
-        target="RFC2119">RFC 2119</xref>.</t> 
+        target="RFC2119"/>.</t> 
       </section> 
 
       <section title="Notation">
-<!-- TODO(drt24) ASCII? Do we want to say UTF-8 instead? -->
-	<t>"abc" means the octet string representing the quoted
-	characters, in ASCII, without termination. So, "abc" is the
-	octets (in hex) 61 62 63.</t>
+        <t>"abc" means the octet string representing the quoted
+        characters, in UTF-8, without termination. So, "abc" is the
+        octets (in hex) 61 62 63.</t>
 
-	<t>PBKDF2 is as defined in <xref target="RFC2898">RFC 2898</xref>, with
-	PRF=HMAC-SHA1. <cref>(Security note: although we'd prefer SHA-256,
-	SHA-1 is not actually broken for this use case, and PBKDF2
-	does not currently allow any other hash) [PBKDF2 test vectors,
-	courtesy of wtc:
-	http://www.ietf.org/id/draft-josefsson-pbkdf2-test-vectors-00.txt
-	http://www.rfc-editor.org/rfc/rfc3962.txt
-	http://www.cryptosys.net/manapi/api_PBE_Kdf2.html]</cref></t>
+        <t>PBKDF2 is as defined in <xref target="RFC2898"/>, with
+        PRF=HMAC-SHA1. <cref>(Security note: although we'd prefer SHA-256,
+        SHA-1 is not actually broken for this use case, and PBKDF2
+        does not currently allow any other hash) [PBKDF2 test vectors,
+        courtesy of wtc:
+        http://www.ietf.org/id/draft-josefsson-pbkdf2-test-vectors-00.txt
+        http://www.rfc-editor.org/rfc/rfc3962.txt
+        http://www.cryptosys.net/manapi/api_PBE_Kdf2.html]</cref></t>
 
-	<t>A || B means the concatenation of the octets of A and B
-	each preceded by its own length represented as 4 bytes,
-	in network byte order, so "abc" || "defgh" would be 00 00 00 03 61 62 63
-	00 00 00 05 64 65 66 67 68.</t>
+        <t>A || B means the concatenation of the octets of A and B
+        each preceded by its own length represented as 4 octets,
+        in network byte order, so "abc" || "defgh" would be 00 00 00 03 61 62 63
+        00 00 00 05 64 65 66 67 68.</t>
 
-	<t>HMAC(K, T) means the HMAC of T with key K and hash function
-	SHA-256, as defined in <xref target="RFC2104">RFC 2104</xref>.</t>
+        <t>A ## B means the direct concatenation of the octets of A and B
+        so "abc" ## "defgh" would be 61 62 63 64 65 66 67 68.</t>
 
-	<t>Enc[k1, k2](P) means the encryption of plaintext P using
-	AES-256 in CBC mode with a random IV, standard padding (i.e. n
-	bytes of value n s.t. the plaintext is extended to a multiple
-	of 16 bytes, n > 0) and key k1, giving ciphertext C, followed
-	by HMAC(k2, C).</t>
+        <t>HMAC(K, T) means the HMAC of T with key K and hash function
+        SHA-256, as defined in <xref target="RFC2104"/>.</t>
 
- <!-- TODO(drt24) do we want to rename Permute? To EncDeterm or similar? -->
-        <t>Permute[k1, k2, k3](P) means the encryption of plaintext P
-	using AES-256 in CBC mode with an IV generated by HMAC(k3, P) with
-        excess bytes xored in, standard padding (i.e. n bytes of value n s.t.
-        the plaintext is extended to a multiple of 16 bytes, n > 0) and key k1,
+        <t>Enc[k1, k2](P) means the encryption of plaintext P using
+        AES-256 in CBC mode with a random IV, standard padding (i.e. n
+        octets of value n s.t. the plaintext is extended to a multiple
+        of 16 octets, n > 0) and key k1, giving ciphertext C, followed
+        by HMAC(k2, C).</t>
+
+        <t>EncDet[k1, k2, k3](P) means the encryption of plaintext P
+        using AES-256 in CBC mode with an IV generated by HMAC(k3, P) with
+        the right half xored into the left half, standard padding (i.e. n octets of value n s.t.
+        the plaintext is extended to a multiple of 16 octets, n > 0) and key k1,
         giving ciphertext C, followed by HMAC(k2, C).</t>
+
+        <t>Pub(k) means the <xref target="schnorr">Schnorr</xref> public key for signature verification for
+        the secret key k.</t>
+
+        <t>[server] is the base URL for the server.</t>
       </section>
 
       <section title="Constants">
 
-	<texttable title="Constants">
+        <texttable title="Constants">
 
-	  <ttcol>Name</ttcol>
-	  <ttcol>Value</ttcol>
-	  <ttcol>Notes</ttcol>
-	  <c>Nsalt</c>	<c>1000</c>	<c>[1]</c>
-	  <c>Nuser</c>	<c>Nsalt + 1</c><c>[1]</c>
-	  <c>Nenc</c>	<c>Nsalt + 2</c><c>[1]</c>
-	  <c>Nmac</c>	<c>Nsalt + 3</c><c>[1]</c>
-	  <c>Niv</c>	<c>Nsalt + 4</c><c>[1]</c>
-	  <c>Bsuser</c>  <c>16</c>       <c>size in bytes for Suser, must be
-	                                   at least 10 for FIPS-198
-	                                   compliance with
-	                                   HMAC-SHA1</c>
-	  <c>Bkdsa</c>	<c>16</c>	<c>size in bytes for Kuser</c>
-	  <c>Bkenc</c>	<c>16</c>	<c>symmetric encryption key size
-                                           (currently AES-128) (Kenc)</c>
-	  <c>Bkmac</c>	<c>16</c>	<c>encryption MAC key size (Kmac)</c>
-          <c>Bkiv</c>   <c>16</c>       <c>iv HMAC key size (Kiv)</c>
-	  <c>Bkmaster</c><c>16</c>	<c>size in bytes of Kmaster</c>
+          <ttcol>Name</ttcol>
+          <ttcol>Value</ttcol>
+          <ttcol>Notes</ttcol>
+          <c>Nsalt</c>    <c>1000</c>      <c>[1]</c>
+          <c>Nuser</c>    <c>Nsalt + 1</c> <c>[1]</c>
+          <c>Nenc</c>     <c>Nsalt + 2</c> <c>[1]</c>
+          <c>Nmac</c>     <c>Nsalt + 3</c> <c>[1]</c>
+          <c>Niv</c>      <c>Nsalt + 4</c> <c>[1]</c>
+          <c>Bsuser</c>   <c>16</c>        <c>size in octets for Suser, must be
+                                            at least 10 for FIPS-198
+                                            compliance with
+                                            HMAC-SHA1</c>
+          <c>Bkdsa</c>    <c>16</c>        <c>size in octets for Kuser</c>
+          <c>Bkenc</c>    <c>16</c>        <c>symmetric encryption key size
+                                            (currently AES-128) (Kenc)</c>
+          <c>Bkmac</c>    <c>16</c>        <c>encryption MAC key size (Kmac)</c>
+          <c>Bkiv</c>     <c>16</c>        <c>iv HMAC key size (Kiv)</c>
+          <c>Bkmaster</c> <c>16</c>        <c>size in octets of Kmaster</c>
 
-	  <postamble>[1] should be at least 1000 and different from
-	  other N values - the properties of PBKDF2 then ensure that
-	  no key can be derived from any other key.</postamble>
-	</texttable>
+          <postamble>[1] should be at least 1000 and different from
+          other N values - the properties of PBKDF2 then ensure that
+          no key can be derived from any other key.</postamble>
+        </texttable>
 
       </section>
     
@@ -170,105 +222,103 @@ drt24: Need to talk more about revisions
 
     <section title="Key and Salt Derivation">
 
-      <t>Three keys are required for the Nigori protocol
-	<list>
-	  <t>Kuser: User Authentication Key - this is used to
-	    authenticate the user to the Nigori server(s). Note that
-	    this is used in a way which does not give an eavesdropper
-	    a dictionary attack against the master password from which
-	    it is derived.</t>
-	  <t>Kenc: Secret Encryption Key - this is used to encrypt the
-	    user's secrets at the Nigori server(s) [note: may become a
-	    per-secret key to enable OAuth, see below]</t>
-	  <t>Kmac: Secret Authentication Key - this is used as a MAC
-	    to authenticate the encrypted secrets.</t>
+      <t>Four keys are required for the Nigori protocol
+        <list>
+          <t>Kuser: User Authentication Key - this is used to
+            authenticate the user to the Nigori server(s). Note that
+            this is used in a way which does not give an eavesdropper
+            a dictionary attack against the master password from which
+            it is derived.</t>
+          <t>Kenc: Secret Encryption Key - this is used to encrypt the
+            user's secrets at the Nigori server(s) <!-- (save for a future specification)[note: may become a
+            per-secret key to enable OAuth, <xref target="encsecret">see below</xref>]--></t>
+          <t>Kmac: Secret Authentication Key - this is used as a MAC
+            to authenticate the encrypted secrets.</t>
           <t>Kiv: deterministic IV generation key - this is used to
             deterministically generate an IV given a plaintext to prevent
             common prefix attacks when deterministic encryption is required.</t>
-	</list>
+        </list>
       </t>
 
-      <t>Depending on user choice, these can be derived in different
-	ways, some allow easier recovery in exchange for more exposure
-	to evil servers.</t>
+      <t>There are two specified mechanisms for key derivation either
+      completely client side with no recovery if the user loses their
+      password or with recovery via a trusted third party.</t>
 
       <t>We also need a per-user, per-server salt value, which is
-	always derived in the same way:
+        always derived in the same way:
 
-	<list>
-	  <t>Suser = PBKDF2(Username || Servername, "user salt",
-	    Nsalt, Bsuser)</t>
-	</list>
+        <list>
+          <t>Suser = PBKDF2(Username || Servername, "user salt",
+            Nsalt, Bsuser)</t>
+        </list>
       </t>
-
-      <t><cref>(Security note: there's no particular point using a
-	random salt per key or per encryption, though there is a point
-	in having a different salt for each user and each
-	server).</cref></t>
-      <!-- TODO(drt24) translate this into SHOULDs and MAY -->
 
 
       <section title="Unassisted Password-based Key Derivation">
 
-	<t>In unassisted password-based key derivation, the only input
-	  is the user's master password, P. Keys are derived as
-	  follows:
+        <t>In unassisted password-based key derivation, the only input
+          is the user's master password, P. Keys are derived as
+          follows:
 
-	  <list>
-	    <t>Kuser = PBKDF2(P, Suser, Nuser, Bkdsa)</t>
-	    <t>Kenc = PBKDF2(P, Suser, Nenc, Bkenc)</t>
-	    <t>Kmac = PBKDF2(P, Suser, Nmac, Bkmac)</t>
-	    <t>Kiv = PBKDF2(P, Suser, Niv, Bkiv)</t>
-	  </list>
-	</t>
+          <list>
+            <t>Kuser = PBKDF2(P, Suser, Nuser, Bkdsa)</t>
+            <t>Kenc = PBKDF2(P, Suser, Nenc, Bkenc)</t>
+            <t>Kmac = PBKDF2(P, Suser, Nmac, Bkmac)</t>
+            <t>Kiv = PBKDF2(P, Suser, Niv, Bkiv)</t>
+          </list>
+        </t>
 
-	<t>If the user forgets the password, there is no way to
-	  recover the various keys, unless either the password or the
-	  derived keys are escrowed in some way. Such escrow is
-	  outside the scope of this protocol.</t>
+        <t>If the user forgets the password, there is no way to
+          recover the various keys, unless either the password or the
+          derived keys are escrowed in some way. Such escrow is
+          outside the scope of this protocol.</t>
 
       </section>
 
       <section title="Assisted Password-based Key Derivation">
 
-	<t>In this mode, the user has an account at some server which
-	will supply a master encryption key, Kmaster, if the user
-	successfully authenticates. How this is done is up to the
-	server, but we recommend that the server derive it from a hash
-	of the user's password at the server, Pserver, such as the one
-	used to check the password when the user logs in, as follows:
+        <t><spanx style="emph">Note: this has not been implemented.</spanx>
+        It is unclear how to do so when the storage server does not know
+        the username as they need some way of identifying the user.</t>
 
-	  <list>
-	    <t>Kmaster = PBKDF2(H(Pserver), Sserver, Nmaster,
-	    Bkmaster)</t>
-	  </list>
-	</t>
+        <t>In this mode, the user has an account at some server which
+        will supply a master encryption key, Kmaster, if the user
+        successfully authenticates. How this is done is up to the
+        server, but we recommend that the server derive it from a hash
+        of the user's password at the server, Pserver, such as the one
+        used to check the password when the user logs in, as follows:
 
-	<t>where Sserver is a secret known only to the server. This
-	  prevents dictionary attacks to try to derive Pserver from
-	  Kmaster. If the user forgets his password, the server can
-	  still derive Kmaster from the old password hash once the
-	  user has recovered his account. However, obviously, the
-	  server can also derive Kmaster without the assistance of the
-	  user. Therefore the user might choose to have a second
-	  password, Pnigori, which is different from Pserver. If the
-	  user chooses not to have this second password, then Pnigori
-	  = Pserver. Note that in this case an honest server still
-	  cannot derive Pnigori from H(Pserver).</t>
+          <list>
+            <t>Kmaster = PBKDF2(H(Pserver), Sserver, Nmaster,
+            Bkmaster)</t>
+          </list>
+        </t>
 
-	<t>Keys are derived as follows:
-	  <list>
-	    <t>Kuser = PBKDF2(Pnigori, Suser, Nuser, Bsuser)</t>
-	    <t>Kenc = PBKDF2(Kmaster, Suser, Nenc, Bkenc)</t>
-	    <t>Kmac = PBKDF2(Kmaster, Suser, Nmac, Bkmac)</t>
-	    <t>Kiv = PBKDF2(Kmaster, Suser, Niv, Bkiv)</t>
-	  </list>
-	</t>
+        <t>where Sserver is a secret known only to the server. This
+          prevents dictionary attacks to try to derive Pserver from
+          Kmaster. If the user forgets his password, the server can
+          still derive Kmaster from the old password hash once the
+          user has recovered his account. However, obviously, the
+          server can also derive Kmaster without the assistance of the
+          user. Therefore the user might choose to have a second
+          password, Pnigori, which is different from Pserver. If the
+          user chooses not to have this second password, then Pnigori
+          = Pserver. Note that in this case an honest server still
+          cannot derive Pnigori from H(Pserver).</t>
 
-	<t>If the user forgets Pnigori or Pserver there is now the
-	possibility of account recovery using traditional recovery
-	mechanisms. [Note: the client should be able to cache Kmaster
-	so it doesn't always have to contact the auth server]</t>
+        <t>Keys are derived as follows:
+          <list>
+            <t>Kuser = PBKDF2(Pnigori, Suser, Nuser, Bsuser)</t>
+            <t>Kenc = PBKDF2(Kmaster, Suser, Nenc, Bkenc)</t>
+            <t>Kmac = PBKDF2(Kmaster, Suser, Nmac, Bkmac)</t>
+            <t>Kiv = PBKDF2(Kmaster, Suser, Niv, Bkiv)</t>
+          </list>
+        </t>
+
+        <t>If the user forgets Pnigori or Pserver there is now the
+        possibility of account recovery using traditional recovery
+        mechanisms. [Note: the client should be able to cache Kmaster
+        so it doesn't always have to contact the auth server]</t>
 
       </section>
 
@@ -276,59 +326,47 @@ drt24: Need to talk more about revisions
 
     <section title="Authentication">
 
-      <t>When the user registers at a server, he presents g ^ Kuser mod p. Then
-      to authenticate to the server he presents his username (u), the server
-      name (ns), the time in seconds since Jan 1 1970 (nt) and random string
-      (nr) and a Schnorr signature using Kuser over u || ns || nt || nr || p
-      where p is the payload being authenticated. At least one of these must be
-      different every time they are used, in order to defeat replay attacks.
+      <t>When the user registers at a server, he presents Pub(Kuser) and a token
+      asserting his right to do so in the form of an arbitrary octet array which
+      is implementation defined. Servers which require no token MUST accept the
+      empty octet array and clients SHOULD default to the empty octet array.
+      TODO(drt24) there should probably be some defined semantics and format for
+      the token to allow for cross compatibility.</t>
+
+      <t>Then to authenticate to the server he presents his public key (pk), the
+      server name (ns), the time in seconds since Jan 1 1970 (nt) and random
+      string (nr) and a <xref target="schnorr">Schnorr signature</xref> using
+      Kuser over ns || nt || nr || p where p is the payload being authenticated.
+      At least one of these must be different every time they are used, in order
+      to defeat replay attacks.
       Clients MUST ensure that nt || nr is different for every request</t>
 
-      <!-- TODO(drt24) is g ^ Kuser what we should be using for Schnorr-->
       <t>The server checks that nt is recent (so it can drop old
-      entries from its replay database), checks that it has not seen u
-      || ns || nt || nr before, looks up g ^ Kuser for the user u, and
+      entries from its replay database), checks that it has not seen pk
+      || ns || nt || nr before, looks up the user for the pk, and
       verifies the Schnorr signature. If all these checks pass, the
       user is authenticated.</t>
 
     </section>
 
-    <section title="Storage of Secrets">
-<!-- TODO(drt24) This is not how things work in the Java implemenation -->
-      <t>Secrets are identified by a type and a name. The value of the
-      name depends on the type, as does the value of the stored
-      secret. Currently defined types are:
+    <section title="Encryption of Secrets" anchor="encsecret">
 
-	<list>
-	  <t>Type 1: a password. The name is the URL at which the
-	    password is to be presented [Note: simplistic, what should
-	    we really do?], the value is the password. [Switch this to
-	    JSON]</t>
-	  <t>Type 2: a list of servers for split storage. The name is
-	    the fixed string "server list". The value is the
-	    concatenation (as defined by ||) of k followed by the list
-	    of server URLs. [Should this instead be a JSON value?]</t>
-	  <t>Type 3: an RSA key. The name is an arbitrary name, the
-	    value is a JSON encoding of the RSA private key [TBD].</t>
-	</list>
-      </t>
+      <t>The index (I), revision (R) and value (V) sent to the server are
+      encrypted as follows:
+      I = EncDet[Kenc,Kmac,Kiv](index).
+      R = EncDet[Kenc,Kmac,Kiv](revision).
+      V = Enc[Kenc,Kmac](V).</t>
 
-      <t>In any case, the lookup name (N) sent to the server to be
-      associated with the value (V) is Permute[Kenc,Kmac,Kiv](T || name),
-      where T is the 4 byte bigendian representation of the type [Note
-      that this redundantly includes the prefix 00 00 00 04 in the
-      encryption, but that seems fine]. The value sent to the server
-      is Enc[Kenc,Kmac](V).</t>
-
+      <!-- This will be the subject of a future specification.
       <t>Note: if instead of Kenc we use Kv which is (for example:
-      anything that depends on both P and N will do):
-	<list>
-	  <t>Kv = PBKDF2(Kenc || N, Suser, Nv, Bkenc)</t>
-	</list>
+      anything that depends on both P and I will do):
+        <list>
+          <t>Kv = PBKDF2(Kenc || I, Suser, Nv, Bkenc)</t>
+        </list>
       </t>
 
       <t>then we could also allow third parties access to single
-      secrets via protocols such as OAuth. The most general form of
+      secrets via protocols such as <xref target="RFC5849">OAuth</xref>. The most general form of
       this would give an the service provider (SP) the per-secret key
       and an OAuth token to retrieve the current value of that
       secret. A general purpose crypto service could be used which
@@ -336,115 +374,273 @@ drt24: Need to talk more about revisions
       services - in this case, the final SP would have OAuth access to
       the crypto SP, which in turn would have OAuth access to the
       appropriate secret in Nigori.</t>
+      -->
 
+    </section>
+
+    <section title="Encoding of Revisions">
+      <t>To allow for distributed asynchronous access to the nigori store
+      revisions are required which encode a directed acyclic graph (DAG) of the
+      history of a value. This encoding needs to be deterministic so that it
+      can be performed on multiple devices and should detect any interference
+      with past history (such as the removal of old revisions) by the server.
+      It also needs to encode sufficient information that it is not necessary to
+      download the values to construct the DAG.</t>
+
+      <t>The octet array (in network byte order) of a revision is interpreted
+      consisting of an ID##revlist where the size of the ID is the size of the
+      output of SHA-1 and revlist consists of a (possibly empty)
+      lexicographically sorted sequence of ID entries for the revisions
+      preceding (id1##id2##id3...).</t>
+      <t>The ID is constructed by taking SHA-1(value##revlist)</t>
+      <figure title="Revision format">
+        <artwork>
+No parents case:
+0                   1
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|       ID = SHA-1(value)       |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+At least one parent case:
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|   ID = SHA-1(value,revlist)   |    First parent revision ID   |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|   Second parent revision ID   |          And so on...         |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        </artwork>
+        <postamble>
+          Note that one tick mark represents one octet position.
+          Octets 16 onward constitute the revlist which is hashed using SHA-1
+          when generating the ID.
+        </postamble>
+      </figure>
+
+      <t>Revision history diverges if multiple revisions specify the same
+      revision(s) as their parent (or if multiple revisions specify no parent).
+      Revision history can be merged again if a new revision specifies
+      a revlist of multiple parents as then that new revision supersedes all
+      its parents.</t>
+
+      <t>By examining the DAG of revision history a client can determine which
+      revisions form the set of dominating or head revisions, it can then
+      present these as multiple options to the user or perform some automatic
+      merge on them to produce on value to show to the user.</t>
+
+      <section title="Examples">
+        <figure title="Example DAG of revision history">
+          <artwork>
+    +-+-+-+-+
+    | f:d,e |
+    +-+-+-+-+
+     /   \
++-+-+-+ +-+-+-+-+
+| d:b | | e:b,c |
++-+-+-+ +-+-+-+-+
+^       ^   ^
+|       /   |
+|      /    |
++-+-+-+     +-+-+-+
+| b:a |     | c:a |
++-+-+-+     +-+-+-+
+      ^     ^
+      |     |
+      +-+-+-+
+      | a:  |
+      +-+-+-+
+
+          </artwork>
+          <postamble>Here revision IDs have been abbreviated to the first
+          character of their hex representation.
+          Revision a specifies no parent, both b and c specify a as their
+          parent, e merges b and c but d depends only on b, f specifies d and e
+          and so merges them resulting in one head revision.</postamble>
+        </figure>
+      </section>
     </section>
 
     <section title="Secret Storage at a Single Server">
 
-      <section title="Storage">
-
-	<t>The client sends authentication information as specified
-	  above, with a payload of the key, revision and value.</t>
-
-      </section>
-
-      <section title="Retrieval">
-
-	<t>The client sends authentication information and the
-	  key (and optionally the revision). The server returns the revision,
-          value pairs.</t>
-
-      </section>
+      <t>The client and server communicate by means of messages with the client
+      sending requests and receiving responses.</t>
+      <t>The following message types are defined with detailed specification in <xref target="protocol"/>:</t>
+      <t>
+        <list>
+          <t>RegisterRequest used to register at the server.</t>
+          <t>AuthenticateRequest used to determine that the client can connect to the server and authenticate it is also a component of all the other requests.</t>
+          <t>UnregisterRequest unregisters the user.</t>
+          <t>GetRequest request revision, value pair(s) from the server.</t>
+          <t>GetResponse the revision, value pair(s) requested.</t>
+          <t>GetIndicesRequest request the list of indices held by the server</t>
+          <t>GetIndicesResponse the list of indices requested.</t>
+          <t>GetRevisionsRequest request the list of revisions for an index.</t>
+          <t>GetRevisionsResponse the list of revisions requested.</t>
+          <t>PutRequest request that a value be put for a particular index and revision.</t>
+          <t>DeleteRequest delete a particular index or revision.</t>
+        </list>
+      </t>
 
     </section>
 
     <section title="Secret Storage at Multiple Servers">
 
+      <t><spanx style="emph">Note: This is not yet implemented</spanx></t>
+
       <t>This looks exactly the same to each server as storage at a
       single server would. However, the client takes the value, V, it
-      would store at a single server and splits it using a Shamir
-      split, with the k value (number of splits required for reconstruction)
+      would store at a single server and splits it using a <xref target="shamir">Shamir
+      split</xref>, with the k value (number of splits required for reconstruction)
       as determined by the user (n is equal to the number of servers).
-      Each split is then stored at one of the servers as Enc[Kenc,Kmac](i ||
-      Si). <cref>(Security note: the servers can probably guess they're part
-      of a split because the value will be longer than a non-split
-      value)</cref></t>
+      Each split is then stored at server i as Enc[Kenc,Kmac](i || Si).</t>
 
     </section>
 
-    <section title="Protocol Details">
+    <section title="Administration">
+      <t>Details of how administrative access to the storage server are provided are as yet undefined.</t>
+      <t>Depending on policy decisions made by the server administrator,
+      registration may be restricted and not open to everyone.
+      To support this there is the opaque token octet array specified during
+      registration which can be interpreted as the server chooses.
+      TODO(drt24): useful definitions are required here before publication.</t>
+      <t>Another consideration is limiting the quantity of space which an
+      individual user can use through the imposition of quotas.
+      The server can <xref target="responses">provide a response</xref> that
+      indicates the user has insufficient quota to perform the requested operation.</t>
+      <t>TODO(drt24): some mechanism is required for users to be able to provide some
+      token from which the server can grant them additional resources.
+      Some out of band mechanism is required for obtaining these tokens,
+      perhaps some sort of ecash but that is an unsolved problem.</t>
+      <t>Administrators will require the ability to view the list of users and of administrators,
+      how much space they are using and what their quota limits are, to delete users,
+      to edit quotas and to create and delete administrators.</t>
+    </section>
 
-      <t>All octet strings are transmitted as websafe base64.</t>
+    <section title="Protocol Details" anchor="protocol">
 
-      <t>[server] is the base URL for the server. All request MUST be
+      <t>All requests MUST be
       performed over HTTPS. The client MUST check the certificate
       (note: "check" may mean "is the same certificate as seen when
       the user registered at or first visited the server").</t>
-      <!-- TODO(drt24) Must have some mechanism for the server changing its cert-->
+      <t>TODO(drt24): We need to have some mechanism allowing the server to change its
+      certificate.</t>
 
-      <section title="Storage">
+      <t>There are two possible encodings of data being transmitted over HTTPS
+      to the server: <xref target="RFC4627">JSON</xref> and <xref target="protobuf">Protobuf</xref>.
+      Clients and servers MUST implement the JSON encoding and SHOULD implement Protobuf.
+      Protobuf is significantly more efficient but not standardised.</t>
+      <t>Clients MUST specify which encodings they support in the Accept header they send.
+      If a client supports Protobuf it MUST send: `Accept : application/x-google-protobuf, application/json`
+      If a client only supports JSON it MUST send `Accept : application/json`.</t>
+      <t>If a server receives a request message with a mimetype it does not support
+      it MUST return <xref target="responses">406 (Not Acceptable) with a list of supported mimetypes</xref>.</t>
+      <t>If a server supports Protobuf and receives a message from a client
+      which indicates support for Protobuf then it should reply with Protobuf
+      regardless of the mimetype of the request.</t>
+      <t>Clients MAY try Protobuf first without having received a Protobuf
+      response from the server but MUST retry with JSON if this fails with
+      <xref target="responses">406 (Not Acceptable)</xref>.</t>
+      <t>Further mimetypes MAY be added in future but a specification is
+      required. Which mimetype to use should be determined as for Protobuf
+      and JSON with the ordering in the Accept header being used by the server
+      to determine which mimetype the client prefers.</t>
 
-	<t>Storage is a POST request to [server]/store, with body
-	containing the following:</t> <!-- TODO(drt24): JSON? -->
+      <t>When using JSON all octet strings are transmitted as <xref target="RFC4648">base64</xref>.</t>
 
-	<texttable>
-	  <ttcol>Parameter</ttcol>
-	  <ttcol>Value</ttcol>
-	  <c>u</c>	<c>user name</c>
-	  <c>ns</c>	<c>server name</c>
-	  <c>nt</c>	<c>time</c>
-	  <c>nr</c>	<c>random</c>
-	  <c>k</c>	<c>key</c>
-	  <c>v</c>	<c>value</c>
-	  <c>s</c>	<c>Schnorr s signature</c>
-          <c>e</c>      <c>Schnorr e signature</c>
-	</texttable>
+      <t>It is easy to convert between JSON and Protobuf either statically or
+      dynamically however Protobuf lends itself to providing a specification
+      and a JSON specification does not supply tag numbers which need to be
+      identical for two Protobuf specifications to interoperate. Hence the
+      message specification is given as a .proto file.</t>
+      <figure title="Protobuf specification of nigori messages">
+        <artwork>
+package nigori;
 
-	<t>The server adds the value to the list of values stored for
-	that key.</t>
+message AuthenticateRequest {
+  required bytes public_key = 1;
+  required bytes schnorr_s = 2;
+  required bytes schnorr_e = 3;
+  required bytes nonce = 4;
+  required string server_name = 5;
+}
 
-      </section>
+message RegisterRequest {
+  required bytes public_key = 1;
+  required bytes token = 2;
+}
 
-      <section title="Retrieval">
+message UnregisterRequest {
+  required AuthenticateRequest auth = 1;
+}
 
-	<t>Retrieval is a GET request to [server]/get Suggest just
-	using "/store" here -- why multiply endpoints without
-	necessity -- assuming "store" could be a noun in this
-	context. -John Panzer 3/1/10 1:03 PM  with an empty body and
-	parameters as follows</t>
+message RevisionValue {
+  required bytes revision = 1;
+  required bytes value = 2;
+}
 
-	<texttable>
-	  <ttcol>Parameter</ttcol>
-	  <ttcol>Value</ttcol>
-	  <c>u</c>	<c>user name</c>
-	  <c>ns</c>	<c>server name</c>
-	  <c>nt</c>	<c>time</c>
-	  <c>nr</c>	<c>random</c>
-	  <c>k</c>	<c>key</c>
-	  <c>s</c>	<c>Schnorr s signature</c>
-          <c>e</c>      <c>Schnorr e signature</c>
-	</texttable>
+message GetRequest {
+  required AuthenticateRequest auth = 1;
+  required bytes key = 2;
+  optional bytes revision = 3;
+}
 
-	<t>If successful, the body is a JSON value containing an array
-	of</t>
+message GetResponse {
+  repeated RevisionValue revisions = 1;
+  optional bytes key = 2;// optional as may want to keep packet size down.
+}
 
-	<texttable>
-	  <ttcol>Parameter</ttcol>
-	  <ttcol>Value</ttcol>
-	  <c>revision</c>	<c>the revision of the secret</c>
-	  <c>creationTime</c>	<c>the time at which the secret was created</c><!-- TODO(drt24) We don't do this in Java... -->
-	  <c>value</c>		<c>the value associated with the
-                                   key</c>
-	</texttable>
+message GetIndicesRequest {
+  required AuthenticateRequest auth = 1;
+}
 
-      </section>
+message GetIndicesResponse {
+  repeated bytes indices = 1;
+}
 
-      <section title="Responses">
+message GetRevisionsRequest {
+  required AuthenticateRequest auth = 1;
+  required bytes key = 2;
+}
+message GetRevisionsResponse {
+  repeated bytes revisions = 1;
+  optional bytes key = 2;
+}
 
-	<t>200 OK</t>
-	<t>401 Signature does not verify</t>
-	<t>401 This is a replay</t>
-	<t>403 Signature verifies but ACL doesn't</t>
+message PutRequest {
+  required AuthenticateRequest auth = 1;
+  required bytes key = 2;
+  required bytes revision = 3;
+  required bytes value = 4;
+}
+
+message DeleteRequest {
+  required AuthenticateRequest auth = 1;
+  required bytes key = 2;
+  optional bytes revision = 3;
+}
+        </artwork>
+        <postamble>The Protobuf specification is converted to a JSON one by
+        encoding both `bytes` and `string` as <xref target="RFC4648">base64</xref>
+        strings, and keeping the field names identical.</postamble>
+      </figure>
+
+      <t>Messages are sent to the server by a POST request to [server]/command
+      where command is the result of removing the Request or Response from the
+      string inserting a - between words and making lower case.
+      e.g. GetRequest => get, GetIndicesRequest => get-indices.</t>
+
+      <section anchor="responses" title="Responses">
+
+        <t>Responses are of the form HTTP error code, space, nigori minor error
+        code, description of the error.</t>
+<!-- TODO(drt24) currently generated responses do not satisfy this.
+-->
+        <t>200 OK</t>
+        <t>401 1 Signature does not verify</t>
+        <t>401 2 This is a replay</t>
+        <t>403 1 Signature verifies but ACL doesn't</t>
+        <t>403 1 Insufficient quota</t>
+        <t>406 1 Request mime type not supported</t>
 
       </section>
 
@@ -452,56 +648,79 @@ drt24: Need to talk more about revisions
 
     <section title="Algorithms">
 
-      <t>I'll describe the algorithms in psuedocode here. There are
-	also Python implementations available at
-	http://code.google.com/p/nigori/</t>
+    <section title="Schnorr Signature" anchor="schnorr">
 
+      <t>A Schnorr signature is a signature over a message that both
+      authenticates the message and proves posession of a secret without giving
+      the verifier an equivalent to that secret. The secret in our case is
+      Kuser. All implementations must use the same public parameters:</t>
+      <figure>
+        <artwork>
+p =
+fd7f53811d75122 952df4a9c2eece4e 7f611b7523cef440 0c31e3f80b651266
+9455d402251fb59 3d8d58fabfc5f5ba 30f6cb9b556cd781 3b801d346ff26660
+b76b9950a5a49f9 fe8047b1022c24fb ba9d7feb7c61bf83 b57e7c6a8a6150f0
+4fb83f6d3c51ec3 023554135a169132 f675f3ae2b61d72a eff22203199dd148
+01c7
+q =
+9760508f15230bc cb292b982a2eb840 bf0581cf5
+g =
+f7e1a085d69b3dd ecbbcab5c36b857b 97994afbbfa3aea8 2f9574c0b3d07826
+75159578ebad459 4fe67107108180b4 49167123e84c2816 13b7cf09328cc8a6
+e13c167a8b547c8 d28e0a3ae1e2bb3a 675916ea37f0bfa2 13562f1fb627a012
+43bcca4f1bea851 9089a883dfe15ae5 9f06928b665e807b 552564014c3bfecf
+492a
+        </artwork>
+      </figure>
+      <t>[TODO(benl): we should generate new parameters, so q is big enough to handle
+      SHA-256 - seems to be sized for SHA-1 here]</t>
 
-      <!-- TODO(drt24) this wants to come out of a comment block and live
-Schnorr Signature
+      <t>At registration time, the client gives the server g^Kuser mod p.</t>
 
-A Schnorr signature is a signature over a message that both authenticates the message and proves posession of a secret without giving the verifier an equivalent to that secret. The secret in our case is Kuser. All implementations must use the same public parameters,
+      <t>To authenticate, the client</t>
+      <t>
+        <list>
+          <t>constructs message M.</t>
+          <t>chooses a random k s.t. 0 < k < q.</t>
+          <t>calculates r = g^k mod p</t>
+          <t>calculates e = SHA-256(M || r), taking the hash as a 32 octet
+          unsigned integer in network byte order</t>
+          <t>calculates s = (k - Kuser * e) mod q</t>
+          <t>sends the server M, s and e</t>
+        </list>
+      </t>
 
-p = fd7f53811d75122952df4a9c2eece4e7f611b7523cef4400c31e3f80b6512669455d402251fb593d8d58fabfc5f5ba30f6cb9b556cd7813b801d346ff26660b76b9950a5a49f9fe8047b1022c24fbba9d7feb7c61bf83b57e7c6a8a6150f04fb83f6d3c51ec3023554135a169132f675f3ae2b61d72aeff22203199dd14801c7
-q = 9760508f15230bccb292b982a2eb840bf0581cf5
-g = f7e1a085d69b3ddecbbcab5c36b857b97994afbbfa3aea82f9574c0b3d0782675159578ebad4594fe67107108180b449167123e84c281613b7cf09328cc8a6e13c167a8b547c8d28e0a3ae1e2bb3a675916ea37f0bfa213562f1fb627a01243bcca4f1bea8519089a883dfe15ae59f06928b665e807b552564014c3bfecf492a
+     <t>To verify, the server:</t>
 
-[Note: we should generate new parameters, so q is big enough to handle SHA-256 - seems to be sized for SHA-1 here]
+     <t>
+       <list>
+         <t>calculates r = (g^s (g^Kuser)^e) mod p. (note that g^Kuser was
+         supplied by the client at registration time)</t>
+         <t>calculates e' = SHA-256(M || r)</t>
+         <t>verifies that e' = e.</t>
+       </list>
+     </t>
 
-At registration time, the client gives the server g^Kuser mod p.
-
-To authenticate, the client
-
-constructs message M = u || ns || nt || nr.
-chooses a random k s.t. 0 < k < q. 
-calculates r = g^k mod p
-calculates e = SHA-256(M || r), taking the hash as a bigendian 32 byte unsigned integer
-calculates s = (k - Kuser * e) mod q
-sends the server M, s and e
-
-To verify, the server:
-
-calculates r = (g^s (g^Kuser)^e) mod p. (note that g^Kuser was supplied by the client at registration time)
-calculates e' = SHA-256(M || r)
-verifies that e' = e.
-
+<!-- TODO(benl)
 Examples
 
-[I will provide worked examples, showing each step in the calculations --
-  --as well as final results]
+[I will provide worked examples, showing each step in the calculations -
+ - as well as final results]
+-->
+      </section>
 
-  -->
+      <section title="Shamir Secret Split" anchor="shamir">
 
-      <section title="Shamir Secret Split">
+        <t><spanx style="emph">Note: This is not yet implemented</spanx></t>
 
-	<t>A Shamir secret split takes some secret (a number less than
-	the public parameter, p) and splits it into n components such
-	that any k components can be used to retrieve it. The public
-	parameter is the same for all implementations and is the 4096
-	bit verified prime:</t>
+        <t>A Shamir secret split takes some secret (a number less than
+        the public parameter, p) and splits it into n components such
+        that any k components can be used to retrieve it. The public
+        parameter is the same for all implementations and is the 4096
+        bit verified prime:</t>
 
-	<figure>
-	  <artwork>
+        <figure>
+          <artwork>
 p =
 FFFFFFFFFFFFFFFF C90FDAA22168C234 C4C6628B80DC1CD1 29024E088A67CC74
 020BBEA63B139B22 514A08798E3404DD EF9519B3CD3A431B 302B0A6DF25F1437
@@ -519,98 +738,93 @@ D87602733EC86A64 521F2B18177B200C BBE117577A615D6C 770988C0BAD946E2
 DBBBC2DB04DE8EF9 2E8EFC141FBECAA6 287C59474E6BC05D 99B2964FA090C3A2
 233BA186515BE7ED 1F612970CEE2D7AF B81BDD762170481C D0069127D5B05AA9
 93B4EA988D8FDDC1 86FFB7DC90A6C08F 4DF435C934063199 FFFFFFFFFFFFFFFF
-	  </artwork>
-	</figure>
+          </artwork>
+        </figure>
 
-	<t>Because the secret we want to split is in fact an arbitrary
-	sequence of bytes, we need to first encode it into a
-	number. We do this by prefixing the byte sequence with a
-	single byte with the value 01 and then interpreting the byte
-	sequence as a bigendian number. When recovering the secret
-	from the split this 01 byte MUST be checked and stripped.</t>
+        <t>Because the secret we want to split is in fact an arbitrary
+        sequence of octets, we need to first encode it into a
+        number. We do this by prefixing the octet sequence with a
+        single octet with the value 01 and then interpreting the octet
+        sequence as a bigendian number. When recovering the secret
+        from the split this 01 octet MUST be checked and stripped.</t>
 
-	<t>To split:
-	  <list style="numbers">
-	    <t>Create an array, a, of length k.</t>
-	    <t>Set a[0] = secret.</t>
-	    <t>Set a[1] to a[k-1] to random integers in the range
-	      [0,p) (i.e. 0 &le; a[i] &lt; p). Use a cryptographic random
-	      number generator.<cref>Ian Goldberg points out that 0
-	      has to be allowed or a small amount of data is leaked:
-	      e.g. if k=2 and some share is s, then the secret cannot
-	      be s (proof left as an exercise for the reader)</cref></t>
-	    <t>For i in the range 1 to n inclusive, compute poly(a, i)
-	      (see below), the result is the i'th share.</t>
-	  </list>
-	</t>
+        <t>To split:
+          <list style="numbers">
+            <t>Create an array, a, of length k.</t>
+            <t>Set a[0] = secret.</t>
+            <t>Set a[1] to a[k-1] to random integers in the range
+              [0,p) (i.e. 0 &le; a[i] &lt; p). Use a cryptographic random
+              number generator.<cref>Ian Goldberg points out that 0
+              has to be allowed or a small amount of data is leaked:
+              e.g. if k=2 and some share is s, then the secret cannot
+              be s (proof left as an exercise for the reader)</cref></t>
+            <t>For i in the range 1 to n inclusive, compute poly(a, i)
+              (see below), the result is the i'th share.</t>
+          </list>
+        </t>
 
-	<t>poly(a, i):
-	  <list style="numbers">
-	    <t>Set t = 0.</t>
-	    <t>for j in the range 0 to k-1 inclusive, compute t = (t +
-	      a[j] * i^j) mod p</t>
-	    <t>return t</t>
-	  </list>
-	</t>
+        <t>poly(a, i):
+          <list style="numbers">
+            <t>Set t = 0.</t>
+            <t>for j in the range 0 to k-1 inclusive, compute t = (t +
+              a[j] * i^j) mod p</t>
+            <t>return t</t>
+          </list>
+        </t>
 
-	<t>To recover the secret:
-	  <list style="numbers">
-	    <t>Retrieve k of the shares.</t>
-	    <t>Set secret = 0.</t>
-	    <t>For each retrieved share, set i to the share number (1
-	      &le; i &le; n).
-	      <list style="numbers">
-		<t>Set c = 1.</t>
-		<t>For each retrieved share, set j to the share number
-		  (1 &le; j &le; n)
-		  <list style="numbers">
-		    <t>if i is not equal to j, c = (c * j *
-		      mod_inverse(j - i, p)) mod p</t>
-		  </list>
-		</t>
-		<t>secret = (secret + c * share[i]) mod p</t>
-	      </list>
-	    </t>
-	  </list>
-	  That's it.
-	</t>
+        <t>To recover the secret:
+          <list style="numbers">
+            <t>Retrieve k of the shares.</t>
+            <t>Set secret = 0.</t>
+            <t>For each retrieved share, set i to the share number (1
+              &le; i &le; n).
+              <list style="numbers">
+                <t>Set c = 1.</t>
+                <t>For each retrieved share, set j to the share number
+                  (1 &le; j &le; n)
+                  <list style="numbers">
+                    <t>if i is not equal to j, c = (c * j *
+                      mod_inverse(j - i, p)) mod p</t>
+                  </list>
+                </t>
+                <t>secret = (secret + c * share[i]) mod p</t>
+              </list>
+            </t>
+          </list>
+          That's it.
+        </t>
 
-	<t>mod_inverse(x, p) is the inverse of x in Zp - that is, x *
-	  mod_inverse(x, p) mod p = 1. Note that many implementations
-	  require x to be in the range [1,p) so it may be necessary to
-	  calculate mod_inverse((j-i) mod p, p) to avoid an error
-	  (note that j-i mod p = j-i if j-i &ge; 0 and = j-i+p if j-i &lt;
-	  0). Also note that since i and j are small and p is fixed,
-	  mod_inverse(j-i, p) could be pre-calculated or cached (see
-	  below for pre-calculated values).</t>
+        <t>mod_inverse(x, p) is the inverse of x in Zp - that is, x *
+          mod_inverse(x, p) mod p = 1. Note that many implementations
+          require x to be in the range [1,p) so it may be necessary to
+          calculate mod_inverse((j-i) mod p, p) to avoid an error
+          (note that j-i mod p = j-i if j-i &ge; 0 and = j-i+p if j-i &lt;
+          0). Also note that since i and j are small and p is fixed,
+          mod_inverse(j-i, p) could be pre-calculated or cached (see
+          below for pre-calculated values).</t>
 
-	<t><cref>[Daniel Bleichenbacher points out:
+        <t><cref>[Daniel Bleichenbacher points out:
 
-	    to compute expressions of the form a*b^{-1} mod p, where b
-	    is a small integer.  An efficient method to do this is to
-	    compute
+            to compute expressions of the form a*b^{-1} mod p, where b
+            is a small integer.  An efficient method to do this is to
+            compute
 
-	    k = -a*p^{-1} mod b.
+            k = -a*p^{-1} mod b.
 
-	    Then the integer a + kp is divisible by b and hence
-	    a*b^{-1} == (a+kp)/b (mod p).
+            Then the integer a + kp is divisible by b and hence
+            a*b^{-1} == (a+kp)/b (mod p).
 
-	    I.e. this method takes O(log(p)log(b)), rather than
-	    O(log(p)^2) for the current method.
+            I.e. this method takes O(log(p)log(b)), rather than
+            O(log(p)^2) for the current method.
 
-	    (I have my doubts because of the cache, but I should test it)
-	    ]</cref></t>
-      </section>
-    </section>
+            (I have my doubts because of the cache, but I should test it)
+            ]</cref></t>
 
-    <section title="Examples">
-
-    </section>
 
     <section title="Pre-calculated values for mod_inverse(x, p)">
 
-	<figure>
-	  <artwork>
+        <figure>
+          <artwork>
 mod_inverse(-10, p) =
 4ccccccccccccccc bc518e63d6d2a0a9 6e3b83f6a6a86f0b 8c4d7dcf5cb8bd56
 009d1f9844ec4823 e52fcf57aaa934a8 fb13214f8a5e4754 f4d9b6542f1c8610
@@ -954,14 +1168,16 @@ ac4f85721e68d967 d2089b5de47837f6 df67e28b4c41eeb2 4d75f073eac7cf6f
 cd036ecc83689748 06fdb0747c9f2774 4f8a3e7eb6e506a7 eb969c6af06555be
 4bdcf11138f388bf 95f7369bc4053094 9a79e7d2b101cc14 2b37cc0248c83f76
 b431d76ac97e4e6d de7fcd80cba7ed31 1cf7bf400ad122b8 9999999999999999
-	  </artwork>
-	</figure>
+          </artwork>
+        </figure>
+    </section>
+    </section>
     </section>
 
     <section anchor="Acknowledgements" title="Acknowledgements"> 
       <t>Thanks to Wan-Teh Chang, Adam Langley, Ian Goldberg and
-      Daniel Bleichanbacher (and others who should remind me who they
-      are) for feedback on earlier versions.</t>
+      Daniel Bleichanbacher for feedback on earlier versions.
+      TODO(benl): Update this list.</t>
     </section> 
  
     <!-- Possibly a 'Contributors' section ... --> 
@@ -973,6 +1189,10 @@ b431d76ac97e4e6d de7fcd80cba7ed31 1cf7bf400ad122b8 9999999999999999
     </section> 
  
     <section anchor="Security" title="Security Considerations"> 
+      <!-- TODO(drt24) read the RFC on writing Security Considerations and rewrite this section -->
+      <t>When storing at multiple servers using Shamir split, the
+      servers might guess they're part of a split because the value
+      will be longer than a non-split value.</t>
 
       <t>The role of the user's password is critical and must
       therefore be strongly protected. Obvious risks to the password
@@ -1017,9 +1237,21 @@ b431d76ac97e4e6d de7fcd80cba7ed31 1cf7bf400ad122b8 9999999999999999
       &RFC2104;
       &RFC2119;
       &RFC2898;
+      &RFC4627;
+      &RFC4648;
+      <reference anchor="protobuf" target="https://developers.google.com/protocol-buffers/docs/overview">
+        <front>
+          <title>Protocol Buffers</title>
+          <author>
+            <organization>Google</organization>
+          </author>
+          <date month="April" year="2011"/>
+        </front>
+      </reference>
     </references> 
  
-    <references title="Informative References"> 
+    <references title="Informative References">
+    <!-- Oauth: save for a future specification &RFC5849; --> 
     </references> 
    </back> 
 </rfc>

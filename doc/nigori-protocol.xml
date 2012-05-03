@@ -416,6 +416,18 @@ At least one parent case:
           when generating the ID.
         </postamble>
       </figure>
+
+      <t>Revision history diverges if multiple revisions specify the same
+      revision(s) as their parent (or if multiple revisions specify no parent).
+      Revision history can be merged again if a new revision specifies
+      a revlist of multiple parents as then that new revision supersedes all
+      its parents.</t>
+
+      <t>By examining the DAG of revision history a client can determine which
+      revisions form the set of dominating or head revisions, it can then
+      present these as multiple options to the user or perform some automatic
+      merge on them to produce on value to show to the user.</t>
+
       <section title="Examples">
         <figure title="Example DAG of revision history">
           <artwork>
@@ -439,7 +451,11 @@ At least one parent case:
       +-+-+-+
 
           </artwork>
-          <postamble>Here revision IDs have been abbreviated to the first character of their hex representation.</postamble>
+          <postamble>Here revision IDs have been abbreviated to the first
+          character of their hex representation.
+          Revision a specifies no parent, both b and c specify a as their
+          parent, e merges b and c but d depends only on b, f specifies d and e
+          and so merges them resulting in one head revision.</postamble>
         </figure>
       </section>
     </section>
