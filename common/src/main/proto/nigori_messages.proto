@@ -19,11 +19,11 @@ option java_package = "com.google.nigori.common";
 option java_outer_classname = "NigoriMessages";
 
 message AuthenticateRequest {
-//TODO(drt24) we need to have the server name in here.
   required bytes public_key = 1;
   required bytes schnorr_s = 2;
   required bytes schnorr_e = 3;
   required bytes nonce = 4;
+  required string server_name = 5;
 }
 
 message RegisterRequest {
