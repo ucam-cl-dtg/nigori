@@ -22,8 +22,43 @@
   <artifactId>nigori</artifactId>
   <packaging>pom</packaging>
   <version>1.0.0-SNAPSHOT</version>
-  <name>nigori: Secrets in the Cloud</name>
+  <name>Nigori: Secrets in the Cloud</name>
   <url>http://code.google.com/p/nigori/</url>
+  <licenses>
+    <license>
+      <name>Apache 2</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <connection>scm:git:git@github.com:ucam-cl-dtg/nigori.git</connection>
+    <developerConnection>scm:git:git@github.com:ucam-cl-dtg/nigori.git</developerConnection>
+    <url>https://github.com/ucam-cl-dtg/nigori</url>
+  </scm>
+  <developers>
+    <developer>
+      <id>drt24</id>
+      <name>Daniel Thomas</name>
+      <email>Daniel.Thomas@cl.cam.ac.uk</email>
+      <organization>DTG</organization>
+      <organizationUrl>http://www.cl.cam.ac.uk/research/dtg/</organizationUrl>
+    </developer>
+    <developer>
+      <id>arb33</id>
+      <name>Alastair Beresford</name>
+      <email>Alastair.Beresford@cl.cam.ac.uk</email>
+      <organization>DTG</organization>
+      <organizationUrl>http://www.cl.cam.ac.uk/research/dtg/</organizationUrl>
+    </developer>
+    <developer>
+      <id>benl</id>
+      <name>Ben Laurie</name>
+      <email>benl@google.com</email>
+      <organization>Google</organization>
+      <organizationUrl>https://www.google.com/</organizationUrl>
+    </developer>
+  </developers>
   <modules>
     <module>common</module>
     <module>server</module>
