@@ -115,6 +115,15 @@ JsonDeserializer<GeneratedMessage> {
             String fieldName = camelCaseField(name + "_");
             Field field = protoClass.getDeclaredField(fieldName);
             Type fieldType = field.getGenericType();
+            if (fieldType.equals(Object.class)){
+            // TODO(drt24): this is very evil.
+            // In NigoriMessages protobuf strings are stored in a field of type Object so that they
+            // can use either String of ByteString as the implementation, however this causes a type
+            // error when calling the set method. So we make a (potentially false) assumption that
+            // all fields of type Object in NigoriMessages have that type because they actually
+            // should have Strings set.
+              fieldType = String.class;
+            }
             Object fieldValue = context.deserialize(jsonElement, fieldType);
             if(fieldDescriptor.getJavaType() == FieldDescriptor.JavaType.ENUM) {
               Method methodVD = getCachedMethod(fieldValue.getClass(), "getValueDescriptor");
