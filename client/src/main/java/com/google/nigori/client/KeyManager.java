@@ -37,4 +37,6 @@ interface KeyManager {
   byte[] encryptDeterministically(byte[] key, byte[] plaintext) throws NigoriCryptographyException;
 
   SchnorrSign signer();
+
+  String getServerName();
 }

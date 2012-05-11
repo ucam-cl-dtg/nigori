@@ -54,7 +54,7 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
 
 	public CryptoNigoriDatastore(NigoriProtocol protocol, String username, String password, String serverName) throws UnsupportedEncodingException, NigoriCryptographyException {
 	  this.protocol = protocol;
-	  this.keyManager = new RealKeyManager(toBytes(serverName), toBytes(username), toBytes(password));
+	  this.keyManager = new RealKeyManager(serverName, toBytes(username), toBytes(password));
 	}
 
   /**
@@ -72,7 +72,7 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
 			String password) throws NigoriCryptographyException, UnsupportedEncodingException {
 		String servername = server + ":" + port;
 		protocol = new JsonHTTPProtocol(server,port,serverPrefix);
-		keyManager = new RealKeyManager(toBytes(servername), toBytes(username), toBytes(password));
+		keyManager = new RealKeyManager(servername, toBytes(username), toBytes(password));
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
 		String servername = server + ":" + port;
 		protocol = new JsonHTTPProtocol(server,port,serverPrefix);
 
-		keyManager = new RealKeyManager(toBytes(servername));
+		keyManager = new RealKeyManager(servername);
 	}
 
   /**
@@ -124,7 +124,7 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
 
   @Override
   public boolean authenticate() throws IOException, NigoriCryptographyException {
-    return protocol.authenticate(MessageLibrary.authenticateRequestAsProtobuf(keyManager.signer()));
+    return protocol.authenticate(MessageLibrary.authenticateRequestAsProtobuf(keyManager.getServerName(), keyManager.signer()));
   }
 
 	@Override
@@ -135,7 +135,7 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
 
 	@Override
   public boolean unregister() throws IOException, NigoriCryptographyException, UnauthorisedException {
-	  return protocol.unregister(MessageLibrary.unregisterRequestAsProtobuf(keyManager.signer()));
+	  return protocol.unregister(MessageLibrary.unregisterRequestAsProtobuf(keyManager.getServerName(), keyManager.signer()));
   }
 
 	/**
@@ -191,7 +191,7 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
 
     try {
       GetResponse getResponse =
-          protocol.get(MessageLibrary.getRequestAsProtobuf(keyManager.signer(), encIndex, encRevision));
+          protocol.get(MessageLibrary.getRequestAsProtobuf(keyManager.getServerName(), keyManager.signer(), encIndex, encRevision));
       if (getResponse == null){
         return null;
       }
@@ -219,7 +219,7 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
   
     try {
       GetIndicesResponse getResponse =
-          protocol.getIndices(MessageLibrary.getIndicesRequestAsProtobuf(keyManager.signer()));
+          protocol.getIndices(MessageLibrary.getIndicesRequestAsProtobuf(keyManager.getServerName(), keyManager.signer()));
       if (getResponse == null){
         return null;
       }
@@ -241,7 +241,7 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
 
     try {
       GetRevisionsResponse getResponse =
-          protocol.getRevisions(MessageLibrary.getRevisionsRequestAsProtobuf(keyManager.signer(), encIndex));
+          protocol.getRevisions(MessageLibrary.getRevisionsRequestAsProtobuf(keyManager.getServerName(), keyManager.signer(), encIndex));
       if (getResponse == null){
         return null;
       }
@@ -290,7 +290,7 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
   		encRevision = keyManager.encryptDeterministically(encKey, revision.getBytes());
   		encValue = keyManager.encrypt(encKey, value);
   	}
-  	return protocol.put(MessageLibrary.putRequestAsProtobuf(keyManager.signer(), encIndex, encRevision, encValue));
+  	return protocol.put(MessageLibrary.putRequestAsProtobuf(keyManager.getServerName(), keyManager.signer(), encIndex, encRevision, encValue));
   }
 
   @Override
@@ -306,7 +306,7 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
 	    encIndex = keyManager.encryptDeterministically(encKey, index.getBytes());
 	  }
 	  try{
-	    return protocol.delete(MessageLibrary.deleteRequestAsProtobuf(keyManager.signer(), encIndex));
+	    return protocol.delete(MessageLibrary.deleteRequestAsProtobuf(keyManager.getServerName(), keyManager.signer(), encIndex));
 	  } catch (NotFoundException e) {
       return false;
     }

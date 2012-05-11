@@ -30,12 +30,12 @@ import com.google.nigori.common.NigoriCryptographyException;
 public class DummyKeyManagerTest extends AbstractKeyManagerTest {
 
   @Override
-  protected KeyManager getKeyManager(byte[] serverName, byte[] userName, byte[] password) throws NigoriCryptographyException {
+  protected KeyManager getKeyManager(String serverName, byte[] userName, byte[] password) throws NigoriCryptographyException {
     return new DummyKeyManager(serverName, userName, password);
   }
 
   @Override
-  protected KeyManager getKeyManager(byte[] serverName) throws NigoriCryptographyException {
+  protected KeyManager getKeyManager(String serverName) throws NigoriCryptographyException {
     return new DummyKeyManager(serverName);
   }
   @Override

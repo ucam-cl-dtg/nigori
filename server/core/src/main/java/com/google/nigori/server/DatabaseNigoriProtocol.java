@@ -72,15 +72,15 @@ public class DatabaseNigoriProtocol implements NigoriProtocol {
     byte[] publicKey = auth.getPublicKey().toByteArray();
     byte[] schnorrE = auth.getSchnorrE().toByteArray();
     byte[] schnorrS = auth.getSchnorrS().toByteArray();
-    byte[] nonce = auth.getNonce().toByteArray();
+    Nonce nonce = new Nonce(auth.getNonce().toByteArray());
+    String serverName = auth.getServerName();
 
-    SchnorrSignature sig = new SchnorrSignature(schnorrS, schnorrE, Util.joinBytes(nonce,Util.joinBytes(payload)));
+    SchnorrSignature sig = new SchnorrSignature(schnorrS, schnorrE, Util.joinBytes(toBytes(serverName),nonce.nt(),nonce.nr(),Util.joinBytes(payload)));
     try {
       SchnorrVerify v = new SchnorrVerify(publicKey);
 
       if (v.verify(sig)) {
-        Nonce n = new Nonce(nonce);
-        boolean validNonce = database.checkAndAddNonce(n, publicKey);
+        boolean validNonce = database.checkAndAddNonce(nonce, publicKey);
 
         boolean userExists = database.haveUser(publicKey);
         if (validNonce && userExists) {

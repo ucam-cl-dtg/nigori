@@ -35,6 +35,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.NigoriConstants;
 import com.google.nigori.common.NigoriCryptographyException;
 import com.google.nigori.common.SchnorrSign;
@@ -66,6 +67,7 @@ public class RealKeyManager implements KeyManager {
 
   private byte[] username;
   private byte[] password;
+  private String serverName;
   
   private final SecureRandom random = new SecureRandom();
   private final PasswordGenerator pwgen = new PasswordGenerator();
@@ -78,10 +80,10 @@ public class RealKeyManager implements KeyManager {
    * @param password the password of {@code username} at {@code servername}.
    * @throws NigoriCryptographyException
    */
-  public RealKeyManager(byte[] servername, byte[] username, byte[] password) 
+  public RealKeyManager(String serverName, byte[] username, byte[] password) 
   throws NigoriCryptographyException {
 
-  	initialiseKeys(servername, username, password);
+  	initialiseKeys(serverName, username, password);
   }
 
   /**
@@ -90,17 +92,18 @@ public class RealKeyManager implements KeyManager {
    * @param servername the domain name of the server used to store data.
    * @throws NigoriCryptographyException
    */
-  public RealKeyManager(byte[] servername) throws NigoriCryptographyException {
-  	initialiseKeys(servername, pwgen.generate(), pwgen.generate());
+  public RealKeyManager(String serverName) throws NigoriCryptographyException {
+  	initialiseKeys(serverName, pwgen.generate(), pwgen.generate());
   }
   
-  private void initialiseKeys(byte[] servername, byte[] username, byte[] password)
+  private void initialiseKeys(String serverName, byte[] username, byte[] password)
       throws NigoriCryptographyException {
 
     this.username = username;
     this.password = password;
+    this.serverName = serverName;
 
-    byte[] userAndServer = Util.joinBytes(username, servername);
+    byte[] userAndServer = Util.joinBytes(username, MessageLibrary.toBytes(serverName));
     byte[] salt = pbkdf2(userAndServer, NigoriConstants.USER_SALT, NigoriConstants.N_SALT, NigoriConstants.B_SUSER);
 
     this.userSecretKey = pbkdf2(password, salt, NigoriConstants.N_USER, NigoriConstants.B_DSA);
@@ -163,6 +166,10 @@ public class RealKeyManager implements KeyManager {
   	return password.clone();
   }
   
+  @Override
+  public String getServerName() {
+    return serverName;
+  }
   @Override
   public byte[] decrypt(byte[] ciphertext) throws NigoriCryptographyException {
   	return decrypt(encryptionSecretKey, ciphertext);

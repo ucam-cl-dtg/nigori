@@ -24,12 +24,12 @@ import com.google.nigori.common.NigoriCryptographyException;
 public class RealKeyManagerTest extends AbstractKeyManagerTest {
 
   @Override
-  protected KeyManager getKeyManager(byte[] serverName, byte[] userName, byte[] password) throws NigoriCryptographyException {
+  protected KeyManager getKeyManager(String serverName, byte[] userName, byte[] password) throws NigoriCryptographyException {
     return new RealKeyManager(serverName, userName, password);
   }
 
   @Override
-  protected KeyManager getKeyManager(byte[] serverName) throws NigoriCryptographyException {
+  protected KeyManager getKeyManager(String serverName) throws NigoriCryptographyException {
     return new RealKeyManager(serverName);
   }
 

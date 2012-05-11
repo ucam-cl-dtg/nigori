@@ -65,6 +65,13 @@ public class Nonce implements Serializable {
     Util.int2bin(token, SINCE_EPOCH_OFFSET, sinceEpoch);
     return token;
   }
+  public byte[] nt() {
+    return Util.int2bin(sinceEpoch);
+  }
+
+  public byte[] nr() {
+    return Util.int2bin(random);
+  }
   
   public int getSinceEpoch() {
   	return sinceEpoch;

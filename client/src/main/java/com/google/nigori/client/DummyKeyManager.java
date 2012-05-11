@@ -15,6 +15,7 @@
  */
 package com.google.nigori.client;
 
+import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.NigoriCryptographyException;
 import com.google.nigori.common.SchnorrSign;
 
@@ -26,15 +27,19 @@ public class DummyKeyManager implements KeyManager {
 
   private final byte[] username;
   private final byte[] password;
-  private final byte[] userSecretKey = "secret".getBytes();
+  private final String serverName;
+  private final byte[] userSecretKey = MessageLibrary.toBytes("secret");
 
-  public DummyKeyManager(byte[] servername){
-    this(servername, "username".getBytes(), "password".getBytes());
+  public DummyKeyManager(String serverName){
+    this(serverName, MessageLibrary.toBytes("username"), MessageLibrary.toBytes("password"));
   }
-  public DummyKeyManager(byte[] servername, byte[] username, byte[] password) {
+
+  public DummyKeyManager(String serverName, byte[] username, byte[] password) {
     this.username = username;
     this.password = password;
+    this.serverName = serverName;
   }
+
   @Override
   public byte[] getUsername() {
     return username.clone();
@@ -43,6 +48,11 @@ public class DummyKeyManager implements KeyManager {
   @Override
   public byte[] getPassword() {
     return password.clone();
+  }
+
+  @Override
+  public String getServerName() {
+    return serverName;
   }
   
   @Override

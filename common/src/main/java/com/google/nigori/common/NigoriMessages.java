@@ -3,6 +3,7 @@
 
 package com.google.nigori.common;
 
+@SuppressWarnings(value = {"all"})//generated code
 public final class NigoriMessages {
   private NigoriMessages() {}
   public static void registerAllExtensions(

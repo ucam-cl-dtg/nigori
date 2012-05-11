@@ -117,23 +117,23 @@ public class MessageLibrary {
     }
   }
 
-	public static GetRequest getRequestAsProtobuf(SchnorrSign signer, byte[] index, byte[] revision) throws NigoriCryptographyException {
+	public static GetRequest getRequestAsProtobuf(String serverName, SchnorrSign signer, byte[] index, byte[] revision) throws NigoriCryptographyException {
 
     if (revision != null) {
       return GetRequest.newBuilder()
-          .setAuth(authenticateRequestAsProtobuf(signer, toBytes(REQUEST_GET), index, revision))
+          .setAuth(authenticateRequestAsProtobuf(serverName, signer, toBytes(REQUEST_GET), index, revision))
           .setKey(ByteString.copyFrom(index))
           .setRevision(ByteString.copyFrom(revision)).build();
     } else {
       return GetRequest.newBuilder()
-          .setAuth(authenticateRequestAsProtobuf(signer, toBytes(REQUEST_GET), index))
+          .setAuth(authenticateRequestAsProtobuf(serverName, signer, toBytes(REQUEST_GET), index))
           .setKey(ByteString.copyFrom(index)).build();
     }
 
 	}
 
-	public static String getRequestAsJson(SchnorrSign signer, byte[] index, byte[] revision) throws NigoriCryptographyException {
-		return gson.toJson(getRequestAsProtobuf(signer, index, revision));
+	public static String getRequestAsJson(String serverName, SchnorrSign signer, byte[] index, byte[] revision) throws NigoriCryptographyException {
+		return gson.toJson(getRequestAsProtobuf(serverName, signer, index, revision));
 	}
 
 	public static GetRequest getRequestFromJson(String json)  throws JsonConversionException {
@@ -162,12 +162,12 @@ public class MessageLibrary {
 	  return fromJson(json, GetResponse.class);
 	}
 
-	public static GetIndicesRequest getIndicesRequestAsProtobuf(SchnorrSign signer) throws NigoriCryptographyException {
-    return GetIndicesRequest.newBuilder().setAuth(authenticateRequestAsProtobuf(signer,toBytes(REQUEST_GET_INDICES))).build();
+	public static GetIndicesRequest getIndicesRequestAsProtobuf(String serverName, SchnorrSign signer) throws NigoriCryptographyException {
+    return GetIndicesRequest.newBuilder().setAuth(authenticateRequestAsProtobuf(serverName, signer,toBytes(REQUEST_GET_INDICES))).build();
   }
 
-  public static String getIndicesRequestAsJson(SchnorrSign signer) throws NigoriCryptographyException {
-    return gson.toJson(getIndicesRequestAsProtobuf(signer));
+  public static String getIndicesRequestAsJson(String serverName, SchnorrSign signer) throws NigoriCryptographyException {
+    return gson.toJson(getIndicesRequestAsProtobuf(serverName, signer));
   }
 
   public static GetIndicesRequest getIndicesRequestFromJson(String json) throws JsonConversionException {
@@ -190,14 +190,14 @@ public class MessageLibrary {
     return fromJson(json, GetIndicesResponse.class);
   }
 
-  public static GetRevisionsRequest getRevisionsRequestAsProtobuf(SchnorrSign signer, byte[] index) throws NigoriCryptographyException {
+  public static GetRevisionsRequest getRevisionsRequestAsProtobuf(String serverName, SchnorrSign signer, byte[] index) throws NigoriCryptographyException {
     return GetRevisionsRequest.newBuilder()
-        .setAuth(authenticateRequestAsProtobuf(signer,toBytes(REQUEST_GET_REVISIONS),index))
+        .setAuth(authenticateRequestAsProtobuf(serverName, signer,toBytes(REQUEST_GET_REVISIONS),index))
         .setKey(ByteString.copyFrom(index)).build();
   }
 
-  public static String getRevisionsRequestAsJson(SchnorrSign signer, byte[] encIndex) throws NigoriCryptographyException {
-    return gson.toJson(getRevisionsRequestAsProtobuf(signer, encIndex));
+  public static String getRevisionsRequestAsJson(String serverName, SchnorrSign signer, byte[] encIndex) throws NigoriCryptographyException {
+    return gson.toJson(getRevisionsRequestAsProtobuf(serverName, signer, encIndex));
   }
 
   public static GetRevisionsRequest getRevisionsRequestFromJson(String json) throws JsonConversionException{
@@ -221,10 +221,10 @@ public class MessageLibrary {
     return fromJson(json, GetRevisionsResponse.class);
   }
 
-  public static PutRequest putRequestAsProtobuf(SchnorrSign signer, byte[] index, byte[] revision, byte[] value) throws NigoriCryptographyException {
+  public static PutRequest putRequestAsProtobuf(String serverName, SchnorrSign signer, byte[] index, byte[] revision, byte[] value) throws NigoriCryptographyException {
 
 	  PutRequest.Builder reqBuilder = PutRequest.newBuilder()
-	      .setAuth(authenticateRequestAsProtobuf(signer,toBytes(REQUEST_PUT),index,revision,value))
+	      .setAuth(authenticateRequestAsProtobuf(serverName, signer,toBytes(REQUEST_PUT),index,revision,value))
 	      .setKey(ByteString.copyFrom(index))
 	      .setRevision(ByteString.copyFrom(revision))
 	      .setValue(ByteString.copyFrom(value));
@@ -234,17 +234,17 @@ public class MessageLibrary {
 		return req;
 	}
 
-	public static String putRequestAsJson(SchnorrSign signer, byte[] index, byte[] revision, byte[] value) throws	NigoriCryptographyException {
-		return gson.toJson(putRequestAsProtobuf(signer, index, revision, value));
+	public static String putRequestAsJson(String serverName, SchnorrSign signer, byte[] index, byte[] revision, byte[] value) throws	NigoriCryptographyException {
+		return gson.toJson(putRequestAsProtobuf(serverName, signer, index, revision, value));
 	}
 
 	public static PutRequest putRequestFromJson(String json) throws JsonConversionException {
 	  return fromJson(json, PutRequest.class);
 	}
 
-	public static DeleteRequest deleteRequestAsProtobuf(SchnorrSign signer, byte[] index) throws NigoriCryptographyException{
+	public static DeleteRequest deleteRequestAsProtobuf(String serverName, SchnorrSign signer, byte[] index) throws NigoriCryptographyException{
 	  DeleteRequest.Builder delBuilder = DeleteRequest.newBuilder()
-	      .setAuth(authenticateRequestAsProtobuf(signer,toBytes(REQUEST_DELETE),index))
+	      .setAuth(authenticateRequestAsProtobuf(serverName, signer,toBytes(REQUEST_DELETE),index))
 	      .setKey(ByteString.copyFrom(index));
 
 	  DeleteRequest del = delBuilder.build();
@@ -252,32 +252,32 @@ public class MessageLibrary {
 	  return del;
 	}
 
-	public static String deleteRequestAsJson(SchnorrSign signer, byte[] index) throws NigoriCryptographyException {
-    return gson.toJson(deleteRequestAsProtobuf(signer,index));
+	public static String deleteRequestAsJson(String serverName, SchnorrSign signer, byte[] index) throws NigoriCryptographyException {
+    return gson.toJson(deleteRequestAsProtobuf(serverName, signer,index));
   }
 
 	public static DeleteRequest deleteRequestFromJson(String json) throws JsonConversionException {
 	  return fromJson(json, DeleteRequest.class);
   }
 
-  public static AuthenticateRequest authenticateRequestAsProtobuf(SchnorrSign signer)
+  public static AuthenticateRequest authenticateRequestAsProtobuf(String serverName, SchnorrSign signer)
       throws NigoriCryptographyException {
-    return authenticateRequestAsProtobuf(signer, toBytes(REQUEST_AUTHENTICATE));
+    return authenticateRequestAsProtobuf(serverName, signer, toBytes(REQUEST_AUTHENTICATE));
   }
 
-  protected static AuthenticateRequest authenticateRequestAsProtobuf(SchnorrSign signer,
+  protected static AuthenticateRequest authenticateRequestAsProtobuf(String serverName, SchnorrSign signer,
       byte[]... payload) throws NigoriCryptographyException {
 
 	  try {
-	    //EXTENSION(drt24): we do two copies here because byte[]... is not a sufficiently powerful type
-	    byte[] nonce = new Nonce().toToken();
-	    SchnorrSignature signedNonce = signer.sign(Util.joinBytes(nonce,Util.joinBytes(payload)));
+	    Nonce nonce = new Nonce();
+	    SchnorrSignature signedNonce = signer.sign(Util.joinBytes(MessageLibrary.toBytes(serverName),nonce.nt(),nonce.nr(),Util.joinBytes(payload)));
 
 	    AuthenticateRequest req = AuthenticateRequest.newBuilder()
 	        .setPublicKey(ByteString.copyFrom(signer.getPublicKey()))
 	        .setSchnorrE(ByteString.copyFrom(signedNonce.getE()))
 	        .setSchnorrS(ByteString.copyFrom(signedNonce.getS()))
-	        .setNonce(ByteString.copyFrom(nonce))
+	        .setNonce(ByteString.copyFrom(nonce.toToken()))
+	        .setServerName(serverName)
 	        .build();
 
 	    return req;
@@ -286,8 +286,8 @@ public class MessageLibrary {
 	  }
 	}
 
-	public static String authenticateRequestAsJson(SchnorrSign signer) throws NigoriCryptographyException {
-		return gson.toJson(authenticateRequestAsProtobuf(signer));
+	public static String authenticateRequestAsJson(String serverName, SchnorrSign signer) throws NigoriCryptographyException {
+		return gson.toJson(authenticateRequestAsProtobuf(serverName, signer));
 	}
 
 	public static AuthenticateRequest authenticateRequestFromJson(String json) throws
@@ -313,17 +313,17 @@ public class MessageLibrary {
 	  return fromJson(json, RegisterRequest.class);
   }
 
-  public static UnregisterRequest unregisterRequestAsProtobuf(SchnorrSign signer) throws NigoriCryptographyException {
+  public static UnregisterRequest unregisterRequestAsProtobuf(String serverName, SchnorrSign signer) throws NigoriCryptographyException {
 
     UnregisterRequest req = UnregisterRequest.newBuilder()
-        .setAuth(authenticateRequestAsProtobuf(signer,toBytes(REQUEST_UNREGISTER)))
+        .setAuth(authenticateRequestAsProtobuf(serverName, signer,toBytes(REQUEST_UNREGISTER)))
         .build();
 
     return req;
   }
 
-	public static String unregisterRequestAsJson(SchnorrSign signer) throws NigoriCryptographyException {
-    return gson.toJson(unregisterRequestAsProtobuf(signer));
+	public static String unregisterRequestAsJson(String serverName, SchnorrSign signer) throws NigoriCryptographyException {
+    return gson.toJson(unregisterRequestAsProtobuf(serverName, signer));
   }
 
   public static UnregisterRequest unregisterRequestFromJson(String json)
