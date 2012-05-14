@@ -78,21 +78,33 @@ public class JsonHTTPProtocol implements NigoriProtocol {
   public boolean authenticate(AuthenticateRequest request) throws IOException {
     String json = MessageLibrary.toJson(request);
     HttpResponse resp = http.post(MessageLibrary.REQUEST_AUTHENTICATE, toBytes(json), MessageLibrary.MIMETYPE_JSON);
-    return success(resp);
+    try {
+      return success(resp);
+    } finally {
+      resp.close();
+    }
   }
 
   @Override
   public boolean register(RegisterRequest request) throws IOException {
     String json = MessageLibrary.toJson(request);
     HttpResponse resp = http.post(MessageLibrary.REQUEST_REGISTER, toBytes(json), MessageLibrary.MIMETYPE_JSON);
-    return success(resp);
+    try {
+      return success(resp);
+    } finally {
+      resp.close();
+    }
   }
 
   @Override
   public boolean unregister(UnregisterRequest request) throws IOException {
     String json = MessageLibrary.toJson(request);
     HttpResponse resp = http.post(MessageLibrary.REQUEST_UNREGISTER, toBytes(json), MessageLibrary.MIMETYPE_JSON);
-    return success(resp);
+    try {
+      return success(resp);
+    } finally {
+      resp.close();
+    }
   }
 
   private static void failure(Response response) throws IOException, UnauthorisedException{
@@ -162,7 +174,11 @@ public class JsonHTTPProtocol implements NigoriProtocol {
   public boolean put(PutRequest request) throws IOException {
     String json = MessageLibrary.toJson(request);
     HttpResponse resp = http.post(MessageLibrary.REQUEST_PUT, toBytes(json), MessageLibrary.MIMETYPE_JSON);
-    return success(resp);
+    try {
+      return success(resp);
+    } finally {
+      resp.close();
+    }
   }
 
   @Override
