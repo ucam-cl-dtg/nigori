@@ -489,7 +489,8 @@ At least one parent case:
 
     <section title="Secret Storage at Multiple Servers">
 
-      <t><spanx style="emph">Note: This is not yet implemented</spanx></t>
+      <t><spanx style="emph">Note: This is not yet implemented in Java
+      though it is implemented in Python.</spanx></t>
 
       <t>This looks exactly the same to each server as storage at a
       single server would. However, the client takes the value, V, it
