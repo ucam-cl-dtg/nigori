@@ -428,6 +428,9 @@ At least one parent case:
       present these as multiple options to the user or perform some automatic
       merge on them to produce on value to show to the user.</t>
 
+      <t>This scheme is similar to that used in
+      <eref target="http://git-scm.com/">Git</eref> and
+      <eref target="http://mercurial.selenic.com/">Mercurial</eref>.</t>
       <section title="Examples">
         <figure title="Example DAG of revision history">
           <artwork>
@@ -458,6 +461,7 @@ At least one parent case:
           and so merges them resulting in one head revision.</postamble>
         </figure>
       </section>
+
     </section>
 
     <section title="Secret Storage at a Single Server">
