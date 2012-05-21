@@ -164,9 +164,6 @@ Future specifications:
         in network byte order, so "abc" || "defgh" would be 00 00 00 03 61 62 63
         00 00 00 05 64 65 66 67 68.</t>
 
-        <t>A ## B means the direct concatenation of the octets of A and B
-        so "abc" ## "defgh" would be 61 62 63 64 65 66 67 68.</t>
-
         <t>HMAC(K, T) means the HMAC of T with key K and hash function
         SHA-256, as defined in <xref target="RFC2104"/>.</t>
 
@@ -388,34 +385,40 @@ Future specifications:
       download the values to construct the DAG.</t>
 
       <t>The octet array (in network byte order) of a revision is interpreted
-      consisting of an ID##revlist where the size of the ID is the size of the
+      consisting of an ID||revlist where the size of the ID is the size of the
       output of SHA-1 and revlist consists of a (possibly empty)
       lexicographically sorted sequence of ID entries for the revisions
-      preceding (id1##id2##id3...).</t>
-      <t>The ID is constructed by taking SHA-1(value##revlist)</t>
+      preceding (id1||id2||id3...).</t>
+      <t>The ID is constructed by taking SHA-1(value||revlist)</t>
       <figure title="Revision format">
         <artwork>
 No parents case:
-0                   1
- 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|       ID = SHA-1(value)       |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 0                   1                   2
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|0 0 1 0|         ID = SHA-1(value)     |0 0 0 0|
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 At least one parent case:
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|   ID = SHA-1(value,revlist)   |    First parent revision ID   |
+|0 0 1 0|   ID = SHA-1(value,revlist)   |X X X X|0 0 1 0| First
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|   Second parent revision ID   |          And so on...         |
+  parent revision ID    |0 0 1 0|   Second parent revision ID   |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|0 0 1 0|          And so on...         |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
         </artwork>
         <postamble>
           Note that one tick mark represents one octet position.
-          Octets 16 onward constitute the revlist which is hashed using SHA-1
+          Octets 20 onward constitute the revlist which is hashed using SHA-1
           when generating the ID.
         </postamble>
       </figure>
+
+      <t>Future specifications may specify has functions other than SHA-1, if
+      they do they MUST use a different size for the hash output (i.e. not 16
+      bytes). Doing this is not recommended.</t>
 
       <t>Revision history diverges if multiple revisions specify the same
       revision(s) as their parent (or if multiple revisions specify no parent).
