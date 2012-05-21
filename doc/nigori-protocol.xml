@@ -182,7 +182,7 @@ Future specifications:
         the plaintext is extended to a multiple of 16 octets, n > 0) and key k1,
         giving ciphertext C, followed by HMAC(k2, C).</t>
 
-        <t>Pub(k) means the <xref target="schnorr">Schnorr</xref> public key for signature verification for
+        <t>Pub(k) means the <xref target="dsa">DSA</xref> public key for signature verification for
         the secret key k.</t>
 
         <t>[server] is the base URL for the server.</t>
@@ -335,7 +335,7 @@ Future specifications:
 
       <t>Then to authenticate to the server he presents his public key (pk), the
       server name (ns), the time in seconds since Jan 1 1970 (nt) and random
-      string (nr) and a <xref target="schnorr">Schnorr signature</xref> using
+      string (nr) and a <xref target="dsa">DSA signature</xref> using
       Kuser over ns || nt || nr || p where p is the payload being authenticated.
       At least one of these must be different every time they are used, in order
       to defeat replay attacks.
@@ -344,7 +344,7 @@ Future specifications:
       <t>The server checks that nt is recent (so it can drop old
       entries from its replay database), checks that it has not seen pk
       || ns || nt || nr before, looks up the user for the pk, and
-      verifies the Schnorr signature. If all these checks pass, the
+      verifies the DSA signature. If all these checks pass, the
       user is authenticated.</t>
 
     </section>
@@ -563,10 +563,9 @@ package nigori;
 
 message AuthenticateRequest {
   required bytes public_key = 1;
-  required bytes schnorr_s = 2;
-  required bytes schnorr_e = 3;
-  required bytes nonce = 4;
-  required string server_name = 5;
+  required bytes sig_s = 2;
+  required bytes nonce = 3;
+  required string server_name = 4;
 }
 
 message RegisterRequest {
@@ -653,66 +652,9 @@ message DeleteRequest {
 
     <section title="Algorithms">
 
-    <section title="Schnorr Signature" anchor="schnorr">
-
-      <t>A Schnorr signature is a signature over a message that both
-      authenticates the message and proves posession of a secret without giving
-      the verifier an equivalent to that secret. The secret in our case is
-      Kuser. All implementations must use the same public parameters:</t>
-      <figure>
-        <artwork>
-p =
-fd7f53811d75122 952df4a9c2eece4e 7f611b7523cef440 0c31e3f80b651266
-9455d402251fb59 3d8d58fabfc5f5ba 30f6cb9b556cd781 3b801d346ff26660
-b76b9950a5a49f9 fe8047b1022c24fb ba9d7feb7c61bf83 b57e7c6a8a6150f0
-4fb83f6d3c51ec3 023554135a169132 f675f3ae2b61d72a eff22203199dd148
-01c7
-q =
-9760508f15230bc cb292b982a2eb840 bf0581cf5
-g =
-f7e1a085d69b3dd ecbbcab5c36b857b 97994afbbfa3aea8 2f9574c0b3d07826
-75159578ebad459 4fe67107108180b4 49167123e84c2816 13b7cf09328cc8a6
-e13c167a8b547c8 d28e0a3ae1e2bb3a 675916ea37f0bfa2 13562f1fb627a012
-43bcca4f1bea851 9089a883dfe15ae5 9f06928b665e807b 552564014c3bfecf
-492a
-        </artwork>
-      </figure>
-      <t>[TODO(benl): we should generate new parameters, so q is big enough to handle
-      SHA-256 - seems to be sized for SHA-1 here]</t>
-
-      <t>At registration time, the client gives the server g^Kuser mod p.</t>
-
-      <t>To authenticate, the client</t>
-      <t>
-        <list>
-          <t>constructs message M.</t>
-          <t>chooses a random k s.t. 0 < k < q.</t>
-          <t>calculates r = g^k mod p</t>
-          <t>calculates e = SHA-256(M || r), taking the hash as a 32 octet
-          unsigned integer in network byte order</t>
-          <t>calculates s = (k - Kuser * e) mod q</t>
-          <t>sends the server M, s and e</t>
-        </list>
-      </t>
-
-     <t>To verify, the server:</t>
-
-     <t>
-       <list>
-         <t>calculates r = (g^s (g^Kuser)^e) mod p. (note that g^Kuser was
-         supplied by the client at registration time)</t>
-         <t>calculates e' = SHA-256(M || r)</t>
-         <t>verifies that e' = e.</t>
-       </list>
-     </t>
-
-<!-- TODO(benl)
-Examples
-
-[I will provide worked examples, showing each step in the calculations -
- - as well as final results]
--->
-      </section>
+    <section title="DSA Signature" anchor="dsa">
+      <t>TODO(drt24): write this section.<xref target="FIPS186-3"/></t>
+    </section>
 
       <section title="Shamir Secret Split" anchor="shamir">
 
@@ -1251,6 +1193,16 @@ b431d76ac97e4e6d de7fcd80cba7ed31 1cf7bf400ad122b8 9999999999999999
             <organization>Google</organization>
           </author>
           <date month="April" year="2011"/>
+        </front>
+      </reference>
+      <reference anchor="FIPS186-3" target="http://csrc.nist.gov/publications/fips/fips186-3/fips_186-3.pdf">
+        <front>
+          <title>Federal Information Processing Standards Publication
+                (FIPS PUB), Digital Signature Standard (DSS)</title>
+          <author>
+            <organization>National Institute of Standards and Technology</organization>
+          </author>
+          <date month="June" year="2009"/>
         </front>
       </reference>
     </references> 
