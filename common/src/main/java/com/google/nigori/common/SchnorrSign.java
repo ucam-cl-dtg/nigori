@@ -36,8 +36,8 @@ public class SchnorrSign extends SchnorrVerify {
    * @param privateKey an arbitrary-length big-Endian <i>positive</i> integer.
    */
   public SchnorrSign(byte[] privateKey) {
-    super(G.modPow(new BigInteger(positiveIntToTwosCompliment(privateKey)), P));
-    this.privateKey = new BigInteger(positiveIntToTwosCompliment(privateKey));
+    super(G.modPow(new BigInteger(Util.positiveIntToTwosCompliment(privateKey)), P));
+    this.privateKey = new BigInteger(Util.positiveIntToTwosCompliment(privateKey));
   }
 
   /**
@@ -59,16 +59,16 @@ public class SchnorrSign extends SchnorrVerify {
     BigInteger k = randomValue;
     BigInteger r = G.modPow(k, P);
 
-    byte[] rAsBytes = twosComplimentToPositiveInt(r.toByteArray());
+    byte[] rAsBytes = Util.twosComplimentToPositiveInt(r.toByteArray());
     byte[] messageAndR = new byte[message.length + rAsBytes.length];
     System.arraycopy(message, 0, messageAndR, 0, message.length);
     System.arraycopy(rAsBytes, 0, messageAndR, message.length, rAsBytes.length);
     m.update(messageAndR);
     byte[] e = m.digest();
 
-    BigInteger positiveE = new BigInteger(positiveIntToTwosCompliment(e));
+    BigInteger positiveE = new BigInteger(Util.positiveIntToTwosCompliment(e));
     BigInteger s = k.subtract(privateKey.multiply(positiveE)).mod(Q);
-    return new SchnorrSignature(twosComplimentToPositiveInt(s.toByteArray()), e, message);
+    return new SchnorrSignature(Util.twosComplimentToPositiveInt(s.toByteArray()), e, message);
   }
 
 }

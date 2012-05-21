@@ -36,37 +36,19 @@ public class SchnorrVerify {
   private final BigInteger publicKey;
 
   public SchnorrVerify(byte[] publicKey) {
-    this.publicKey = new BigInteger(positiveIntToTwosCompliment(publicKey));
+    this.publicKey = new BigInteger(Util.positiveIntToTwosCompliment(publicKey));
   }
 
   public SchnorrVerify(BigInteger publicKey) {
     this.publicKey = publicKey;
   }
 
-  static byte[] positiveIntToTwosCompliment(byte[] input) {
-    byte[] output = input;
-    if (input != null && input.length > 0 && input[0] < 0) {
-      output = new byte[input.length + 1];
-      System.arraycopy(input, 0, output, 1, input.length);
-    }
-    return output;
-  }
-
-  static byte[] twosComplimentToPositiveInt(byte[] input) {
-    byte[] output = input;
-    if (input != null && input.length > 1 && input[0] == 0) {
-      output = new byte[input.length - 1];
-      System.arraycopy(input, 1, output, 0, output.length);
-    }
-    return output;
-  }
-  
   /**
    * Provide a big-Endian signed integer representation of the public key.
    * 
    */
   public byte[] getPublicKey() {
-    return twosComplimentToPositiveInt(publicKey.toByteArray());
+    return Util.twosComplimentToPositiveInt(publicKey.toByteArray());
   }
 
   /**
@@ -78,12 +60,12 @@ public class SchnorrVerify {
   public boolean verify(SchnorrSignature sig) throws NoSuchAlgorithmException {
 
     //r = (pow(self.g, s, self.p) * pow(self.publicKey, e, self.p)) % self.p
-    BigInteger e = new BigInteger(positiveIntToTwosCompliment(sig.getE()));
-    BigInteger s = new BigInteger(positiveIntToTwosCompliment(sig.getS()));
+    BigInteger e = new BigInteger(Util.positiveIntToTwosCompliment(sig.getE()));
+    BigInteger s = new BigInteger(Util.positiveIntToTwosCompliment(sig.getS()));
     BigInteger r = (G.modPow(s, P).multiply(publicKey.modPow(e, P))).mod(P);
 
     byte[] message = sig.getMessage();
-    byte[] rAsBytes = twosComplimentToPositiveInt(r.toByteArray());
+    byte[] rAsBytes = Util.twosComplimentToPositiveInt(r.toByteArray());
     byte[] messageAndR = new byte[message.length + rAsBytes.length];
     System.arraycopy(message, 0, messageAndR, 0, message.length);
     System.arraycopy(rAsBytes, 0, messageAndR, message.length, rAsBytes.length);
@@ -94,6 +76,6 @@ public class SchnorrVerify {
 
     //TODO(beresford): when validating the signature on the server for authentication, need
     //to check that the contents of the message is the one which is received.
-    return e.equals(new BigInteger(positiveIntToTwosCompliment(newE)));
+    return e.equals(new BigInteger(Util.positiveIntToTwosCompliment(newE)));
   }
 }

@@ -64,8 +64,8 @@ public class SchnorrSignTest {
     for (SchnorrSignTestCase t : test) {
       SchnorrSign signer = new SchnorrSign(t.password.getBytes());
       SchnorrSignature sign = signer.sign(t.message.getBytes(), t.random);
-      BigInteger e = new BigInteger(SchnorrVerify.positiveIntToTwosCompliment(sign.getE()));
-      BigInteger s = new BigInteger(SchnorrVerify.positiveIntToTwosCompliment(sign.getS()));
+      BigInteger e = new BigInteger(Util.positiveIntToTwosCompliment(sign.getE()));
+      BigInteger s = new BigInteger(Util.positiveIntToTwosCompliment(sign.getS()));
       assertTrue("Error when testing, t:\n"+t+"\nsign.e: "+e+"\nsign.s: "+s,
           t.e.equals(e) && t.s.equals(s));
     }     

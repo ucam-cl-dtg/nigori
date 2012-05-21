@@ -115,6 +115,24 @@ public final class Util {
     return array[0] == TRUE;
   }
 
+  public static byte[] twosComplimentToPositiveInt(byte[] input) {
+    byte[] output = input;
+    if (input != null && input.length > 1 && input[0] == 0) {
+      output = new byte[input.length - 1];
+      System.arraycopy(input, 1, output, 0, output.length);
+    }
+    return output;
+  }
+
+  public static byte[] positiveIntToTwosCompliment(byte[] input) {
+    byte[] output = input;
+    if (input != null && input.length > 0 && input[0] < 0) {
+      output = new byte[input.length + 1];
+      System.arraycopy(input, 0, output, 1, input.length);
+    }
+    return output;
+  }
+
   public static byte[] joinBytes(byte[]... bytes) {
     int length = 0;
     for (byte[] byt : bytes) {
