@@ -17,6 +17,7 @@
 package com.google.nigori.common;
 
 import java.io.File;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -131,6 +132,14 @@ public final class Util {
       System.arraycopy(input, 0, output, 1, input.length);
     }
     return output;
+  }
+
+  public static BigInteger byteToBigInt(byte[] input) {
+    return new BigInteger(1, input);
+  }
+
+  public static byte[] bigIntToByte(BigInteger input) {
+    return input.toByteArray();
   }
 
   public static byte[] joinBytes(byte[]... bytes) {

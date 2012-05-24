@@ -32,14 +32,13 @@
         <executions>
           <execution>
             <id>generate-sources</id>
-            <!-- Source generation is not a normal part of build and does not work on hudson
-            <phase>generate-sources</phase>
-            -->
+            <!-- Source generation is not a normal part of build and does 
+              not work on hudson <phase>generate-sources</phase> -->
             <configuration>
               <tasks>
                 <exec executable="protoc" failonerror="true">
-                  <arg value="--java_out=src/main/java"/>
-                  <arg value="src/main/proto/nigori_messages.proto"/>
+                  <arg value="--java_out=src/main/java" />
+                  <arg value="src/main/proto/nigori_messages.proto" />
                 </exec>
               </tasks>
             </configuration>
@@ -64,15 +63,20 @@
     </pluginManagement>
   </build>
   <dependencies>
-  	<dependency>
-  		<groupId>com.google.protobuf</groupId>
-  		<artifactId>protobuf-java</artifactId>
-  		<version>2.4.1</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>com.google.code.gson</groupId>
-  		<artifactId>gson</artifactId>
-  		<version>1.7.1</version>
-  	</dependency>
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+      <version>2.4.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>1.7.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcprov-jdk16</artifactId>
+      <version>1.46</version>
+    </dependency>
   </dependencies>
 </project>

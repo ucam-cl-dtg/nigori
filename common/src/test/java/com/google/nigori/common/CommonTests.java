@@ -24,6 +24,7 @@ import org.junit.runners.Suite;
  *
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses ({NonceTest.class})
+@Suite.SuiteClasses ({NonceTest.class,
+  DSATest.class})
 public class CommonTests {
 }
