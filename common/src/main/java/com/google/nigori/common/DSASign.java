@@ -53,7 +53,7 @@ public class DSASign extends DSAVerify {
     MessageDigest hash = MessageDigest.getInstance(DIGEST_ALGORITHM);
     hash.update(message);
     BigInteger[] sig = signer.generateSignature(hash.digest());
-    return new DSASignature(Util.bigIntToByte(sig[1]), Util.bigIntToByte(sig[0]), message);
+    return new DSASignature(Util.bigIntToByte(sig[0]), Util.bigIntToByte(sig[1]), message);
   }
 
 }

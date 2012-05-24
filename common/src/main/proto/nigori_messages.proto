@@ -20,10 +20,9 @@ option java_outer_classname = "NigoriMessages";
 
 message AuthenticateRequest {
   required bytes public_key = 1;
-  required bytes schnorr_s = 2;
-  required bytes schnorr_e = 3;
-  required bytes nonce = 4;
-  required string server_name = 5;
+  required bytes sig = 2;
+  required bytes nonce = 3;
+  required string server_name = 4;
 }
 
 message RegisterRequest {

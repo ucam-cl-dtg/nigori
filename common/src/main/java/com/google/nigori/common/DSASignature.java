@@ -35,7 +35,7 @@ public class DSASignature {
    * @param r the <i>e</i> parameter of the DSA signature.
    * @param message the message which has been signed.
    */
-  public DSASignature(byte[] s, byte[] r, byte[] message) {
+  public DSASignature(byte[] r, byte[] s, byte[] message) {
     this.s = s;
     this.r = r;
     this.message = message;

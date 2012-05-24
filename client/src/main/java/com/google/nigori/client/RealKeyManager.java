@@ -35,10 +35,10 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.google.nigori.common.DSASign;
 import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.NigoriConstants;
 import com.google.nigori.common.NigoriCryptographyException;
-import com.google.nigori.common.SchnorrSign;
 import com.google.nigori.common.Util;
 
 /**
@@ -318,11 +318,16 @@ public class RealKeyManager implements KeyManager {
 
   /**
    * Return an instance of {@code SchnorrSign} which is capable of signing user-encrypted data.
+   * @throws NoSuchAlgorithmException 
    * 
    */
   @Override
-  public SchnorrSign signer() {
-    return new SchnorrSign(userSecretKey);
+  public DSASign signer() throws NigoriCryptographyException {
+    try {
+      return new DSASign(userSecretKey);
+    } catch (NoSuchAlgorithmException e) {
+      throw new NigoriCryptographyException(e);
+    }
   }
 
   /**

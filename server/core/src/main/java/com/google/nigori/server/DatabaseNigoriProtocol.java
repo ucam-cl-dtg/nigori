@@ -19,9 +19,12 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
 
+import com.google.nigori.common.DSASignature;
+import com.google.nigori.common.DSAVerify;
 import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.NigoriMessages.AuthenticateRequest;
 import com.google.nigori.common.NigoriMessages.DeleteRequest;
@@ -38,8 +41,6 @@ import com.google.nigori.common.NigoriProtocol;
 import com.google.nigori.common.Nonce;
 import com.google.nigori.common.NotFoundException;
 import com.google.nigori.common.RevValue;
-import com.google.nigori.common.SchnorrSignature;
-import com.google.nigori.common.SchnorrVerify;
 import com.google.nigori.common.UnauthorisedException;
 import com.google.nigori.common.Util;
 
@@ -70,14 +71,15 @@ public class DatabaseNigoriProtocol implements NigoriProtocol {
       CryptoException {
 
     byte[] publicKey = auth.getPublicKey().toByteArray();
-    byte[] schnorrE = auth.getSchnorrE().toByteArray();
-    byte[] schnorrS = auth.getSchnorrS().toByteArray();
+    List<byte[]> byteSig = Util.splitBytes(auth.getSig().toByteArray());
+    byte[] dsaR = byteSig.get(0);
+    byte[] dsaS = byteSig.get(1);
     Nonce nonce = new Nonce(auth.getNonce().toByteArray());
     String serverName = auth.getServerName();
 
-    SchnorrSignature sig = new SchnorrSignature(schnorrS, schnorrE, Util.joinBytes(toBytes(serverName),nonce.nt(),nonce.nr(),Util.joinBytes(payload)));
+    DSASignature sig = new DSASignature(dsaR, dsaS, Util.joinBytes(toBytes(serverName),nonce.nt(),nonce.nr(),Util.joinBytes(payload)));
     try {
-      SchnorrVerify v = new SchnorrVerify(publicKey);
+      DSAVerify v = new DSAVerify(publicKey);
 
       if (v.verify(sig)) {
         boolean validNonce = database.checkAndAddNonce(nonce, publicKey);

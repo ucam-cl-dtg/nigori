@@ -33,7 +33,8 @@
           <execution>
             <id>generate-sources</id>
             <!-- Source generation is not a normal part of build and does 
-              not work on hudson <phase>generate-sources</phase> -->
+              not work on jenkins
+            <phase>generate-sources</phase> -->
             <configuration>
               <tasks>
                 <exec executable="protoc" failonerror="true">

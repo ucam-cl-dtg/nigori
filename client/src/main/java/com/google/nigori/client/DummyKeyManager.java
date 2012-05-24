@@ -15,9 +15,11 @@
  */
 package com.google.nigori.client;
 
+import java.security.NoSuchAlgorithmException;
+
+import com.google.nigori.common.DSASign;
 import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.NigoriCryptographyException;
-import com.google.nigori.common.SchnorrSign;
 
 /**
  * @author drt24
@@ -86,8 +88,12 @@ public class DummyKeyManager implements KeyManager {
   }  
 
   @Override
-  public SchnorrSign signer() {
-    return new SchnorrSign(userSecretKey);
+  public DSASign signer() throws NigoriCryptographyException {
+    try {
+      return new DSASign(userSecretKey);
+    } catch (NoSuchAlgorithmException e) {
+      throw new NigoriCryptographyException(e);
+    }
   }
 
   public byte[] generateSessionKey() {

@@ -15,8 +15,8 @@
  */
 package com.google.nigori.client;
 
+import com.google.nigori.common.DSASign;
 import com.google.nigori.common.NigoriCryptographyException;
-import com.google.nigori.common.SchnorrSign;
 
 /**
  * @author drt24
@@ -36,7 +36,7 @@ interface KeyManager {
   byte[] encryptDeterministically(byte[] plaintext) throws NigoriCryptographyException;
   byte[] encryptDeterministically(byte[] key, byte[] plaintext) throws NigoriCryptographyException;
 
-  SchnorrSign signer();
+  DSASign signer() throws NigoriCryptographyException;
 
   String getServerName();
 }

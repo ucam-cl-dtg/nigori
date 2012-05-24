@@ -118,7 +118,7 @@ public class CryptoNigoriDatastore implements NigoriDatastore {
 	 * 
 	 * @return the public key.
 	 */
-	public byte[] getPublicKey() {
+	public byte[] getPublicKey() throws NigoriCryptographyException {
 		return keyManager.signer().getPublicKey();
 	}
 
