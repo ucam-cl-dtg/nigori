@@ -31,8 +31,8 @@ public interface Database {
 	
   UserFactory getUserFactory();
   
-	public boolean addUser(byte[] publicKey);
-	public boolean haveUser(byte[] existingUser);
+	public boolean addUser(byte[] publicKey, byte[] publicHash);
+	public boolean haveUser(byte[] existingUserHash);
 	public boolean deleteUser(User existingUser);
 	
 	/**
@@ -43,15 +43,15 @@ public interface Database {
 	 */
 	// TODO(beresford): Must avoid race condition when random number is used multiple times
 	// quickly
-	public boolean checkAndAddNonce(Nonce nonce, byte[] publicKey);
+	public boolean checkAndAddNonce(Nonce nonce, byte[] publicHash);
 
 	/**
 	 * WARNING: great care must be taken when using this, the user must be authenticated correctly before any user object can be used on their behalf
-	 * @param publicKey
+	 * @param publicHash
 	 * @return
 	 * @throws UserNotFoundException
 	 */
-	public User getUser(byte[] publicKey) throws UserNotFoundException;
+	public User getUser(byte[] publicHash) throws UserNotFoundException;
 	
 	/**
 	 * 

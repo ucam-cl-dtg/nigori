@@ -18,6 +18,8 @@ package com.google.nigori.common;
 
 import java.io.File;
 import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -266,5 +268,10 @@ public final class Util {
     if (t.getCause() == null) {
       t.initCause(from);
     }
+  }
+  public static byte[] hashKey(byte[] publicKey) throws NoSuchAlgorithmException{
+    MessageDigest digest = MessageDigest.getInstance(NigoriConstants.A_KEYHASH);
+    digest.update(publicKey);
+    return digest.digest();
   }
 }

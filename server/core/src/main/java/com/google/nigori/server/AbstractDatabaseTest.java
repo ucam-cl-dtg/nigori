@@ -25,15 +25,19 @@ import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Random;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.google.nigori.common.NigoriConstants;
 import com.google.nigori.common.Nonce;
 import com.google.nigori.common.RevValue;
+import com.google.nigori.common.Util;
 
 /**
  * @author drt24
@@ -42,12 +46,22 @@ import com.google.nigori.common.RevValue;
 public abstract class AbstractDatabaseTest {
 
   protected static byte[] publicKey;
+  protected static byte[] publicHash;
+  private static byte[] notKey;
+  private static byte[] notHash;
 
   protected Database database;
 
   @BeforeClass
-  public static void initPublicKey() throws UnsupportedEncodingException {
-    publicKey = toBytes("test-user's public key");
+  public static void initPublicKey() throws UnsupportedEncodingException, NoSuchAlgorithmException {
+
+    publicKey = new byte[NigoriConstants.B_DSA];
+    Random r = new Random();
+    r.nextBytes(publicKey);
+    publicHash = Util.hashKey(publicKey);
+    notKey = new byte[NigoriConstants.B_DSA];
+    r.nextBytes(notKey);
+    notHash = Util.hashKey(notKey);
   }
 
   @Before
@@ -62,48 +76,48 @@ public abstract class AbstractDatabaseTest {
 
   @Test
   public void addDeleteUser() throws UserNotFoundException {
-    assertFalse(database.haveUser(publicKey));
-    assertTrue(database.addUser(publicKey));
-    assertTrue(database.haveUser(publicKey));
-    User user = database.getUser(publicKey);
-    assertTrue(database.deleteUser(user));
-    assertFalse(database.haveUser(publicKey));
+    assertFalse(database.haveUser(publicHash));
+    assertTrue(database.addUser(publicKey,publicHash));
+    assertTrue(database.haveUser(publicHash));
+    User user = database.getUser(publicHash);
+    assertTrue("User not deleted", database.deleteUser(user));
+    assertFalse(database.haveUser(publicHash));
   }
 
   @Test
   public void deleteNotPresent() {
     assertFalse(database.deleteUser(database.getUserFactory().getUser(
-        "non existant user key".getBytes(), new Date())));
+        notKey,notHash, new Date())));
   }
 
   @Test
   public void addTwice() throws UserNotFoundException {
-    assertFalse(database.haveUser(publicKey));
-    assertTrue(database.addUser(publicKey));
-    assertFalse(database.addUser(publicKey));
-    assertTrue(database.haveUser(publicKey));
-    User user = database.getUser(publicKey);
+    assertFalse(database.haveUser(publicHash));
+    assertTrue(database.addUser(publicKey, publicHash));
+    assertFalse("Could add user twice", database.addUser(publicKey, publicHash));
+    assertTrue(database.haveUser(publicHash));
+    User user = database.getUser(publicHash);
     assertTrue(database.deleteUser(user));
-    assertFalse(database.haveUser(publicKey));
+    assertFalse(database.haveUser(publicHash));
   }
 
   @Test
   public void newNoncePasses() {
     Nonce nonce = new Nonce();
-    assertTrue(database.checkAndAddNonce(nonce, publicKey));
+    assertTrue(database.checkAndAddNonce(nonce, publicHash));
   }
 
   @Test
   public void repeatedNonceFails() {
     Nonce nonce = new Nonce();
-    assertTrue(database.checkAndAddNonce(nonce, publicKey));
-    assertFalse(database.checkAndAddNonce(nonce, publicKey));
+    assertTrue(database.checkAndAddNonce(nonce, publicHash));
+    assertFalse(database.checkAndAddNonce(nonce, publicHash));
   }
 
   @Test
   public void setGetDelete() throws UserNotFoundException, IOException {
-    database.addUser(publicKey);
-    User user = database.getUser(publicKey);
+    database.addUser(publicKey, publicHash);
+    User user = database.getUser(publicHash);
     try {
       byte[] index = "index".getBytes();
       byte[] revision = "revision".getBytes();
@@ -119,7 +133,7 @@ public abstract class AbstractDatabaseTest {
       assertNull(database.getRecord(user, index));
       assertFalse(database.deleteRecord(user, index));
     } finally {
-      assertTrue(database.deleteUser(user));
+      assertTrue("User not deleted", database.deleteUser(user));
     }
   }
 
@@ -127,8 +141,8 @@ public abstract class AbstractDatabaseTest {
   public void getRevisions() throws UserNotFoundException, IOException {
     User user = null;
     try {
-      assertTrue(database.addUser(publicKey));
-      user = database.getUser(publicKey);
+      assertTrue(database.addUser(publicKey, publicHash));
+      user = database.getUser(publicHash);
       final byte[] index = toBytes("index");
       final byte[] revisiona = toBytes("revisiona");
       final byte[] revisionb = toBytes("revisionb");
@@ -145,7 +159,7 @@ public abstract class AbstractDatabaseTest {
       assertArrayEquals(b, database.getRevision(user, index, revisionb).getValue());
       assertTrue(database.deleteRecord(user, index));
     } finally {
-      assertTrue(database.deleteUser(user));
+      assertTrue("User not deleted", database.deleteUser(user));
     }
   }
 
@@ -153,12 +167,12 @@ public abstract class AbstractDatabaseTest {
   public void getNoRevisions() throws UserNotFoundException, IOException {
     User user = null;
     try {
-      assertTrue(database.addUser(publicKey));
-      user = database.getUser(publicKey);
+      assertTrue(database.addUser(publicKey,publicHash));
+      user = database.getUser(publicHash);
       final byte[] index = toBytes("index");
       assertNull(database.getRevisions(user, index));
     } finally {
-      assertTrue(database.deleteUser(user));
+      assertTrue("User not deleted", database.deleteUser(user));
     }
   }
 
@@ -166,16 +180,16 @@ public abstract class AbstractDatabaseTest {
   public void userDataDeletion() throws UserNotFoundException, IOException {
     User user = null;
     try {
-      assertTrue(database.addUser(publicKey));
-      user = database.getUser(publicKey);
+      assertTrue(database.addUser(publicKey,publicHash));
+      user = database.getUser(publicHash);
       assertTrue(database.putRecord(user, toBytes("foo"), toBytes("bar"), toBytes("baz")));
     } finally {
       if (user != null)
         database.deleteUser(user);
     }
     try {
-      assertTrue(database.addUser(publicKey));
-      user = database.getUser(publicKey);
+      assertTrue(database.addUser(publicKey,publicHash));
+      user = database.getUser(publicHash);
       assertNull(database.getRevision(user, toBytes("foo"), toBytes("bar")));
     } finally {
       if (user != null)
@@ -187,8 +201,8 @@ public abstract class AbstractDatabaseTest {
   public void getIndices() throws UserNotFoundException, IOException {
     User user = null;
     try {
-      assertTrue(database.addUser(publicKey));
-      user = database.getUser(publicKey);
+      assertTrue(database.addUser(publicKey,publicHash));
+      user = database.getUser(publicHash);
       final byte[] indexa = toBytes("indexa");
       final byte[] indexb = toBytes("indexb");
       final byte[] revisiona = toBytes("revisiona");
@@ -205,7 +219,7 @@ public abstract class AbstractDatabaseTest {
       assertTrue(database.deleteRecord(user, indexa));
       assertTrue(database.deleteRecord(user, indexb));
     } finally {
-      assertTrue(database.deleteUser(user));
+      assertTrue("User not deleted", database.deleteUser(user));
     }
   }
 }

@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.logging.Logger;
 
+import com.google.nigori.common.MessageLibrary;
 import com.google.nigori.common.Nonce;
 import com.google.nigori.common.RevValue;
 import com.google.nigori.common.Util;
@@ -50,8 +51,10 @@ public class JEDatabase extends AbstractDatabase {
   static {
     // log.addHandler(new ConsoleHandler());
   }
-  private static final DatabaseEntry USERS = new DatabaseEntry("users".getBytes());
-  private static final byte[] SEPARATOR = "/".getBytes();
+  private static final DatabaseEntry USERS = new DatabaseEntry(MessageLibrary.toBytes("users"));
+  private static final byte[] SEPARATOR = MessageLibrary.toBytes("/");
+  private static final byte[] DATE = MessageLibrary.toBytes("date");
+  private static final byte[] KEY = MessageLibrary.toBytes("key");
   private static Map<String, JEDatabase> databaseMap = new WeakHashMap<String, JEDatabase>();
 
   public static JEDatabase getInstance(File dataDirectory) {
@@ -106,32 +109,45 @@ public class JEDatabase extends AbstractDatabase {
     }
     return answer;
   }
-  private DatabaseEntry makeRegKey(byte[] publicKey){
-    return new DatabaseEntry(makeBytes(USERS.getData(), SEPARATOR, publicKey));
+  private DatabaseEntry makeRegDateKey(byte[] publicHash){
+    return new DatabaseEntry(makeBytes(USERS.getData(), SEPARATOR, publicHash, SEPARATOR, DATE));
+  }
+  private DatabaseEntry makePublicKeyKey(byte[] publicHash){
+    return new DatabaseEntry(makeBytes(USERS.getData(), SEPARATOR, publicHash, SEPARATOR, KEY));
   }
   @Override
-  public boolean addUser(byte[] publicKey) {
+  public boolean addUser(byte[] publicKey, byte[] publicHash) {//TODO(drt24) switch to publicHash
     
     Transaction txn = null;
     try {
       txn = env.beginTransaction(null, null);
-      if (haveUser(txn, publicKey)) {
+      if (haveUser(txn, publicHash)) {
         txn.commit();
         return false;// User already exists
       }
-      DatabaseEntry pk = new DatabaseEntry(publicKey);
-      OperationStatus res = db.put(txn, USERS, pk);
+
+      DatabaseEntry ph = new DatabaseEntry(publicHash);
+      OperationStatus res = db.put(txn, USERS, ph);
       if (res != OperationStatus.SUCCESS) {
-        log.severe("Could not add pk: " + res.toString());
+        log.severe("Could not add ph: " + res.toString());
         txn.abort();
         return false;
       }
-      DatabaseEntry regKey = makeRegKey(publicKey);
-          
+
+      DatabaseEntry regDateKey = makeRegDateKey(publicHash);
       DatabaseEntry regTime = new DatabaseEntry(Util.long2bin(System.currentTimeMillis()));
-      res = db.put(txn, regKey, regTime);
+      res = db.put(txn, regDateKey, regTime);
       if (res != OperationStatus.SUCCESS) {
         log.severe("Could not add regTime: " + res.toString());
+        txn.abort();
+        return false;
+      }
+
+      DatabaseEntry regPublicKeyKey = makePublicKeyKey(publicHash);
+      DatabaseEntry regPublicKey = new DatabaseEntry(publicKey);
+      res = db.put(txn, regPublicKeyKey, regPublicKey);
+      if (res != OperationStatus.SUCCESS) {
+        log.severe("Could not add publicKey: " + res.toString());
         txn.abort();
         return false;
       }
@@ -153,7 +169,7 @@ public class JEDatabase extends AbstractDatabase {
   private boolean haveUser(Transaction txn, byte[] existingUser) {
     try {
       OperationStatus status =
-          db.get(txn, makeRegKey(existingUser), new DatabaseEntry(), LockMode.READ_COMMITTED);
+          db.get(txn, makeRegDateKey(existingUser), new DatabaseEntry(), LockMode.READ_COMMITTED);
       if (status == OperationStatus.SUCCESS) {
         return true;
       } else {
@@ -174,11 +190,13 @@ public class JEDatabase extends AbstractDatabase {
   public boolean deleteUser(User existingUser) {
     try {
       final Transaction txn = env.beginTransaction(null, null);
-      db.delete(txn, makeRegKey(existingUser.getPublicKey()));
+      byte[] publicHash = existingUser.getPublicHash();
+      db.delete(txn, makeRegDateKey(publicHash));
+      db.delete(txn, makePublicKeyKey(publicHash));
       Cursor cursor = db.openCursor(txn, null);
       try {
         OperationStatus status =
-            cursor.getSearchBoth(USERS, new DatabaseEntry(existingUser.getPublicKey()), null);
+            cursor.getSearchBoth(USERS, new DatabaseEntry(publicHash), null);
         if (status == OperationStatus.SUCCESS) {
           cursor.delete();
           deleteUserData(existingUser, txn);
@@ -212,12 +230,14 @@ public class JEDatabase extends AbstractDatabase {
   }
 
   @Override
-  public User getUser(byte[] publicKey) throws UserNotFoundException {
+  public User getUser(byte[] publicHash) throws UserNotFoundException {
     try {
       DatabaseEntry regTime = new DatabaseEntry();
-      OperationStatus status = db.get(null, makeRegKey(publicKey), regTime, LockMode.READ_COMMITTED);
+      OperationStatus status = db.get(null, makeRegDateKey(publicHash), regTime, LockMode.READ_COMMITTED);
       if (status == OperationStatus.SUCCESS){
-        return new JUser(publicKey, new Date(Util.bin2long(regTime.getData())));
+        DatabaseEntry publicKey = new DatabaseEntry();
+        status = db.get(null, makePublicKeyKey(publicHash), publicKey, LockMode.READ_COMMITTED);
+        return new JUser(publicKey.getData(), publicHash, new Date(Util.bin2long(regTime.getData())));
       } else {
         throw new UserNotFoundException();
       }
@@ -264,7 +284,7 @@ public class JEDatabase extends AbstractDatabase {
   }
 
   private byte[] makeLookupBytes(User user, byte[] lookup){
-    return makeBytes("stores/".getBytes(), user.getPublicKey(), SEPARATOR, lookup);
+    return makeBytes("stores/".getBytes(), user.getPublicHash(), SEPARATOR, lookup);
   }
 
   private DatabaseEntry makeValueKey(byte[] lookup, byte[] revision){
@@ -406,7 +426,7 @@ public class JEDatabase extends AbstractDatabase {
   }
 
   private DatabaseEntry makeStoresKey(User user) {
-    return new DatabaseEntry(makeBytes("stores/".getBytes(), user.getPublicKey()));
+    return new DatabaseEntry(makeBytes("stores/".getBytes(), user.getPublicHash()));
   }
 
   @Override

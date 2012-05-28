@@ -52,8 +52,8 @@ public final class AppEngineDatabase implements Database {
   private static final PersistenceManagerFactory pmfInstance = JDOHelper
       .getPersistenceManagerFactory("transactions-optional");
 
-  private static AEUser getUser(byte[] publicKey, PersistenceManager pm) throws JDOObjectNotFoundException {
-    return pm.getObjectById(AEUser.class, AEUser.keyForUser(publicKey));
+  private static AEUser getUser(byte[] publicHash, PersistenceManager pm) throws JDOObjectNotFoundException {
+    return pm.getObjectById(AEUser.class, AEUser.keyForUser(publicHash));
   }
 
   private static boolean haveUser(byte[] existingUser, PersistenceManager pm) {
@@ -85,11 +85,11 @@ public final class AppEngineDatabase implements Database {
   }
 
   @Override
-  public boolean addUser(byte[] publicKey) throws IllegalArgumentException {
-    AEUser user = new AEUser(publicKey, new Date());
+  public boolean addUser(byte[] publicKey, byte[] publicHash) throws IllegalArgumentException {
+    AEUser user = new AEUser(publicKey, publicHash, new Date());
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {
-      if (haveUser(publicKey, pm)) {
+      if (haveUser(publicHash, pm)) {
         log.warning("Did not add user as user already existed");
         return false;
       }
@@ -104,7 +104,7 @@ public final class AppEngineDatabase implements Database {
   public boolean deleteUser(User existingUser) {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {
-      AEUser existing = pm.getObjectById(AEUser.class, AEUser.keyForUser(existingUser.getPublicKey()));
+      AEUser existing = pm.getObjectById(AEUser.class, AEUser.keyForUser(existingUser));
       if (existing != null) {
         pm.deletePersistent(existing);
         return deleteUserData(existing);
@@ -128,10 +128,10 @@ public final class AppEngineDatabase implements Database {
   }
 
   @Override
-  public AEUser getUser(byte[] publicKey) throws UserNotFoundException {
+  public AEUser getUser(byte[] publicHash) throws UserNotFoundException {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {
-      AEUser user = getUser(publicKey, pm);
+      AEUser user = getUser(publicHash, pm);
       return user;
     } catch (JDOObjectNotFoundException e) {
       throw new UserNotFoundException();
@@ -142,7 +142,7 @@ public final class AppEngineDatabase implements Database {
 
   private static AEUser castUser(User user){
     if (! (user instanceof AEUser)){
-      user = new AEUser(user.getPublicKey(), user.getRegistrationDate());
+      user = new AEUser(user.getPublicKey(), user.getPublicHash(), user.getRegistrationDate());
     }
     return (AEUser) user;
   }
@@ -320,13 +320,13 @@ public final class AppEngineDatabase implements Database {
   }
 
   @Override
-  public boolean checkAndAddNonce(Nonce nonce, byte[] publicKey) {
+  public boolean checkAndAddNonce(Nonce nonce, byte[] publicHash) {
     if (!nonce.isRecent()) {
       return false;
     }
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {
-      AENonce aeNonce = new AENonce(nonce,publicKey);
+      AENonce aeNonce = new AENonce(nonce,publicHash);
       try {
         pm.getObjectById(AENonce.class,aeNonce.getKey());
         return false;// getObjectById should throw an exception

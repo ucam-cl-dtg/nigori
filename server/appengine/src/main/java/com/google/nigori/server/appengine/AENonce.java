@@ -36,11 +36,11 @@ public class AENonce {
   @Persistent
   private int sinceEpoch;
 
-  public AENonce(Nonce nonce, byte[] publicKey) {
+  public AENonce(Nonce nonce, byte[] publicHash) {
     this.nonce = nonce.getRandon();
     this.sinceEpoch = nonce.getSinceEpoch();
     this.key =
-        KeyFactory.createKey(AEUser.keyForUser(publicKey), AENonce.class.getSimpleName(),
+        KeyFactory.createKey(AEUser.keyForUser(publicHash), AENonce.class.getSimpleName(),
             nonce.getRandon());
   }
 

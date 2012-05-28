@@ -24,5 +24,5 @@ import java.util.Date;
  */
 public interface UserFactory {
 
-  User getUser(byte[] publicKey, Date registrationDate);
+  User getUser(byte[] publicKey, byte[] publicHash, Date registrationDate);
 }

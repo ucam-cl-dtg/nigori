@@ -42,8 +42,8 @@ public class JEDatabaseTest extends AbstractDatabaseTest {
   public void getInstance() throws UserNotFoundException {
     Database newDatabase = getDatabase();
     assertEquals("Get same database", database, newDatabase);
-    assertTrue(database.addUser(publicKey));
-    User user = newDatabase.getUser(publicKey);
+    assertTrue(database.addUser(publicKey, publicHash));
+    User user = newDatabase.getUser(publicHash);
     assertNotNull(user);
     assertTrue(database.deleteUser(user));
   }

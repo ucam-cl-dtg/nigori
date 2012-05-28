@@ -59,11 +59,12 @@ public class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public boolean addUser(byte[] publicKey) {
+  public boolean addUser(byte[] publicKey, byte[] publicHash) {
     PreparedStatement statement = null;
     try {
-      statement = con.prepareStatement("INSERT INTO stores (pk) VALUES (?)");
+      statement = con.prepareStatement("INSERT INTO stores (pk, ph) VALUES (?,?)");
       statement.setBytes(1, publicKey);
+      statement.setBytes(2, publicHash);
       statement.executeUpdate();
 
       return true;
@@ -84,7 +85,7 @@ public class SQLDatabase extends AbstractDatabase {
   public boolean haveUser(byte[] existingUser) {
     PreparedStatement statement = null;
     try {
-      statement = con.prepareStatement("SELECT sid FROM stores WHERE pk = ?");
+      statement = con.prepareStatement("SELECT sid FROM stores WHERE ph = ?");
       statement.setBytes(1, existingUser);
 
       ResultSet results = statement.executeQuery();
@@ -106,8 +107,8 @@ public class SQLDatabase extends AbstractDatabase {
   public boolean deleteUser(User existingUser) {
     PreparedStatement statement = null;
     try {
-      statement = con.prepareStatement("DELETE FROM stores WHERE pk = ?");
-      statement.setBytes(1, existingUser.getPublicKey());
+      statement = con.prepareStatement("DELETE FROM stores WHERE ph = ?");
+      statement.setBytes(1, existingUser.getPublicHash());
       statement.executeUpdate();
 
       ResultSet results = statement.getResultSet();
@@ -126,13 +127,13 @@ public class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public boolean checkAndAddNonce(Nonce nonce, byte[] publicKey) {
+  public boolean checkAndAddNonce(Nonce nonce, byte[] publicHash) {
     PreparedStatement queryStatement = null, insertStatement = null;
     try {
-      queryStatement = con.prepareStatement("SELECT sid FROM stores WHERE pk = ?");
+      queryStatement = con.prepareStatement("SELECT sid FROM stores WHERE ph = ?");
       int sid;
       try {
-        queryStatement.setBytes(1, publicKey);
+        queryStatement.setBytes(1, publicHash);
         ResultSet set = queryStatement.executeQuery();
         if (!set.first()) {
           return false;
@@ -157,18 +158,18 @@ public class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
-  public User getUser(byte[] publicKey) throws UserNotFoundException {
+  public User getUser(byte[] publicHash) throws UserNotFoundException {
     try {
-      PreparedStatement queryStatement = con.prepareStatement("SELECT pk, reg FROM stores WHERE pk = ?");
+      PreparedStatement queryStatement = con.prepareStatement("SELECT pk, reg FROM stores WHERE ph = ?");
       try {
-        queryStatement.setBytes(1, publicKey);
+        queryStatement.setBytes(1, publicHash);
         ResultSet set = queryStatement.executeQuery();
         if (!set.first()) {
           throw new UserNotFoundException();
         }
         byte[] pk = set.getBytes("pk");
         Timestamp reg = set.getTimestamp("reg");
-        return new JUser(pk, new Date(reg.getTime()));
+        return new JUser(pk, publicHash, new Date(reg.getTime()));
       } finally {
         queryStatement.close();
       }
@@ -181,10 +182,10 @@ public class SQLDatabase extends AbstractDatabase {
   @Override
   public Collection<RevValue> getRecord(User user, byte[] key) throws IOException {
     try {
-      PreparedStatement queryStatement = con.prepareStatement("SELECT rev, val FROM rev_values, lookups, stores WHERE rev_values.lid = lookups.lid AND lookups.lookup = ? AND lookups.sid = stores.sid AND stores.pk =?");
+      PreparedStatement queryStatement = con.prepareStatement("SELECT rev, val FROM rev_values, lookups, stores WHERE rev_values.lid = lookups.lid AND lookups.lookup = ? AND lookups.sid = stores.sid AND stores.ph =?");
       try {
         queryStatement.setBytes(1, key);
-        queryStatement.setBytes(2, user.getPublicKey());
+        queryStatement.setBytes(2, user.getPublicHash());
         ResultSet set = queryStatement.executeQuery();
 
         List<RevValue> revValues = new ArrayList<RevValue>();
@@ -218,10 +219,10 @@ public class SQLDatabase extends AbstractDatabase {
   @Override
   public Collection<byte[]> getRevisions(User user, byte[] key) throws IOException {
     try {
-      PreparedStatement queryStatement = con.prepareStatement("SELECT rev FROM revisions, lookups, stores WHERE revisions.lid = lookups.lid AND lookups.lookup = ? AND lookups.sid = stores.sid AND stores.pk = ?");
+      PreparedStatement queryStatement = con.prepareStatement("SELECT rev FROM revisions, lookups, stores WHERE revisions.lid = lookups.lid AND lookups.lookup = ? AND lookups.sid = stores.sid AND stores.ph = ?");
       try {
         queryStatement.setBytes(1, key);
-        queryStatement.setBytes(2, user.getPublicKey());
+        queryStatement.setBytes(2, user.getPublicHash());
         ResultSet set = queryStatement.executeQuery();
 
         List<byte[]> revValues = new ArrayList<byte[]>();
@@ -242,19 +243,19 @@ public class SQLDatabase extends AbstractDatabase {
   @Override
   public boolean putRecord(User user, byte[] key, byte[] revision, byte[] data) {
     try {// TODO(drt24) this needs to use transactions.
-      PreparedStatement getLid = con.prepareStatement("SELECT lid FROM lookups, stores WHERE lookups.sid = stores.sid AND lookups.lookup = ? AND stores.pk = ?");
+      PreparedStatement getLid = con.prepareStatement("SELECT lid FROM lookups, stores WHERE lookups.sid = stores.sid AND lookups.lookup = ? AND stores.ph = ?");
       int lid;
       try {
         getLid.setBytes(1, key);
-        getLid.setBytes(2, user.getPublicKey());
+        getLid.setBytes(2, user.getPublicHash());
         ResultSet set = getLid.executeQuery();
         
         if (!set.first()){// if there is no lid for this lookup then store the lookup and get the lid
           set.close();
-          PreparedStatement createLookup = con.prepareStatement("INSERT INTO lookups (sid,lookup) SELECT sid, ? FROM stores WHERE stores.pk = ? RETURNING lid");
+          PreparedStatement createLookup = con.prepareStatement("INSERT INTO lookups (sid,lookup) SELECT sid, ? FROM stores WHERE stores.ph = ? RETURNING lid");
           try {
             createLookup.setBytes(1, key);
-            createLookup.setBytes(2,  user.getPublicKey());
+            createLookup.setBytes(2,  user.getPublicHash());
             createLookup.execute();
             ResultSet lookupSet = createLookup.getResultSet();
             if (!lookupSet.first()) {
@@ -305,9 +306,9 @@ public class SQLDatabase extends AbstractDatabase {
   @Override
   public boolean deleteRecord(User user, byte[] key) {
     try {
-      PreparedStatement deleteKey = con.prepareStatement("DELETE FROM lookups USING stores WHERE lookups.sid = stores.sid AND stores.pk = ? AND lookup = ?");
+      PreparedStatement deleteKey = con.prepareStatement("DELETE FROM lookups USING stores WHERE lookups.sid = stores.sid AND stores.ph = ? AND lookup = ?");
       try {
-        deleteKey.setBytes(1, user.getPublicKey());
+        deleteKey.setBytes(1, user.getPublicHash());
         deleteKey.setBytes(2, key);
         return deleteKey.executeUpdate() > 0;
       } finally {

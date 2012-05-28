@@ -18,6 +18,7 @@ import java.util.Date;
 
 /**
  * Interface for objects representing users detailing their public key and registration date.
+ * 
  * @author drt24
  * 
  */
@@ -29,11 +30,17 @@ public interface User extends Principal {
    */
   @Override
   String getName();
+
   /**
    * 
    * @return the public key for the user
    */
   byte[] getPublicKey();
+
+  /**
+   * @return the public hash for the user
+   */
+  byte[] getPublicHash();
 
   /**
    * 

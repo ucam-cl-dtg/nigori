@@ -32,14 +32,16 @@ public class DSAVerify {
 
   private final BigInteger publicKey;
   private DSAPublicKeyParameters params;
+  private byte[] publicHash;
 
   public DSAVerify(byte[] publicKey) throws NoSuchAlgorithmException {
     this(Util.byteToBigInt(publicKey));
     this.params = new DSAPublicKeyParameters(this.publicKey, NigoriConstants.DSA_PARAMS);
   }
 
-  protected DSAVerify(BigInteger publicKey) {
+  protected DSAVerify(BigInteger publicKey) throws NoSuchAlgorithmException {
     this.publicKey = publicKey;
+    this.publicHash = Util.hashKey(getPublicKey());
     signer = new DSASigner();
   }
 
@@ -49,6 +51,15 @@ public class DSAVerify {
    */
   public byte[] getPublicKey() {
     return Util.bigIntToByte(publicKey);
+  }
+
+  /**
+   * 
+   * @return hash using {@link NigoriConstants#A_KEYHASH} of the public key as returned by
+   *         {@link #getPublicKey()}
+   */
+  public byte[] getPublicHash() {
+    return publicHash;
   }
 
   /**

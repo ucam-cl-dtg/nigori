@@ -49,34 +49,34 @@ public class HashMapDatabase extends AbstractDatabase implements Serializable {
 	private HashMap<Bytes,Set<Nonce>> nonces = new HashMap<Bytes,Set<Nonce>>();
 
 	@Override
-	public boolean addUser(byte[] publicKey) {
+	public boolean addUser(byte[] publicKey, byte[] publicHash) {
 		//TODO(beresford): check authority to carry out action
-	  if (haveUser(publicKey)){
+	  if (haveUser(publicHash)){
 	    return false;
 	  }
-	  User user = new JUser(publicKey, new Date());
-		users.put(Bytes.copyFrom(publicKey),user);
+	  User user = new JUser(publicKey, publicHash, new Date());
+		users.put(Bytes.copyFrom(publicHash),user);
 		stores.put(user, new HashMap<Bytes, Map<Bytes,Bytes>>());
 		return true;
 	}
 	
 	@Override
-	public boolean haveUser(byte[] publicKey) {
-		return users.containsKey(Bytes.copyFrom(publicKey));
+	public boolean haveUser(byte[] publicHash) {
+		return users.containsKey(Bytes.copyFrom(publicHash));
 	}
 
 	@Override
 	public boolean deleteUser(User existingUser) {
 		//TODO(beresford): check authority to carry out action
-	  User user = users.remove(Bytes.copyFrom(existingUser.getPublicKey()));
+	  User user = users.remove(Bytes.copyFrom(existingUser.getPublicHash()));
 	  return user != null && stores.remove(user) != null;
 	}
 
   @Override
-  public User getUser(byte[] publicKey) throws UserNotFoundException {
-    assert publicKey != null;
-    assert publicKey.length > 0;
-    User user = users.get(Bytes.copyFrom(publicKey));
+  public User getUser(byte[] publicHash) throws UserNotFoundException {
+    assert publicHash != null;
+    assert publicHash.length > 0;
+    User user = users.get(Bytes.copyFrom(publicHash));
     if (user == null) {
       throw new UserNotFoundException();
     }

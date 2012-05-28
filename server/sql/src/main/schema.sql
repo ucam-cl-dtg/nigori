@@ -18,11 +18,12 @@
 
 CREATE TABLE stores (
   sid  serial  PRIMARY KEY,
+  ph   bytea   NOT NULL  UNIQUE,
   pk   bytea   NOT NULL  UNIQUE,
   reg  TIMESTAMP WITH TIME ZONE  NOT NULL
 ) WITH (OIDS=FALSE);
 
-CREATE INDEX stores_pk ON stores (pk);
+CREATE INDEX stores_ph ON stores (ph);
 
 CREATE TABLE lookups (
   lid  serial  PRIMARY KEY,

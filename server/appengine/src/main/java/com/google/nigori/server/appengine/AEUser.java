@@ -24,6 +24,7 @@ import javax.jdo.annotations.PrimaryKey;
 
 import org.apache.commons.codec.binary.Base64;
 
+import com.google.appengine.api.datastore.Blob;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.ShortBlob;
@@ -52,16 +53,21 @@ public class AEUser implements User {
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   private Key key;
   @Persistent
-  private ShortBlob publicKey;
+  private Blob publicKey;
+  @Persistent
+  private ShortBlob publicHash;
   @Persistent
   private Date registrationDate;
 
-  public static Key keyForUser(byte[] publicKey) {
+  public static Key keyForUser(byte[] publicHash) {
     return KeyFactory.createKey(USERSKEY, AEUser.class.getSimpleName(), ByteString
-        .copyFrom(publicKey).toStringUtf8());
+        .copyFrom(publicHash).toStringUtf8());
+  }
+  public static Key keyForUser(User user){
+    return keyForUser(user.getPublicHash());
   }
 
-  protected AEUser(byte[] publicKey, Date registrationDate)
+  protected AEUser(byte[] publicKey, byte[] publicHash, Date registrationDate)
       throws IllegalArgumentException {
     assert publicKey != null;
     assert registrationDate != null;
@@ -69,9 +75,10 @@ public class AEUser implements User {
       throw new IllegalArgumentException("Public key too short, must be at least"
           + MIN_PUBLIC_KEY_LENGTH + " but was (" + publicKey.length + ")");
     }
-    this.publicKey = new ShortBlob(publicKey);
+    this.publicKey = new Blob(publicKey);
+    this.publicHash = new ShortBlob(publicHash);
     this.registrationDate = registrationDate;
-    this.key = keyForUser(publicKey);
+    this.key = keyForUser(publicHash);
   }
 
   public Key getKey() {
@@ -80,12 +87,18 @@ public class AEUser implements User {
 
   @Override
   public String getName() {
-    return Base64.encodeBase64String(getPublicKey());
+    return Base64.encodeBase64String(getPublicHash());
   }
 
   @Override
   public byte[] getPublicKey() {
     byte[] pkB = publicKey.getBytes();
+    return Arrays.copyOf(pkB, pkB.length);
+  }
+
+  @Override
+  public byte[] getPublicHash() {
+    byte[] pkB = publicHash.getBytes();
     return Arrays.copyOf(pkB, pkB.length);
   }
 
@@ -134,8 +147,8 @@ public class AEUser implements User {
       return instance;
     }
     @Override
-    public User getUser(byte[] publicKey, Date registrationDate) {
-      return new AEUser(publicKey, registrationDate);
+    public User getUser(byte[] publicKey, byte[] publicHash, Date registrationDate) {
+      return new AEUser(publicKey, publicHash, registrationDate);
     }
     
   }

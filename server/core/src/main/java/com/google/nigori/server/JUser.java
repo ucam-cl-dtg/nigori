@@ -32,10 +32,12 @@ public class JUser implements User, Serializable {
   private static final long serialVersionUID = 1L;
 
   private final byte[] publicKey;
+  private final byte[] publicHash;
   private final Date registrationDate;
 
-  public JUser(byte[] publicKey, Date registrationDate) {
+  public JUser(byte[] publicKey, byte[] publicHash, Date registrationDate) {
     this.publicKey = Arrays.copyOf(publicKey, publicKey.length);
+    this.publicHash = Arrays.copyOf(publicHash, publicHash.length);
     this.registrationDate = registrationDate;
   }
 
@@ -47,6 +49,11 @@ public class JUser implements User, Serializable {
   @Override
   public byte[] getPublicKey() {
     return Arrays.copyOf(publicKey, publicKey.length);
+  }
+
+  @Override
+  public byte[] getPublicHash() {
+    return Arrays.copyOf(publicHash, publicHash.length);
   }
 
   @Override
@@ -63,8 +70,8 @@ public class JUser implements User, Serializable {
     }
 
     @Override
-    public User getUser(byte[] publicKey, Date registrationDate) {
-      return new JUser(publicKey, registrationDate);
+    public User getUser(byte[] publicKey, byte[] publicHash, Date registrationDate) {
+      return new JUser(publicKey, publicHash, registrationDate);
     }
 
   }

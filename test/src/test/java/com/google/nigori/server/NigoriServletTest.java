@@ -83,7 +83,7 @@ public class NigoriServletTest {
 		servlet = new NigoriServlet(database);
 		keyManager = new RealKeyManager(serverName, toBytes("username"), toBytes("password"));
 		//TODO need to correctly create user
-		user = AEUser.Factory.getInstance().getUser(keyManager.signer().getPublicKey(), new Date());
+		user = AEUser.Factory.getInstance().getUser(keyManager.signer().getPublicKey(), keyManager.signer().getPublicHash(), new Date());
 	}
 
 	@After
@@ -144,10 +144,10 @@ public class NigoriServletTest {
 		response.flushBuffer();
   }
 
-  private void expectedCallsToAuthenticateUser(byte[] publicKey) throws UserNotFoundException {
+  private void expectedCallsToAuthenticateUser(byte[] publicHash) throws UserNotFoundException {
     expect(database.checkAndAddNonce(anyObject(Nonce.class), anyObject(byte[].class))).andReturn(true);
-    expect(database.getUser(aryEq(publicKey))).andReturn(user);
-    expect(database.haveUser(aryEq(publicKey))).andReturn(true);
+    expect(database.getUser(aryEq(publicHash))).andReturn(user);
+    expect(database.haveUser(aryEq(publicHash))).andReturn(true);
   }
 
 	private void runReplayVerifyWithDoPost(ServletOutputStream out) throws IOException {
@@ -173,11 +173,11 @@ public class NigoriServletTest {
 	public void testGetRequestKeyDoesNotExist() throws Exception {
 
 		final byte[] key = toBytes("a key");
-		final byte[] publicKey = keyManager.signer().getPublicKey();
+		final byte[] publicHash = keyManager.signer().getPublicHash();
 		
 		final String json = MessageLibrary.getRequestAsJson(serverName, keyManager.signer(), key, null);
 		expectedCallsForJsonRequest(json, MessageLibrary.REQUEST_GET);
-		expectedCallsToAuthenticateUser(publicKey);
+		expectedCallsToAuthenticateUser(publicHash);
 		expect(database.getRecord(eq(user), aryEq(key))).andReturn(null);
 		ServletOutputStream out = expectedCallsForErrorResponse(HttpServletResponse.SC_NOT_FOUND);
 
@@ -190,11 +190,11 @@ public class NigoriServletTest {
 		final byte[] index = toBytes("an index");
 		final byte[] revision = toBytes("a revision");
 		final byte[] value = toBytes("a value");
-		final byte[] publicKey = keyManager.signer().getPublicKey();
+		final byte[] publicHash = keyManager.signer().getPublicHash();
 		
 		final String jsonPut = MessageLibrary.putRequestAsJson(serverName, keyManager.signer(), index, revision, value);
 		expectedCallsForJsonRequest(jsonPut, MessageLibrary.REQUEST_PUT);
-		expectedCallsToAuthenticateUser(publicKey);
+		expectedCallsToAuthenticateUser(publicHash);
 		expect(database.putRecord(eq(user), aryEq(index), aryEq(revision), aryEq(value))).andReturn(true);
 		expectedCallsToOutputOkay();
 		
@@ -207,11 +207,11 @@ public class NigoriServletTest {
 		final byte[] key = toBytes("a key");
 		final byte[] revision = toBytes("a revision");
 		final byte[] value = toBytes("a value");
-		final byte[] publicKey = keyManager.signer().getPublicKey();
+		final byte[] publicHash = keyManager.signer().getPublicHash();
 
 		final String jsonGet = MessageLibrary.getRequestAsJson(serverName, keyManager.signer(), key, null);
 		expectedCallsForJsonRequest(jsonGet, MessageLibrary.REQUEST_GET);
-		expectedCallsToAuthenticateUser(publicKey);
+		expectedCallsToAuthenticateUser(publicHash);
 		expect(database.getRecord(eq(user), aryEq(key))).andReturn(Arrays.asList(new RevValue[]{new RevValue(revision,value)}));
 		ServletOutputStream out = expectedCallsForJsonResponse();
 		Capture<byte[]> result = new Capture<byte[]>();

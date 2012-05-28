@@ -67,40 +67,46 @@ public class DatabaseNigoriProtocol implements NigoriProtocol {
    * @param message
    * @throws ServletException
    */
-  private User authenticateUser(AuthenticateRequest auth, byte[]... payload) throws UnauthorisedException,
-      CryptoException {
+  private User authenticateUser(AuthenticateRequest auth, byte[]... payload)
+      throws UnauthorisedException, CryptoException {
 
-    byte[] publicKey = auth.getPublicKey().toByteArray();
+    byte[] publicHash = auth.getPublicKey().toByteArray();
     List<byte[]> byteSig = Util.splitBytes(auth.getSig().toByteArray());
     byte[] dsaR = byteSig.get(0);
     byte[] dsaS = byteSig.get(1);
     Nonce nonce = new Nonce(auth.getNonce().toByteArray());
     String serverName = auth.getServerName();
-
-    DSASignature sig = new DSASignature(dsaR, dsaS, Util.joinBytes(toBytes(serverName),nonce.nt(),nonce.nr(),Util.joinBytes(payload)));
     try {
-      DSAVerify v = new DSAVerify(publicKey);
+      byte[] publicKey = database.getUser(publicHash).getPublicKey();//TODO(drt24) replace with a database.getPublicKey(byte[] publicHash)
 
-      if (v.verify(sig)) {
-        boolean validNonce = database.checkAndAddNonce(nonce, publicKey);
+      DSASignature sig =
+          new DSASignature(dsaR, dsaS, Util.joinBytes(toBytes(serverName), nonce.nt(), nonce.nr(), Util.joinBytes(payload)));
+      try {
+        DSAVerify v = new DSAVerify(publicKey);
 
-        boolean userExists = database.haveUser(publicKey);
-        if (validNonce && userExists) {
-          try {
-            return database.getUser(publicKey);
-          } catch (UserNotFoundException e) {
-            // TODO(drt24): potential security vulnerability - user existence oracle.
-            // Should not happen often - is only possible due to concurrency
-            throw new UnauthorisedException("No such user");
+        if (v.verify(sig)) {
+          boolean validNonce = database.checkAndAddNonce(nonce, publicHash);
+
+          boolean userExists = database.haveUser(publicHash);
+          if (validNonce && userExists) {
+            try {
+              return database.getUser(publicHash);
+            } catch (UserNotFoundException e) {
+              // TODO(drt24): potential security vulnerability - user existence oracle.
+              // Should not happen often - is only possible due to concurrency
+              throw new UnauthorisedException("No such user");
+            }
+          } else {
+            throw new UnauthorisedException("Invalid nonce or no such user");
           }
         } else {
-          throw new UnauthorisedException("Invalid nonce or no such user");
+          throw new UnauthorisedException("The signature is invalid");
         }
-      } else {
-        throw new UnauthorisedException("The signature is invalid");
+      } catch (NoSuchAlgorithmException nsae) {
+        throw new CryptoException("Internal error attempting to verify signature");
       }
-    } catch (NoSuchAlgorithmException nsae) {
-      throw new CryptoException("Internal error attempting to verify signature");
+    } catch (UserNotFoundException e1) {
+      throw new UnauthorisedException("No such user");
     }
   }
 
@@ -117,7 +123,12 @@ public class DatabaseNigoriProtocol implements NigoriProtocol {
   @Override
   public boolean register(RegisterRequest request) throws IOException {
     // TODO(drt24): validate request.getToken()
-    return database.addUser(request.getPublicKey().toByteArray());
+    byte[] publicKey = request.getPublicKey().toByteArray();
+    try {
+      return database.addUser(publicKey, Util.hashKey(publicKey));
+    } catch (NoSuchAlgorithmException e) {
+      throw new IOException(e);
+    }
   }
 
   @Override

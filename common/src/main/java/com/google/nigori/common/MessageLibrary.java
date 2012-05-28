@@ -274,7 +274,7 @@ public class MessageLibrary {
 	    byte[] sig = Util.joinBytes(signedNonce.getR(),signedNonce.getS());
 
 	    AuthenticateRequest req = AuthenticateRequest.newBuilder()
-	        .setPublicKey(ByteString.copyFrom(signer.getPublicKey()))
+	        .setPublicKey(ByteString.copyFrom(signer.getPublicHash()))
 	        .setSig(ByteString.copyFrom(sig))
 	        .setNonce(ByteString.copyFrom(nonce.toToken()))
 	        .setServerName(serverName)
