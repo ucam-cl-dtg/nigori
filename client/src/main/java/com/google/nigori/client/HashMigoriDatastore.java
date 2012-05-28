@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.commons.codec.binary.Hex;
 
 import com.google.nigori.common.Index;
+import com.google.nigori.common.NigoriConstants;
 import com.google.nigori.common.NigoriCryptographyException;
 import com.google.nigori.common.RevValue;
 import com.google.nigori.common.Revision;
@@ -144,7 +145,7 @@ public class HashMigoriDatastore implements MigoriDatastore {
 
     MessageDigest crypt;
     try {
-      crypt = MessageDigest.getInstance("SHA-1");
+      crypt = MessageDigest.getInstance(NigoriConstants.A_REVHASH);
 
       crypt.reset();
       crypt.update(toHash);
