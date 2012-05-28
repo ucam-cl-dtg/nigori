@@ -230,6 +230,25 @@ public class JEDatabase extends AbstractDatabase {
   }
 
   @Override
+  public byte[] getPublicKey(byte[] publicHash) throws UserNotFoundException {
+    try {
+      DatabaseEntry regTime = new DatabaseEntry();
+      OperationStatus status = db.get(null, makeRegDateKey(publicHash), regTime, LockMode.READ_COMMITTED);
+      if (status == OperationStatus.SUCCESS){
+        DatabaseEntry publicKey = new DatabaseEntry();
+        status = db.get(null, makePublicKeyKey(publicHash), publicKey, LockMode.READ_COMMITTED);
+        if (status == OperationStatus.SUCCESS) {
+          return publicKey.getData();
+        }
+      }
+      throw new UserNotFoundException();
+    } catch (DatabaseException e) {
+      log.severe("Exception while adding user" + e);
+      throw new UserNotFoundException(e);
+    }
+  }
+
+  @Override
   public User getUser(byte[] publicHash) throws UserNotFoundException {
     try {
       DatabaseEntry regTime = new DatabaseEntry();
@@ -237,10 +256,11 @@ public class JEDatabase extends AbstractDatabase {
       if (status == OperationStatus.SUCCESS){
         DatabaseEntry publicKey = new DatabaseEntry();
         status = db.get(null, makePublicKeyKey(publicHash), publicKey, LockMode.READ_COMMITTED);
-        return new JUser(publicKey.getData(), publicHash, new Date(Util.bin2long(regTime.getData())));
-      } else {
-        throw new UserNotFoundException();
+        if (status == OperationStatus.SUCCESS) {
+          return new JUser(publicKey.getData(), publicHash, new Date(Util.bin2long(regTime.getData())));
+        }
       }
+      throw new UserNotFoundException();
     } catch (DatabaseException e) {
       log.severe("Exception while adding user" + e);
       throw new UserNotFoundException(e);

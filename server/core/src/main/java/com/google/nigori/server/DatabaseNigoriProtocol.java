@@ -77,7 +77,7 @@ public class DatabaseNigoriProtocol implements NigoriProtocol {
     Nonce nonce = new Nonce(auth.getNonce().toByteArray());
     String serverName = auth.getServerName();
     try {
-      byte[] publicKey = database.getUser(publicHash).getPublicKey();//TODO(drt24) replace with a database.getPublicKey(byte[] publicHash)
+      byte[] publicKey = database.getPublicKey(publicHash);
 
       DSASignature sig =
           new DSASignature(dsaR, dsaS, Util.joinBytes(toBytes(serverName), nonce.nt(), nonce.nr(), Util.joinBytes(payload)));

@@ -128,6 +128,18 @@ public final class AppEngineDatabase implements Database {
   }
 
   @Override
+  public byte[] getPublicKey(byte[] publicHash) throws UserNotFoundException {
+    PersistenceManager pm = pmfInstance.getPersistenceManager();
+    try {
+      return getUser(publicHash, pm).getPublicKey();
+    } catch (JDOObjectNotFoundException e) {
+      throw new UserNotFoundException();
+    } finally {
+      pm.close();
+    }
+  }
+
+  @Override
   public AEUser getUser(byte[] publicHash) throws UserNotFoundException {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {

@@ -52,6 +52,7 @@ import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestC
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.nigori.client.RealKeyManager;
 import com.google.nigori.common.MessageLibrary;
+import com.google.nigori.common.NigoriCryptographyException;
 import com.google.nigori.common.NigoriMessages.GetRequest;
 import com.google.nigori.common.NigoriMessages.GetResponse;
 import com.google.nigori.common.NigoriMessages.RevisionValue;
@@ -144,7 +145,8 @@ public class NigoriServletTest {
 		response.flushBuffer();
   }
 
-  private void expectedCallsToAuthenticateUser(byte[] publicHash) throws UserNotFoundException {
+  private void expectedCallsToAuthenticateUser(byte[] publicHash) throws UserNotFoundException, NigoriCryptographyException {
+    expect(database.getPublicKey(aryEq(publicHash))).andReturn(keyManager.signer().getPublicKey());
     expect(database.checkAndAddNonce(anyObject(Nonce.class), anyObject(byte[].class))).andReturn(true);
     expect(database.getUser(aryEq(publicHash))).andReturn(user);
     expect(database.haveUser(aryEq(publicHash))).andReturn(true);

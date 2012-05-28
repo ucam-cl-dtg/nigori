@@ -158,6 +158,26 @@ public class SQLDatabase extends AbstractDatabase {
   }
 
   @Override
+  public byte[] getPublicKey(byte[] publicHash) throws UserNotFoundException {
+    try {
+      PreparedStatement queryStatement = con.prepareStatement("SELECT pk FROM stores WHERE ph = ?");
+      try {
+        queryStatement.setBytes(1, publicHash);
+        ResultSet set = queryStatement.executeQuery();
+        if (!set.first()) {
+          throw new UserNotFoundException();
+        }
+        return set.getBytes("pk");
+      } finally {
+        queryStatement.close();
+      }
+    } catch (SQLException e) {
+      log.severe(e.toString());
+      throw new UserNotFoundException(e);
+    }
+  }
+
+  @Override
   public User getUser(byte[] publicHash) throws UserNotFoundException {
     try {
       PreparedStatement queryStatement = con.prepareStatement("SELECT pk, reg FROM stores WHERE ph = ?");

@@ -45,6 +45,7 @@ public interface Database {
 	// quickly
 	public boolean checkAndAddNonce(Nonce nonce, byte[] publicHash);
 
+	public byte[] getPublicKey(byte[] publicHash) throws UserNotFoundException;
 	/**
 	 * WARNING: great care must be taken when using this, the user must be authenticated correctly before any user object can be used on their behalf
 	 * @param publicHash

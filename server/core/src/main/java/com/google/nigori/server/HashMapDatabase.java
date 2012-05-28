@@ -73,6 +73,17 @@ public class HashMapDatabase extends AbstractDatabase implements Serializable {
 	}
 
   @Override
+  public byte[] getPublicKey(byte[] publicHash) throws UserNotFoundException {
+    assert publicHash != null;
+    assert publicHash.length > 0;
+    User user = users.get(Bytes.copyFrom(publicHash));
+    if (user == null) {
+      throw new UserNotFoundException();
+    }
+    return user.getPublicKey();
+  }
+
+  @Override
   public User getUser(byte[] publicHash) throws UserNotFoundException {
     assert publicHash != null;
     assert publicHash.length > 0;
