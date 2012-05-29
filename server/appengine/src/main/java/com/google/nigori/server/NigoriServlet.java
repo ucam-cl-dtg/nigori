@@ -390,6 +390,9 @@ public class NigoriServlet extends HttpServlet {
 	    } catch (MessageLibrary.JsonConversionException jce) {
 	      throw new ServletException(HttpServletResponse.SC_BAD_REQUEST, "JSON format error: "
 	          + jce.getMessage());
+	    } catch (RuntimeException re) {
+	      log.severe(re.toString());
+	      throw new ServletException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, re.toString());
 	    }
 
 	  } catch (ServletException e) {
