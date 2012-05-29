@@ -116,7 +116,7 @@ public class JEDatabase extends AbstractDatabase {
     return new DatabaseEntry(makeBytes(USERS.getData(), SEPARATOR, publicHash, SEPARATOR, KEY));
   }
   @Override
-  public boolean addUser(byte[] publicKey, byte[] publicHash) {//TODO(drt24) switch to publicHash
+  public boolean addUser(byte[] publicKey, byte[] publicHash) {
     
     Transaction txn = null;
     try {
