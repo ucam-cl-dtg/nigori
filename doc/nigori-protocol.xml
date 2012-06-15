@@ -566,7 +566,7 @@ package nigori;
 
 message AuthenticateRequest {
   required bytes public_key = 1;
-  required bytes sig_s = 2;
+  required bytes sig = 2;
   required bytes nonce = 3;
   required string server_name = 4;
 }
@@ -656,7 +656,65 @@ message DeleteRequest {
     <section title="Algorithms">
 
     <section title="DSA Signature" anchor="dsa">
-      <t>TODO(drt24): write this section.<xref target="FIPS186-3"/></t>
+      <t>The Digital Signature Algorithm (DSA) is defined in
+      <xref target="FIPS186-3"/>. A public key size (L) of 3072 bits and a
+      private key size (N) of 256 bits gives 128 bits of security
+      <xref target="SP800-57">Section 5, Table 2</xref> which is the best that
+      can be achieved while using SHA-1 for key derivation
+      <xref target="SP800-57">Section 5, Table 3</xref>.</t>
+      <t>A DSA signature is composed of two components r and s, these are
+      stored in the sig field of the AuthenticateRequest as r||s.</t>
+      <figure>
+        <preamble>
+          The DSA parameters for a 3072 bit modulus were chosen from the
+          <eref target="http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/DSA2_All.pdf">
+          NIST example DSA parameters</eref> which are also used for
+          <eref target="http://www.lightbluetouchpaper.org/2008/05/29/j-pake/">
+          J-PAKE</eref>.
+        </preamble>
+        <artwork>
+P:
+90066455 B5CFC38F 9CAA4A48 B4281F29 2C260FEE F01FD610
+37E56258 A7795A1C 7AD46076 982CE6BB 956936C6 AB4DCFE0
+5E678458 6940CA54 4B9B2140 E1EB523F 009D20A7 E7880E4E
+5BFA690F 1B9004A2 7811CD99 04AF7042 0EEFD6EA 11EF7DA1
+29F58835 FF56B89F AA637BC9 AC2EFAAB 90340222 9F491D8D
+3485261C D068699B 6BA58A1D DBBEF6DB 51E8FE34 E8A78E54
+2D7BA351 C21EA8D8 F1D29F5D 5D159394 87E27F44 16B0CA63
+2C59EFD1 B1EB6651 1A5A0FBF 615B766C 5862D0BD 8A3FE7A0
+E0DA0FB2 FE1FCB19 E8F9996A 8EA0FCCD E5381752 38FC8B0E
+E6F29AF7 F642773E BE8CD540 2415A014 51A84047 6B2FCEB0
+E388D30D 4B376C37 FE401C2A 2C2F941D AD179C54 0C1C8CE0
+30D460C4 D983BE9A B0B20F69 144C1AE1 3F9383EA 1C08504F
+B0BF3215 03EFE434 88310DD8 DC77EC5B 8349B8BF E97C2C56
+0EA878DE 87C11E3D 597F1FEA 742D73EE C7F37BE4 3949EF1A
+0D15C3F3 E3FC0A83 35617055 AC91328E C22B50FC 15B941D3
+D1624CD8 8BC25F3E 941FDDC6 20068958 1BFEC416 B4B2CB73
+
+Q:
+CFA0478A 54717B08 CE64805B 76E5B142 49A77A48 38469DF7
+F7DC987E FCCFB11D
+
+G:
+5E5CBA99 2E0A680D 885EB903 AEA78E4A 45A46910 3D448EDE
+3B7ACCC5 4D521E37 F84A4BDD 5B06B097 0CC2D2BB B715F7B8
+2846F9A0 C393914C 792E6A92 3E2117AB 805276A9 75AADB52
+61D91673 EA9AAFFE ECBFA618 3DFCB5D3 B7332AA1 9275AFA1
+F8EC0B60 FB6F66CC 23AE4870 791D5982 AAD1AA94 85FD8F4A
+60126FEB 2CF05DB8 A7F0F09B 3397F393 7F2E90B9 E5B9C9B6
+EFEF642B C48351C4 6FB171B9 BFA9EF17 A961CE96 C7E7A7CC
+3D3D03DF AD1078BA 21DA4251 98F07D24 81622BCE 45969D9C
+4D6063D7 2AB7A0F0 8B2F49A7 CC6AF335 E08C4720 E31476B6
+7299E231 F8BD90B3 9AC3AE3B E0C6B6CA CEF8289A 2E2873D5
+8E51E029 CAFBD55E 6841489A B66B5B4B 9BA6E2F7 84660896
+AFF387D9 2844CCB8 B6947549 6DE19DA2 E58259B0 90489AC8
+E62363CD F82CFD8E F2A427AB CD65750B 506F56DD E3B98856
+7A88126B 914D7828 E2B63A6D 7ED0747E C59E0E0A 23CE7D8A
+74C1D2C2 A7AFB6A2 9799620F 00E11C33 787F7DED 3B30E1A2
+2D09F1FB DA1ABBBF BF25CAE0 5A13F812 E34563F9 9410E73B
+        </artwork>
+        
+      </figure>
     </section>
 
       <section title="Shamir Secret Split" anchor="shamir">
@@ -1211,6 +1269,15 @@ b431d76ac97e4e6d de7fcd80cba7ed31 1cf7bf400ad122b8 9999999999999999
     </references> 
  
     <references title="Informative References">
+      <reference anchor="SP800-57" target="http://csrc.nist.gov/groups/ST/toolkit/documents/SP800-57Part1-Revision3_May2011.pdf">
+        <front>
+          <title>SP 800-57 Recommendation for Key Management – Part 1: General</title>
+          <author>
+            <organization>National Institute of Standards and Technology</organization>
+          </author>
+          <date month="March" year="2007"/>
+        </front>
+      </reference>
     <!-- Oauth: save for a future specification &RFC5849; --> 
     </references> 
    </back> 
