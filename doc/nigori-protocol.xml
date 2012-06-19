@@ -317,7 +317,7 @@ Future specifications:
         successfully authenticates.
         The means by which the username and the master key is retrieved from
         the user or server is outside the scope of this document. We recommend
-        that the server derive the master key from a hash of the user's
+        that the server derive the master key from a salted hash of the user's
         password stored at the server, denoted PHash. This will typically be
         the password used when the user logs in. Kmaster can then be derived as
         follows:
