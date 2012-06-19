@@ -7,6 +7,7 @@
 <!ENTITY RFC2104 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2104.xml">
 <!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY RFC2898 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2898.xml">
+<!ENTITY RFC3174 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3174.xml">
 <!ENTITY RFC4627 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4627.xml">
 <!ENTITY RFC4648 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4648.xml">
 <!ENTITY RFC5849 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5849.xml">
@@ -138,6 +139,15 @@ Future specifications:
   <middle> 
     <section title="Introduction"> 
 
+      <section title="Aim"> 
+
+       <t>Many computer users own a smartphone, a tablet, and a laptop, as well as making regular use of several desktop machines. As a result, new computer applications are frequently designed to be accessible from many devices, and seamlessly synchronise user data between them. Synchronisation typically uses cloud storage to act as a highly-available intermediary because mobile devices and home desktop machines are not powered and connected to the Internet at all times.</t>
+       
+       <t>Nigori specifies a standard way to encrypt an associative array and synchronise its contents with a remote server. Nigori uses distributed version control primitives to ensure that updates received from multiple clients do not corrupt the representation of the associative array stored at any client.</t>
+       
+       <t>The Nigori storage and communication protocol uses a single password provided by the user to generate all the keys required to encrypt and decrypt data stored in the associative array, ensure the integrity of any updates provided by the server, and to sign all messages sent between client and server.</t>
+      </section>
+
       <section title="Requirements Language"> 
         <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
         "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
@@ -145,44 +155,33 @@ Future specifications:
         target="RFC2119"/>.</t> 
       </section> 
 
-      <section title="Notation">
-        <t>"abc" means the octet string representing the quoted
-        characters, in UTF-8, without termination. So, "abc" is the
-        octets (in hex) 61 62 63.</t>
+      <section title="Octets and Concatenation">
+        <t>"abc" represents the octets inside the quoted characters using the UTF-8 character set without termination for interpretation. For example, "abc" is the octets (in hex) 61 62 63.</t>
 
-        <t>PBKDF2 is as defined in <xref target="RFC2898"/>, with
-        PRF=HMAC-SHA1. <cref>(Security note: although we'd prefer SHA-256,
-        SHA-1 is not actually broken for this use case, and PBKDF2
-        does not currently allow any other hash) [PBKDF2 test vectors,
-        courtesy of wtc:
-        http://www.ietf.org/id/draft-josefsson-pbkdf2-test-vectors-00.txt
-        http://www.rfc-editor.org/rfc/rfc3962.txt
-        http://www.cryptosys.net/manapi/api_PBE_Kdf2.html]</cref></t>
+        <t> A | B represents the concatenation of the octets of A and B. For example "abc" | "defgh" represents the octets (in hex) 61 62 63 64 65 66 67 68.</t>
+        
+        <t>A || B represents the concatenation of the octets of A and B
+        with each octet preceded by its own length represented as a positive integer stored in 4 octets in network byte order. For example, "abc" || "defgh" represents the octets (in hex) 00 00 00 03 61 62 63 00 00 00 05 64 65 66 67 68.</t>
 
-        <t>A || B means the concatenation of the octets of A and B
-        each preceded by its own length represented as 4 octets,
-        in network byte order, so "abc" || "defgh" would be 00 00 00 03 61 62 63
-        00 00 00 05 64 65 66 67 68.</t>
+        </section>
+        <section title="Functions">
 
-        <t>HMAC(K, T) means the HMAC of T with key K and hash function
-        SHA-256, as defined in <xref target="RFC2104"/>.</t>
+        <t>SHA1(M) computes the SHA-1 hash as defined in <xref target="RFC3174"/>.</t>
 
-        <t>Enc[k1, k2](P) means the encryption of plaintext P using
-        AES-256 in CBC mode with a random IV, standard padding (i.e. n
-        octets of value n s.t. the plaintext is extended to a multiple
-        of 16 octets, n > 0) and key k1, giving ciphertext C, followed
-        by HMAC(k2, C).</t>
+        <t>PBKDF2(PRF, P, S, C, dkLen) is the password-based key derivation function specified in <xref target="RFC2898"/>, where PRF is a pseudorandom function, P is the user-supplied password, S is salt, C is the number of iterations, and dkLen is the output length. In this specification we use PRF = SHA1 since SHA-1 is secure for this purpose and SHA-256 is not permitted by <xref target="RFC2898"/>.</t>
 
-        <t>EncDet[k1, k2, k3](P) means the encryption of plaintext P
-        using AES-256 in CBC mode with an IV generated by HMAC(k3, P) with
-        the right half xored into the left half, standard padding (i.e. n octets of value n s.t.
-        the plaintext is extended to a multiple of 16 octets, n > 0) and key k1,
-        giving ciphertext C, followed by HMAC(k2, C).</t>
+        <t>HMAC(K, M) is the hash-based message authentication code of M with key K and hash function SHA-256 specified in <xref target="RFC2104"/>.</t>
 
-        <t>Pub(k) means the <xref target="dsa">DSA</xref> public key for signature verification for
-        the secret key k.</t>
+        <t>Enc(K1, K2, P) = R | C | HMAC(K2, C) where R is a random value and C represents the encryption of plaintext P using AES-256 (see <xref target="aes"/>) in CBC mode with initial vector R, standard padding (i.e. octets are padded to a multiple of 32) and key K1.</t>
 
-        <t>[server] is the base URL for the server.</t>
+        <t>EncDet(K1, K2, K3, P) = G | C | HMAC(K2, C) where G = HMAC(k3, P) and C represents the encryption of plaintext P using AES-256 in CBC mode with initial vector G, standard padding (i.e. octets are padded to a multiple of 32) and key K1.</t>
+
+        <t>DSAPubKey(K) represents the public key defined by the <xref target="dsa">Digital Signature Algorithm</xref> (DSA) generated using the secret key K.</t>
+
+        <t>Sign(K, M) = S where S represents the signature of message M using DSA with the secret key K.</t>
+        
+        <t>Verify(PK, M, S) returns true iff S is a valid DSA signature of message M using public key PK.</t>
+        
       </section>
 
       <section title="Constants">
@@ -221,30 +220,23 @@ Future specifications:
 
       <t>Four keys are required for the Nigori protocol
         <list>
-          <t>Kuser: User Authentication Key - this is used to
+          <t>Kuser represents the user authentication key and is used to
             authenticate the user to the Nigori server(s). Note that
             this is used in a way which does not give an eavesdropper
             a dictionary attack against the master password from which
             it is derived.</t>
-          <t>Kenc: Secret Encryption Key - this is used to encrypt the
-            user's secrets at the Nigori server(s) <!-- (save for a future specification)[note: may become a
-            per-secret key to enable OAuth, <xref target="encsecret">see below</xref>]--></t>
-          <t>Kmac: Secret Authentication Key - this is used as a MAC
-            to authenticate the encrypted secrets.</t>
-          <t>Kiv: deterministic IV generation key - this is used to
-            deterministically generate an IV given a plaintext to prevent
-            common prefix attacks when deterministic encryption is required.</t>
+          <t>Kenc represents the secret encryption key and is used to encrypt the user's secrets at the Nigori server(s)</t>
+          <t>Kmac represents the secret authentication key and is used to 
+            generate a message authentication code to authenticate the encrypted secrets.</t>
+          <t>Kiv: is a deterministic initial vector generation key and is used to deterministically generate an initial vector given a plaintext. This prevents common prefix attacks when deterministic encryption is required.</t>
         </list>
       </t>
 
-      <t>There are two specified mechanisms for key derivation either
-      completely client side with no recovery if the user loses their
-      password or with recovery via a trusted third party.</t>
+      <t>There are two specified mechanisms for key derivation: (1)
+      client-side key derivation with no recovery, and (2) assisted key derivation which allows password recovery via a trusted third party.</t>
 
-      <t>We also need a per-user, per-server salt value, which is
-        always derived in the same way:
-
-        <list>
+      <t>Both key derivation methods use the same per-user, per-server, salt value:
+      <list>
           <t>Suser = PBKDF2(Username || Servername, "user salt",
             Nsalt, Bsuser)</t>
         </list>
@@ -274,19 +266,14 @@ Future specifications:
 
       <section title="Assisted Password-based Key Derivation">
 
-        <t><spanx style="emph">Note: this has not been implemented.</spanx>
-        It is unclear how to do so when the storage server does not know
-        the username as they need some way of identifying the user.</t>
+        <t><spanx style="emph">Note: this has not been implemented.</spanx></t>
 
         <t>In this mode, the user has an account at some server which
         will supply a master encryption key, Kmaster, if the user
-        successfully authenticates. How this is done is up to the
-        server, but we recommend that the server derive it from a hash
-        of the user's password at the server, Pserver, such as the one
-        used to check the password when the user logs in, as follows:
+        successfully authenticates. The means by which the username and the master key is retrieved from the user or server is outside the scope of this document. We recommend that the server derive the master key from a hash of the user's password stored at the server, denoted PHash. This will typically be the password used when the user logs in. Kmaster can then be derived as follows:
 
           <list>
-            <t>Kmaster = PBKDF2(H(Pserver), Sserver, Nmaster,
+            <t>Kmaster = PBKDF2(PHash, Sserver, Nmaster,
             Bkmaster)</t>
           </list>
         </t>
@@ -297,25 +284,21 @@ Future specifications:
           still derive Kmaster from the old password hash once the
           user has recovered his account. However, obviously, the
           server can also derive Kmaster without the assistance of the
-          user. Therefore the user might choose to have a second
-          password, Pnigori, which is different from Pserver. If the
-          user chooses not to have this second password, then Pnigori
-          = Pserver. Note that in this case an honest server still
-          cannot derive Pnigori from H(Pserver).</t>
+          user.</t>
 
-        <t>Keys are derived as follows:
+        <t>Keys for Nigori are then derived as follows:
           <list>
-            <t>Kuser = PBKDF2(Pnigori, Suser, Nuser, Bsuser)</t>
+            <t>Kuser = PBKDF2(Kmaster, Suser, Nuser, Bsuser)</t>
             <t>Kenc = PBKDF2(Kmaster, Suser, Nenc, Bkenc)</t>
             <t>Kmac = PBKDF2(Kmaster, Suser, Nmac, Bkmac)</t>
             <t>Kiv = PBKDF2(Kmaster, Suser, Niv, Bkiv)</t>
           </list>
         </t>
 
-        <t>If the user forgets Pnigori or Pserver there is now the
+        <t>If the user forgets their password there is now the
         possibility of account recovery using traditional recovery
-        mechanisms. [Note: the client should be able to cache Kmaster
-        so it doesn't always have to contact the auth server]</t>
+        mechanisms. Note that the client should be able to cache Kmaster
+        so it doesn't always have to contact the server.</t>
 
       </section>
 
@@ -323,73 +306,39 @@ Future specifications:
 
     <section title="Authentication">
 
-      <t>When the user registers at a server, he presents Pub(Kuser) and a token
-      asserting his right to do so in the form of an arbitrary octet array which
-      is implementation defined. Servers which require no token MUST accept the
-      empty octet array and clients SHOULD default to the empty octet array.
-      TODO(drt24) there should probably be some defined semantics and format for
-      the token to allow for cross compatibility.</t>
+      <t>When the user registers at a server, he presents DSAKey(Kuser) and a token asserting his right to do so. The token is used to support any administration features such as restrictions on creating accounts or quotas as discussed in Section 9. Servers which require no token MUST accept the empty octet array and clients SHOULD default to the empty octet array.</t>
 
-      <t>Then to authenticate to the server he presents his public key (pk), the
-      server name (ns), the time in seconds since Jan 1 1970 (nt) and random
-      string (nr) and a <xref target="dsa">DSA signature</xref> using
-      Kuser over ns || nt || nr || p where p is the payload being authenticated.
-      At least one of these must be different every time they are used, in order
-      to defeat replay attacks.
-      Clients MUST ensure that nt || nr is different for every request</t>
-
-      <t>The server checks that nt is recent (so it can drop old
-      entries from its replay database), checks that it has not seen pk
-      || ns || nt || nr before, looks up the user for the pk, and
-      verifies the DSA signature. If all these checks pass, the
-      user is authenticated.</t>
+      <t>To authenticate a message M to the server the client sends:
+      
+      <list><t>DSAPubKey(Kuser), S, T, R, M, DSASign(Kuser, S || T || R || M)     </t></list>
+      where S is the server name, T is the time in seconds since 1st January 1970 and R is a nonce. At least one field must be different every time a message is sent to the server, therefore clients MUST ensure that T || R is different for every request. The server MUST check that S || T || R || M has not been seen before; to enable it to do so without keeping an unbounded database of old requests, the server MUST reject messages whose value of T is not recent as invalid requests.</t>
+      
+      <t>If S || T || R || M has not been seen before, and the signature is correct, the message is deemed authentic and it's contents processed as described later in this document. If the signature does not match, the message MUST be rejected as invalid.</t>
 
     </section>
 
     <section title="Encryption of Secrets" anchor="encsecret">
 
-      <t>The index (I), revision (R) and value (V) sent to the server are
-      encrypted as follows:
-      I = EncDet[Kenc,Kmac,Kiv](index).
-      R = EncDet[Kenc,Kmac,Kiv](revision).
-      V = Enc[Kenc,Kmac](V).</t>
+	  <t>Each value stored in the associative array on the server consists of three components, an Index into the array, a Revision summarising the history of previous values seen by the client (see Section 5), and the Value itself. These values are encrypted as EIndex, ERevision and EValue respectively. The encrypted values are calculated as follows:
 
-      <!-- This will be the subject of a future specification.
-      <t>Note: if instead of Kenc we use Kv which is (for example:
-      anything that depends on both P and I will do):
-        <list>
-          <t>Kv = PBKDF2(Kenc || I, Suser, Nv, Bkenc)</t>
-        </list>
+      <list><t>EIindex = EncDet(Kenc, Kmac, Kiv, index).</t>
+      <t>ERevision = EncDet(Kenc, Kmac, Kiv, revision).</t>
+      <t>EValue = Enc(Kenc, Kmac, V).</t>
+      </list>
       </t>
-
-      <t>then we could also allow third parties access to single
-      secrets via protocols such as <xref target="RFC5849">OAuth</xref>. The most general form of
-      this would give an the service provider (SP) the per-secret key
-      and an OAuth token to retrieve the current value of that
-      secret. A general purpose crypto service could be used which
-      performed encryption, signing etc. on behalf of less trusted
-      services - in this case, the final SP would have OAuth access to
-      the crypto SP, which in turn would have OAuth access to the
-      appropriate secret in Nigori.</t>
-      -->
-
+      
     </section>
 
     <section title="Encoding of Revisions">
-      <t>To allow for distributed asynchronous access to the nigori store
-      revisions are required which encode a directed acyclic graph (DAG) of the
-      history of a value. This encoding needs to be deterministic so that it
-      can be performed on multiple devices and should detect any interference
-      with past history (such as the removal of old revisions) by the server.
-      It also needs to encode sufficient information that it is not necessary to
-      download the values to construct the DAG.</t>
+      <t>To allow for distributed asynchronous access to the nigori store,
+      revisions are required which encode a directed acyclic graph (DAG) of the history of a value. This encoding needs to be deterministic so that it can be performed on multiple devices and detect any interference with past history (such as the removal of old revisions) by the server.
+      It also needs to encode sufficient information that it is not necessary to download the values to construct the DAG.</t>
 
-      <t>The octet array (in network byte order) of a revision is interpreted
-      consisting of an ID||revlist where the size of the ID is the size of the
-      output of SHA-1 and revlist consists of a (possibly empty)
+      <t>The octet array (in network byte order) of a revision is consists of a list of ID || RevList pairs where the size of the ID is the size of the output of SHA-1 and RevList consists of a (possibly empty)
       lexicographically sorted sequence of ID entries for the revisions
-      preceding (id1||id2||id3...).</t>
-      <t>The ID is constructed by taking SHA-1(value||revlist)</t>
+      immediately preceding the current one (e.g. 'ID1 || ID2 || ID3').</t>
+
+      <t>The ID is constructed as SHA1(Value || RevList)</t>
       <figure title="Revision format">
         <artwork>
 No parents case:
@@ -416,9 +365,9 @@ At least one parent case:
         </postamble>
       </figure>
 
-      <t>Future specifications may specify has functions other than SHA-1, if
+      <t>Future specifications may require functions other than SHA-1, if
       they do they MUST use a different size for the hash output (i.e. not 16
-      bytes). Doing this is not recommended.</t>
+      bytes).</t>
 
       <t>Revision history diverges if multiple revisions specify the same
       revision(s) as their parent (or if multiple revisions specify no parent).
@@ -427,9 +376,7 @@ At least one parent case:
       its parents.</t>
 
       <t>By examining the DAG of revision history a client can determine which
-      revisions form the set of dominating or head revisions, it can then
-      present these as multiple options to the user or perform some automatic
-      merge on them to produce on value to show to the user.</t>
+      revisions form the set of dominating or head revisions. The head revisions can then present these as multiple options to the user. Alternatively the client can perform an automatic merge on these head revisions to produce a single value to show to the user and possibly commit back to the server.</t>
 
       <t>This scheme is similar to that used in
       <eref target="http://git-scm.com/">Git</eref> and
@@ -438,30 +385,29 @@ At least one parent case:
         <figure title="Example DAG of revision history">
           <artwork>
     +-+-+-+-+
-    | f:d,e |
+    | F:D,E |
     +-+-+-+-+
      /   \
 +-+-+-+ +-+-+-+-+
-| d:b | | e:b,c |
+| D:B | | E:B,C |
 +-+-+-+ +-+-+-+-+
 ^       ^   ^
 |       /   |
 |      /    |
 +-+-+-+     +-+-+-+
-| b:a |     | c:a |
+| B:A |     | C:A |
 +-+-+-+     +-+-+-+
       ^     ^
       |     |
       +-+-+-+
-      | a:  |
+      | A:  |
       +-+-+-+
 
           </artwork>
           <postamble>Here revision IDs have been abbreviated to the first
           character of their hex representation.
-          Revision a specifies no parent, both b and c specify a as their
-          parent, e merges b and c but d depends only on b, f specifies d and e
-          and so merges them resulting in one head revision.</postamble>
+          Revision A specifies no parent, both B and C specify A as their
+          parent, E merges B and C but D depends only on B, F specifies D and E as its parents and so merges them resulting in one head revision.</postamble>
         </figure>
       </section>
 
@@ -500,7 +446,7 @@ At least one parent case:
       would store at a single server and splits it using a <xref target="shamir">Shamir
       split</xref>, with the k value (number of splits required for reconstruction)
       as determined by the user (n is equal to the number of servers).
-      Each split is then stored at server i as Enc[Kenc,Kmac](i || Si).</t>
+      Each split is then stored at server i as Enc(Kenc, Kmac, i || Si).</t>
 
     </section>
 
@@ -510,7 +456,7 @@ At least one parent case:
       registration may be restricted and not open to everyone.
       To support this there is the opaque token octet array specified during
       registration which can be interpreted as the server chooses.
-      TODO(drt24): useful definitions are required here before publication.</t>
+      </t>
       <t>Another consideration is limiting the quantity of space which an
       individual user can use through the imposition of quotas.
       The server can <xref target="responses">provide a response</xref> that
@@ -527,11 +473,8 @@ At least one parent case:
     <section title="Protocol Details" anchor="protocol">
 
       <t>All requests MUST be
-      performed over HTTPS. The client MUST check the certificate
-      (note: "check" may mean "is the same certificate as seen when
-      the user registered at or first visited the server").</t>
-      <t>TODO(drt24): We need to have some mechanism allowing the server to change its
-      certificate.</t>
+      performed over HTTPS. The client MUST check the certificate is valid, where "check" means that the certificate is in date and it is the same certificate as seen when the user registered with the server.</t>
+      <t>TODO(drt24): We need to have some mechanism allowing the server to change its certificate.</t>
 
       <t>There are two possible encodings of data being transmitted over HTTPS
       to the server: <xref target="RFC4627">JSON</xref> and <xref target="protobuf">Protobuf</xref>.
@@ -663,7 +606,7 @@ message DeleteRequest {
       can be achieved while using SHA-1 for key derivation
       <xref target="SP800-57">Section 5, Table 3</xref>.</t>
       <t>A DSA signature is composed of two components r and s, these are
-      stored in the sig field of the AuthenticateRequest as r||s.</t>
+      stored in the sig field of the AuthenticateRequest as r || s.</t>
       <figure>
         <preamble>
           The DSA parameters for a 3072 bit modulus were chosen from the
@@ -1245,8 +1188,19 @@ b431d76ac97e4e6d de7fcd80cba7ed31 1cf7bf400ad122b8 9999999999999999
       &RFC2104;
       &RFC2119;
       &RFC2898;
+      &RFC3174;
       &RFC4627;
       &RFC4648;
+      <reference anchor="aes" target="https://developers.google.com/protocol-buffers/docs/overview2">
+        <front>
+          <title>Advanced Encryption Standard</title>
+          <author>
+            <organization>National Institute of Standards and Technology, U.S.
+              Department of Commerce</organization>
+          </author>
+          <date month="November" year="2001"/>
+        </front>
+      </reference>      
       <reference anchor="protobuf" target="https://developers.google.com/protocol-buffers/docs/overview">
         <front>
           <title>Protocol Buffers</title>
