@@ -233,6 +233,7 @@ Future specifications:
           <c>Nenc</c>     <c>Nsalt + 2</c> <c>[1]</c>
           <c>Nmac</c>     <c>Nsalt + 3</c> <c>[1]</c>
           <c>Niv</c>      <c>Nsalt + 4</c> <c>[1]</c>
+          <c>Nmaster</c>  <c>Nsalt + 5</c> <c>[1]</c>
           <c>Bsuser</c>   <c>16</c>        <c>size in octets for Suser, must be
                                             at least 10 for FIPS-198
                                             compliance with
@@ -327,7 +328,7 @@ Future specifications:
         </t>
 
         <t>where Sserver is a secret known only to the server. This
-          prevents dictionary attacks to try to derive Pserver from
+          prevents dictionary attacks to try to derive the password from
           Kmaster. If the user forgets his password, the server can
           still derive Kmaster from the old password hash once the
           user has recovered his account. However, obviously, the
