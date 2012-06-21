@@ -202,7 +202,7 @@ Future specifications:
         <t>Enc(K1, K2, P) = R | C | HMAC(K2, C) where R is a random value and C
         represents the encryption of plaintext P using AES-256
         (see <xref target="aes"/>) in CBC mode with initial vector R, standard
-        padding (i.e. octets are padded to a multiple of 32) and key K1.</t>
+        padding (i.e. octets are padded to a multiple of 16) and key K1.</t>
 
         <t>EncDet(K1, K2, K3, P) = G | C | HMAC(K2, C) where G = HMAC(k3, P)
         and C represents the encryption of plaintext P using AES-256 in CBC mode
@@ -747,7 +747,8 @@ E62363CD F82CFD8E F2A427AB CD65750B 506F56DD E3B98856
 
       <section title="Shamir Secret Split" anchor="shamir">
 
-        <t><spanx style="emph">Note: This is not yet implemented</spanx></t>
+        <t><spanx style="emph">Note: This is not yet implemented
+        in the Java code though it is implemented in the Python.</spanx></t>
 
         <t>A Shamir secret split takes some secret (a number less than
         the public parameter, p) and splits it into n components such
