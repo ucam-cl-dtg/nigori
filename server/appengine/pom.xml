@@ -32,6 +32,12 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.google.appengine.orm</groupId>
+      <artifactId>datanucleus-appengine</artifactId>
+      <version>2.0.1.1</version>
+      <!-- maven-datanucleus-plugin will need its transitive dependencies updating when this pulls in different transitive dependencies -->
+    </dependency>
+    <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
       <version>2.5</version>
@@ -41,11 +47,6 @@
       <artifactId>appengine-tools-sdk</artifactId>
       <version>${appengine.version}</version>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.appengine</groupId>
-      <artifactId>appengine-api-1.0-sdk</artifactId>
-      <version>${appengine.version}</version>
     </dependency>
     <dependency>
       <groupId>com.google.appengine</groupId>
@@ -69,22 +70,6 @@
       <groupId>com.google.appengine</groupId>
       <artifactId>appengine-jsr107cache</artifactId>
       <version>${appengine.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.appengine.orm</groupId>
-      <artifactId>datanucleus-appengine</artifactId>
-      <version>2.0.1</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.jdo</groupId>
-      <artifactId>jdo-api</artifactId>
-      <version>[3.0, 4.0)</version>
-    </dependency>
-    <dependency>
-      <groupId>org.datanucleus</groupId>
-      <artifactId>datanucleus-core</artifactId>
-      <version>3.0.8</version>
-      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.datanucleus</groupId>
@@ -144,6 +129,18 @@
             </goals>
           </execution>
         </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.datanucleus</groupId>
+            <artifactId>datanucleus-enhancer</artifactId>
+            <version>3.0.1</version>
+          </dependency>
+          <dependency>
+            <groupId>org.datanucleus</groupId>
+            <artifactId>datanucleus-core</artifactId>
+            <version>3.0.11</version>
+          </dependency>
+        </dependencies>
       </plugin>
     </plugins>
     <pluginManagement>
