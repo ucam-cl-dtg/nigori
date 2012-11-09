@@ -244,6 +244,8 @@ Future specifications:
           <c>Bkmac</c>    <c>16</c>        <c>encryption MAC key size (Kmac)</c>
           <c>Bkiv</c>     <c>16</c>        <c>iv HMAC key size (Kiv)</c>
           <c>Bkmaster</c> <c>16</c>        <c>size in octets of Kmaster</c>
+          <c>Usersalt</c> <c>"user salt"</c><c>non-terminated ascii string
+                                    used as salt for user key derivation.</c>
 
           <postamble>[1] should be at least 1000 and different from
           other N values - the properties of PBKDF2 then ensure that
@@ -281,7 +283,7 @@ Future specifications:
 
       <t>Both key derivation methods use the same per-user, per-server, salt value:
       <list>
-          <t>Suser = PBKDF2(Username || Servername, "user salt",
+          <t>Suser = PBKDF2(Username || Servername, Usersalt,
             Nsalt, Bsuser)</t>
         </list>
       </t>
