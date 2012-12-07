@@ -189,6 +189,33 @@ public final class Util {
     }
     return answer;
   }
+  public static byte[][] listByte2Array(List<byte[]> bytes){
+    int size = bytes.size();
+    byte[][] answer = new byte[size][];
+    for (int i = 0; i < size; ++i){
+      answer[i] = bytes.get(i);
+    }
+    return answer;
+  }
+
+  public static int compareByteArrays(byte[] first, byte[] second) {
+    if (first.length < second.length) {
+      return -1;
+    } else if (first.length > second.length) {
+      return 1;
+    }
+    if (Arrays.equals(first, second)) {
+      return 0;
+    }
+    for (int i = 0; i < first.length; ++i) {
+      if (first[i] < second[i]) {
+        return -1;
+      } else if (first[i] > second[i]) {
+        return 1;
+      }
+    }
+    return 0;
+  }
 
   private static final int MIN_LENGTH = 8;
   private static final String SHORT_PASSWORD = "Password too short, must be at least " + MIN_LENGTH;
@@ -237,25 +264,6 @@ public final class Util {
 
     // The directory is now empty so delete it
     return dir.delete();
-  }
-
-  public static int compareByteArrays(byte[] first, byte[] second) {
-    if (first.length < second.length) {
-      return -1;
-    } else if (first.length > second.length) {
-      return 1;
-    }
-    if (Arrays.equals(first, second)) {
-      return 0;
-    }
-    for (int i = 0; i < first.length; ++i) {
-      if (first[i] < second[i]) {
-        return -1;
-      } else if (first[i] > second[i]) {
-        return 1;
-      }
-    }
-    return 0;
   }
 
   /**
