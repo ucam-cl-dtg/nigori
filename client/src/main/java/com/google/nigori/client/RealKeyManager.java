@@ -112,7 +112,7 @@ public class RealKeyManager implements KeyManager {
     this.ivSecretKey = pbkdf2(password, salt, NigoriConstants.N_IV, NigoriConstants.B_KMAC);
   }
   
-  private static byte[] pbkdf2(byte[] password, byte[] salt, int rounds, int outputByteCount) 
+  protected static byte[] pbkdf2(byte[] password, byte[] salt, int rounds, int outputByteCount) 
   throws NigoriCryptographyException {
 
     //Standard Java PBKDF2 takes the lower 8 bits of each element of a char array as input.

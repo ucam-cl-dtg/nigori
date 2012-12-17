@@ -21,8 +21,6 @@ import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThat;
 
-import java.io.UnsupportedEncodingException;
-
 import org.junit.Test;
 
 import com.google.nigori.common.NigoriCryptographyException;
@@ -35,7 +33,7 @@ public abstract class AbstractKeyManagerTest {
   private final String serverName = "serverName";
 
   @Test
-  public void getUsernameAndPassword() throws NigoriCryptographyException, UnsupportedEncodingException {
+  public void getUsernameAndPassword() throws NigoriCryptographyException {
     
     byte[] userName = toBytes("userName");
     byte[] password = toBytes("password");
@@ -44,25 +42,25 @@ public abstract class AbstractKeyManagerTest {
     assertArrayEquals("Username different",password,keyManger.getPassword());
   }
   @Test
-  public void decryptReversesEncrypt() throws UnsupportedEncodingException, NigoriCryptographyException {
+  public void decryptReversesEncrypt() throws NigoriCryptographyException {
     KeyManager keyManager = getKeyManager(serverName);
     byte[] plaintext = toBytes("plaintext");
     assertArrayEquals(plaintext,keyManager.decrypt(keyManager.encrypt(plaintext)));
   }
   @Test
-  public void encryptNotIdentity() throws UnsupportedEncodingException, NigoriCryptographyException{
+  public void encryptNotIdentity() throws NigoriCryptographyException{
     KeyManager keyManager = getKeyManager(serverName);
     byte[] plaintext = toBytes("plaintext");
     assertThat(plaintext, not(equalTo(keyManager.encrypt(plaintext))));
   }
   @Test
-  public void encryptSameValueGivesDifferentAnswers() throws UnsupportedEncodingException, NigoriCryptographyException{
+  public void encryptSameValueGivesDifferentAnswers() throws NigoriCryptographyException{
     KeyManager keyManager = getKeyManager(serverName);
     byte[] plaintext = toBytes("plaintext");
     assertThat(keyManager.encrypt(plaintext), not(equalTo(keyManager.encrypt(plaintext))));
   }
   @Test
-  public void encryptDeterministicallySameValueGivesSameAnswer() throws UnsupportedEncodingException, NigoriCryptographyException{
+  public void encryptDeterministicallySameValueGivesSameAnswer() throws NigoriCryptographyException{
     KeyManager keyManager = getKeyManager(serverName);
     byte[] plaintext = toBytes("plaintext");
     assertThat(keyManager.encryptDeterministically(plaintext), equalTo(keyManager.encryptDeterministically(plaintext)));

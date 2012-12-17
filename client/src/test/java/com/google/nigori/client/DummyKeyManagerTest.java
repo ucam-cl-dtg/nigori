@@ -15,8 +15,6 @@
  */
 package com.google.nigori.client;
 
-import java.io.UnsupportedEncodingException;
-
 import org.junit.Test;
 
 import com.google.nigori.common.NigoriCryptographyException;
@@ -40,12 +38,12 @@ public class DummyKeyManagerTest extends AbstractKeyManagerTest {
   }
   @Override
   @Test(expected=AssertionError.class)
-  public void encryptNotIdentity() throws UnsupportedEncodingException, NigoriCryptographyException{
+  public void encryptNotIdentity() throws NigoriCryptographyException{
     super.encryptNotIdentity();
   }
   @Override
   @Test(expected=AssertionError.class)
-  public void encryptSameValueGivesDifferentAnswers() throws UnsupportedEncodingException, NigoriCryptographyException{
+  public void encryptSameValueGivesDifferentAnswers() throws NigoriCryptographyException{
     super.encryptSameValueGivesDifferentAnswers();
   }
 }
