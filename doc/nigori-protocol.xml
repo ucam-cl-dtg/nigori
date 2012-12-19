@@ -238,7 +238,7 @@ Future specifications:
                                             at least 10 for FIPS-198
                                             compliance with
                                             HMAC-SHA1</c>
-          <c>Bkdsa</c>    <c>16</c>        <c>size in octets for Kuser</c>
+          <c>Bkdsa</c>    <c>384</c>        <c>size in octets for Kuser</c>
           <c>Bkenc</c>    <c>16</c>        <c>symmetric encryption key size
                                             (currently AES-128) (Kenc)</c>
           <c>Bkmac</c>    <c>16</c>        <c>encryption MAC key size (Kmac)</c>
