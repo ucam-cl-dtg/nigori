@@ -199,8 +199,8 @@ Future specifications:
         <t>HMAC(K, M) is the hash-based message authentication code of M with
         key K and hash function SHA-256 specified in <xref target="RFC2104"/>.</t>
 
-        <t>Enc(K1, K2, P) = R | C | HMAC(K2, C) where R is a random value and C
-        represents the encryption of plaintext P using AES-256
+        <t>Enc(K1, K2, P) = R | C | HMAC(K2, C) where R is a random IV for
+        AES-256 and C represents the encryption of plaintext P using AES-256
         (see <xref target="aes"/>) in CBC mode with initial vector R, standard
         padding (i.e. octets are padded to a multiple of 16) and key K1.</t>
 
