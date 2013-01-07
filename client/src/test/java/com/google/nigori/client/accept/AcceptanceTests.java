@@ -103,8 +103,7 @@ public class AcceptanceTests {
   @BeforeClass
   public static void startDevServer() throws Exception {
     startTime = System.currentTimeMillis();
-    // Timezone setting to workaround http://code.google.com/p/googleappengine/issues/detail?id=6928
-    Thread starter = new GaeThread("start -Dappengine.user.timezone.impl=UTC -Dappengine.user.timezone=UTC");
+    Thread starter = new GaeThread("start");
     starter.start();
     starter.join(EXTERNAL_TIMEOUT);
     starter.interrupt();
