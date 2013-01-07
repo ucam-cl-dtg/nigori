@@ -207,7 +207,7 @@ Future specifications:
         <t>EncDet(K1, K2, K3, P) = G | C | HMAC(K2, C) where G = F1 xor F2 and
         F1 | F2= HMAC(k3, P) and C represents the encryption of plaintext P
         using AES-256 in CBC mode with initial vector G, standard padding
-        (i.e. octets are padded to a multiple of 32) and key K1.</t>
+        (i.e. octets are padded to a multiple of 16) and key K1.</t>
 
         <t>DSAPubKey(K) represents the public key defined by the
         <xref target="dsa">Digital Signature Algorithm</xref> (DSA) generated
@@ -239,8 +239,8 @@ Future specifications:
                                             compliance with
                                             HMAC-SHA1</c>
           <c>Bkdsa</c>    <c>384</c>        <c>size in octets for Kuser</c>
-          <c>Bkenc</c>    <c>16</c>        <c>symmetric encryption key size
-                                            (currently AES-128) (Kenc)</c>
+          <c>Bkenc</c>    <c>32</c>        <c>symmetric encryption key size
+                                            (currently AES-256) (Kenc)</c>
           <c>Bkmac</c>    <c>16</c>        <c>encryption MAC key size (Kmac)</c>
           <c>Bkiv</c>     <c>16</c>        <c>iv HMAC key size (Kiv)</c>
           <c>Bkmaster</c> <c>16</c>        <c>size in octets of Kmaster</c>
