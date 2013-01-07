@@ -144,7 +144,7 @@ public class MConcurrencyTest extends AcceptanceTest {
         int value =Util.bin2int(head.getValue(), 0);
         total += value;
       }
-      assertEquals(206, total);
+      assertEquals(REPEATS*10-4, total);
       assertNotNull(deleteAt);
       if (deleteAt != null)
       assertTrue(migori.removeIndex(index, deleteAt.getRevision()));
