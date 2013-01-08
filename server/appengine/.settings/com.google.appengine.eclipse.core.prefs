@@ -1,3 +1,4 @@
-#Fri Oct 21 12:09:53 BST 2011
 eclipse.preferences.version=1
-filesCopiedToWebInfLib=datanucleus-jpa-2.1.8.jar|datanucleus-core-3.0.8.jar|datanucleus-appengine-2.0.0-final.jar|appengine-jsr107cache-1.6.2.jar|appengine-api-labs-1.6.2.jar|appengine-api-1.0-sdk-1.6.2.jar
+filesCopiedToWebInfLib=
+googleCloudSqlEnabled=false
+localDevMySqlEnabled=true

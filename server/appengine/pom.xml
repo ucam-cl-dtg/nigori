@@ -37,6 +37,11 @@
       <version>2.0.1.1</version>
       <!-- maven-datanucleus-plugin will need its transitive dependencies updating when this pulls in different transitive dependencies -->
     </dependency>
+    <dependency><!-- Need to override the version of appengine-api-1.0-sdk pulled in by datanucleus-appengine -->
+      <groupId>com.google.appengine</groupId>
+      <artifactId>appengine-api-1.0-sdk</artifactId>
+      <version>${appengine.version}</version>
+    </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
