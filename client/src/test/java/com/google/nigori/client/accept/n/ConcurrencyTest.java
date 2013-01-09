@@ -46,7 +46,7 @@ public class ConcurrencyTest extends AcceptanceTest {
     super(store);
   }
   public static final int THREADS = 4;
-  public static final int REPEAT_FACTOR = 7;
+  public static final int REPEAT_FACTOR = 5;
   protected boolean failed = false;
 
   public static void startThenJoinThreads(Thread[] threads){
