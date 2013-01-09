@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.nigori.common.MessageLibrary;
@@ -50,6 +51,9 @@ public class JEDatabase extends AbstractDatabase {
   private static final Logger log = Logger.getLogger(JEDatabase.class.getSimpleName());
   static {
     // log.addHandler(new ConsoleHandler());
+  }
+  private static void severe(String message, Exception exception){
+    log.log(Level.SEVERE, message, exception);
   }
   private static final DatabaseEntry USERS = new DatabaseEntry(MessageLibrary.toBytes("users"));
   private static final byte[] SEPARATOR = MessageLibrary.toBytes("/");
@@ -154,7 +158,7 @@ public class JEDatabase extends AbstractDatabase {
       txn.commit();
       return true;
     } catch (DatabaseException e) {
-      log.severe("Exception while adding user" + e);
+      severe("Exception while adding user", e);
       try {
         if (txn != null) {
           txn.abort();
@@ -176,7 +180,7 @@ public class JEDatabase extends AbstractDatabase {
         return false;
       }
     } catch (DatabaseException e) {
-      log.severe("Exception while adding user" + e);
+      severe("Exception while checking for user", e);
       return false;
     }
   }
@@ -209,7 +213,7 @@ public class JEDatabase extends AbstractDatabase {
         txn.commit();
       }
     } catch (DatabaseException e) {
-      log.severe("Exception while adding user" + e);
+      severe("Exception while deleting user", e);
       return false;
     }
   }
@@ -243,7 +247,7 @@ public class JEDatabase extends AbstractDatabase {
       }
       throw new UserNotFoundException();
     } catch (DatabaseException e) {
-      log.severe("Exception while adding user" + e);
+      severe("Exception while getting public key for user", e);
       throw new UserNotFoundException(e);
     }
   }
@@ -262,7 +266,7 @@ public class JEDatabase extends AbstractDatabase {
       }
       throw new UserNotFoundException();
     } catch (DatabaseException e) {
-      log.severe("Exception while adding user" + e);
+      severe("Exception while getting user", e);
       throw new UserNotFoundException(e);
     }
   }
@@ -292,7 +296,7 @@ public class JEDatabase extends AbstractDatabase {
         return false;
       }
     } catch (DatabaseException e) {
-      log.severe("Exception while adding user" + e);
+      severe("Exception while checking nonce for user", e);
       try {
         if (txn != null)
           txn.abort();
@@ -348,7 +352,7 @@ public class JEDatabase extends AbstractDatabase {
       return collection;
 
     } catch (DatabaseException e) {
-      log.severe("Exception while adding user" + e);
+      severe("Exception while getting record", e);
       try {
         if (txn != null)
           txn.abort();
@@ -489,7 +493,7 @@ public class JEDatabase extends AbstractDatabase {
       txn.commit();
       return true;
     } catch (DatabaseException e){
-      log.severe("Exception while adding user" + e);
+      severe("Exception while putting record", e);
       try {
         if (txn != null)
           txn.abort();
@@ -548,7 +552,7 @@ public class JEDatabase extends AbstractDatabase {
       txn.commit();
       return result;
     } catch (DatabaseException e) {
-      log.severe("Exception while adding user" + e);
+      severe("Exception while deleting record", e);
       try {
         if (txn != null)
           txn.abort();
