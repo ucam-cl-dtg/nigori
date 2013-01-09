@@ -8,6 +8,10 @@
     To allow App Engine to send multiple requests in parallel specify:
   -->
   <threadsafe>true</threadsafe>
+  <!-- Due to http://code.google.com/p/googleappengine/issues/detail?id=3754 
+    we can't use signed jar file as per https://developers.google.com/appengine/docs/java/runtime#no_signed_jars 
+    so we need to turn of precompilation as per https://developers.google.com/appengine/docs/java/config/appconfig#Disabling_Precompilation -->
+  <precompilation-enabled>false</precompilation-enabled>
  
   <!-- Configure java.util.logging -->
   <system-properties>
