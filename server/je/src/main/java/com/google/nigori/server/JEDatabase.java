@@ -61,16 +61,29 @@ public class JEDatabase extends AbstractDatabase {
   private static final byte[] KEY = MessageLibrary.toBytes("key");
   private static Map<String, JEDatabase> databaseMap = new WeakHashMap<String, JEDatabase>();
 
+  /**
+   * Get an instance of a JEDatabase for a particular directory, if we already have a valid
+   * JEDatabase for that directory return that instead of creating a new one
+   * 
+   * @param dataDirectory
+   * @return a JEDatabase for that directory
+   */
   public static JEDatabase getInstance(File dataDirectory) {
     String key = dataDirectory.getAbsolutePath();
     JEDatabase instance = databaseMap.get(key);
     if (instance != null) {
-      return instance;
-    } else {
-      instance = new JEDatabase(dataDirectory);
-      databaseMap.put(key, instance);
-      return instance;
+      try {
+        instance.env.sync();
+        return instance;
+      } catch (DatabaseException e) {
+        // No longer valid
+        instance.env.close();
+        databaseMap.remove(key);
+      }
     }
+    instance = new JEDatabase(dataDirectory);
+    databaseMap.put(key, instance);
+    return instance;
   }
 
   private JEDatabase(File dataDirectory) {
