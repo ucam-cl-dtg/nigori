@@ -20,6 +20,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -53,6 +55,13 @@ import com.google.nigori.common.Util;
  */
 public class DatabaseNigoriProtocol implements NigoriProtocol {
 
+  private static final Logger log = Logger.getLogger(DatabaseNigoriProtocol.class.getSimpleName());
+  private static void warning(String message, Exception exception){
+    log.log(Level.WARNING, message, exception);
+  }
+  private static void severe(String message, Exception exception){
+    log.log(Level.SEVERE, message, exception);
+  }
   private final Database database;
 
   public DatabaseNigoriProtocol(Database database) {
@@ -103,9 +112,11 @@ public class DatabaseNigoriProtocol implements NigoriProtocol {
           throw new UnauthorisedException("The signature is invalid");
         }
       } catch (NoSuchAlgorithmException nsae) {
+        severe("authenticateUser",nsae);
         throw new CryptoException("Internal error attempting to verify signature");
       }
     } catch (UserNotFoundException e1) {
+      warning("authenticateUser",e1);
       throw new UnauthorisedException("No such user");
     }
   }
