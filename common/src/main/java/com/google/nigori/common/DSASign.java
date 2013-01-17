@@ -27,7 +27,7 @@ import org.bouncycastle.crypto.params.DSAPrivateKeyParameters;
 public class DSASign extends DSAVerify {
 
   private final BigInteger privateKey;
-  private final DSAPrivateKeyParameters params;
+  protected DSAPrivateKeyParameters privateParams;
 
   /**
    * Given {@code privateKey} create a object capable of generating DSA signatures with it.
@@ -38,7 +38,7 @@ public class DSASign extends DSAVerify {
   public DSASign(byte[] privateKey) throws NoSuchAlgorithmException {
     super(NigoriConstants.DSA_G.modPow(Util.byteToBigInt(privateKey), NigoriConstants.DSA_P));
     this.privateKey = Util.byteToBigInt(privateKey);
-    this.params = new DSAPrivateKeyParameters(this.privateKey, NigoriConstants.DSA_PARAMS);
+    this.privateParams = new DSAPrivateKeyParameters(this.privateKey, NigoriConstants.DSA_PARAMS);
   }
 
   /**
@@ -49,7 +49,7 @@ public class DSASign extends DSAVerify {
    * @throws NoSuchAlgorithmException thrown is {@code DIGEST_ALGORITHM} is not available.
    */
   public DSASignature sign(byte[] message) throws NoSuchAlgorithmException {
-    signer.init(true, params);
+    signer.init(true, privateParams);
     MessageDigest hash = MessageDigest.getInstance(DIGEST_ALGORITHM);
     hash.update(message);
     BigInteger[] sig = signer.generateSignature(hash.digest());

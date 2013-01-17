@@ -31,16 +31,16 @@ public class DSAVerify {
   protected final DSASigner signer;
 
   private final BigInteger publicKey;
-  private DSAPublicKeyParameters params;
+  protected DSAPublicKeyParameters publicParams;
   private byte[] publicHash;
 
   public DSAVerify(byte[] publicKey) throws NoSuchAlgorithmException {
     this(Util.byteToBigInt(publicKey));
-    this.params = new DSAPublicKeyParameters(this.publicKey, NigoriConstants.DSA_PARAMS);
   }
 
   protected DSAVerify(BigInteger publicKey) throws NoSuchAlgorithmException {
     this.publicKey = publicKey;
+    this.publicParams = new DSAPublicKeyParameters(this.publicKey, NigoriConstants.DSA_PARAMS);
     this.publicHash = Util.hashKey(getPublicKey());
     signer = new DSASigner();
   }
@@ -69,7 +69,7 @@ public class DSAVerify {
    * @throws NoSuchAlgorithmException if {@code DIGEST_ALGORITHM} is not available.
    */
   public boolean verify(DSASignature sig) throws NoSuchAlgorithmException {
-    signer.init(false, params);
+    signer.init(false , publicParams);
     MessageDigest hash = MessageDigest.getInstance(DIGEST_ALGORITHM);
     hash.update(sig.getMessage());
     return signer.verifySignature(hash.digest(), Util.byteToBigInt(sig.getR()), Util
