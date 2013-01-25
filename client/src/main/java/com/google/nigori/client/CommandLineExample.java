@@ -41,7 +41,7 @@ public class CommandLineExample {
     out.println("  authenticate username password");
     out.println("  put username password index value");
     out.println("  get username password index");
-    out.println("  delete username password key");
+    out.println("  delete username password index");
   }	
 	
 	public static void main(String[] args) throws Exception {
