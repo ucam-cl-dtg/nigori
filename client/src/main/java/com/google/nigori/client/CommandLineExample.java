@@ -85,10 +85,14 @@ public class CommandLineExample {
 				usage();
 				return;
 			}
-			try {
-				Collection<RevValue> data = nigori.get(new Index(args[5]));
-        for (RevValue datum : data) {
-          System.out.println(datum.getRevision() + " : " + new String(datum.getValue()));
+      try {
+        Collection<RevValue> data = nigori.get(new Index(args[5]));
+        if (data != null) {
+          for (RevValue datum : data) {
+            System.out.println(datum.getRevision() + " : " + new String(datum.getValue()));
+          }
+        } else {
+          System.out.println("No values for index.");
         }
 			} catch (IOException ioe) {
 				System.out.println(ioe.getMessage());
