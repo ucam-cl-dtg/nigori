@@ -282,10 +282,17 @@ Future specifications:
       derivation which allows password recovery via a trusted third party.</t>
 
       <t>Both key derivation methods use the same per-user, per-server, salt value:
-      <list>
+        <list>
           <t>Suser = PBKDF2(Username || Servername, Usersalt,
             Nsalt, Bsuser)</t>
         </list>
+        Where Servername = Sname | ":" | Port. Sname is the DNS name or IP
+        address of the server and Port is the port to connect to
+        (i.e. 443 for https).
+        Username is the UTF-8 representation of the username, this MUST be
+        unqiue to the user and per store e.g. a suitably large random string
+        (>128 bits), email address or phone number plus some store specific
+        string.
       </t>
 
 
