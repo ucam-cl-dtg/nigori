@@ -375,7 +375,7 @@ Future specifications:
       
       <list><t>DSAPubKey(Kuser), S, T, R, M, DSASign(Kuser, S || T || R || M)</t></list>
       where S is the server name, T is the time in seconds since 1st January
-      1970 and R is a nonce.
+      1970, R is a (32 bit) nonce and the output of DSASign is defined in <xref target="dsa"/>.
       At least one field must be different every time a message is sent to the server,
       therefore clients MUST ensure that T || R is different for every request.
       The server MUST check that S || T || R || M has not been seen before;
@@ -671,7 +671,11 @@ message DeleteRequest {
       <t>Messages are sent to the server by a POST request to [server]/command
       where command is the result of removing the Request or Response from the
       string inserting a - between words and making lower case.
-      e.g. GetRequest => get, GetIndicesRequest => get-indices.</t>
+      e.g. GetRequest => get, GetIndicesRequest => get-indices.</t><!-- TODO(drt24) verify we actually do this -->
+
+      <t>The nonce in AuthenticateRequest is a 64 bit value formed by R | T
+      where R is a 32 bit random number and T is the 32 bit integer
+      representing time since epoch in seconds.</t>
 
       <section anchor="responses" title="Responses">
 
