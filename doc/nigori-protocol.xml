@@ -238,7 +238,7 @@ Future specifications:
                                             at least 10 for FIPS-198
                                             compliance with
                                             HMAC-SHA1</c>
-          <c>Bkdsa</c>    <c>384</c>        <c>size in octets for Kuser</c>
+          <c>Bkdsa</c>    <c>32</c>        <c>size in octets for Kuser</c>
           <c>Bkenc</c>    <c>32</c>        <c>symmetric encryption key size
                                             (currently AES-256) (Kenc)</c>
           <c>Bkmac</c>    <c>16</c>        <c>encryption MAC key size (Kmac)</c>
@@ -260,11 +260,11 @@ Future specifications:
 
       <t>Four keys are required for the Nigori protocol
         <list>
-          <t>Kuser represents the user authentication key and is used to
-            authenticate the user to the Nigori server(s). Note that
-            this is used in a way which does not give an eavesdropper
-            a dictionary attack against the master password from which
-            it is derived.</t>
+          <t>Kuser represents the private component of the user authentication
+            key and is used to authenticate the user to the Nigori server(s).
+            Note that this is used in a way which does not give an eavesdropper
+            a dictionary attack against the master password from which it is
+            derived.</t>
           <t>Kenc represents the secret encryption key and is used to
             encrypt the user's secrets at the Nigori server(s)</t>
           <t>Kmac represents the secret authentication key and is used to
@@ -364,7 +364,7 @@ Future specifications:
 
     <section title="Authentication">
 
-      <t>When the user registers at a server, he presents DSAKey(Kuser) and a
+      <t>When the user registers at a server, he presents DSAPubKey(Kuser) and a
       token asserting his right to do so.
       The token is used to support any administration features such as
       restrictions on creating accounts or quotas as discussed in <xref target="admin"/>.
