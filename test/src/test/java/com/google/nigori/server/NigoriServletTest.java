@@ -16,7 +16,6 @@
 package com.google.nigori.server;
 
 import static com.google.nigori.common.MessageLibrary.toBytes;
-
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.aryEq;
 import static org.easymock.EasyMock.capture;
@@ -31,7 +30,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -94,7 +92,7 @@ public class NigoriServletTest {
 	
 	class TestInputStream extends ServletInputStream {
 		ByteArrayInputStream in;
-		TestInputStream(String s) throws UnsupportedEncodingException {
+		TestInputStream(String s) {
 			
 			in = new ByteArrayInputStream(toBytes(s));
 		}
@@ -224,9 +222,9 @@ public class NigoriServletTest {
 		runReplayVerifyWithDoPost(out);
 		
 		String jsonResponse = new String(result.getValue(), 0, size.getValue(), MessageLibrary.CHARSET);
-		GetResponse response = MessageLibrary.getResponseFromJson(jsonResponse);
+		GetResponse getResponse = MessageLibrary.getResponseFromJson(jsonResponse);
 
-    List<RevisionValue> revs = response.getRevisionsList();
+    List<RevisionValue> revs = getResponse.getRevisionsList();
     assertEquals(1,revs.size());
     for (RevisionValue rev : revs) {
       assertArrayEquals(revision, rev.getRevision().toByteArray());
