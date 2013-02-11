@@ -364,7 +364,17 @@ public class NigoriServlet extends HttpServlet {
 	  try {
 	    //Subset of path managed by this servlet; e.g. if URI is "/nigori/get" and servlet path
 	    //is "/nigori, then we want to retrieve "get" as the request type
-	    String requestType = req.getRequestURI().substring(req.getServletPath().length() + 1);
+	    int startIndex = req.getServletPath().length() + 1;
+	    String requestURI = req.getRequestURI();
+      if (requestURI.length() <= startIndex) {
+        ServletException s =
+            new ServletException(HttpServletResponse.SC_BAD_REQUEST, "No request type specified.\n"
+                + supportedTypes + "\n");
+        log.fine(s.toString());
+        s.writeHttpResponse(resp);
+        return;
+      }
+	    String requestType = requestURI.substring(startIndex);
 	    String requestMimetype = req.getContentType();
 	    RequestHandlerType handlerType = new RequestHandlerType(requestMimetype, requestType);
 
