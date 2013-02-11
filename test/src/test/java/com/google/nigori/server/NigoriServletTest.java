@@ -111,11 +111,20 @@ public class NigoriServletTest {
 		expect(request.getContentLength()).andReturn(json.length());
 		expect(request.getCharacterEncoding()).andReturn(MessageLibrary.CHARSET);
 		expect(request.getInputStream()).andReturn(new TestInputStream(json));		
-	}
-	
+  }
+
+	/**
+	 * Expect headers to be added for CORS - we don't care about their structure
+	 */
+  private void corsHeaders() {
+    response.addHeader(anyObject(String.class), anyObject(String.class));
+    response.addHeader(anyObject(String.class), anyObject(String.class));
+    response.addHeader(anyObject(String.class), anyObject(String.class));
+  }
+
 	private ServletOutputStream expectedCallsForResponse(int statusCode, String mimetype) throws 
 	IOException {
-		
+	  corsHeaders();
 		final ServletOutputStream out = createMock(ServletOutputStream.class);
 		response.setContentType(mimetype);
 		response.setCharacterEncoding(MessageLibrary.CHARSET);
@@ -137,7 +146,7 @@ public class NigoriServletTest {
 	}
 	
 	private void expectedCallsToOutputOkay() throws IOException {
-		
+	  corsHeaders();
 		response.setContentType(MessageLibrary.MIMETYPE_JSON);
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.flushBuffer();
