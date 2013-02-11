@@ -688,7 +688,7 @@ message DeleteRequest {
         <t>401 2 This is a replay</t>
         <t>403 1 Signature verifies but ACL doesn't</t>
         <t>403 1 Insufficient quota</t>
-        <t>406 1 Request mime type not supported</t>
+        <t>406 1 Request mime type not supported <!--TODO(drt24) supported mimetypes list --></t>
 
       </section>
 
