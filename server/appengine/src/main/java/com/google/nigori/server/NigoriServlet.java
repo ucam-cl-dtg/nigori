@@ -326,8 +326,8 @@ public class NigoriServlet extends HttpServlet {
 	}
 
 	//TODO(beresford): double-check that Servlet instances are created rarely
-	private HashMap<RequestHandlerType, RequestHandler> handlers = initHandlers();
 	private String supportedTypes = null;
+	private HashMap<RequestHandlerType, RequestHandler> handlers = initHandlers();
 	private HashMap<RequestHandlerType, RequestHandler> initHandlers() {
 		HashMap<RequestHandlerType, RequestHandler> h = 
 			new HashMap<RequestHandlerType, RequestHandler>();
