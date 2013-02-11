@@ -252,6 +252,15 @@ public class NigoriServletTest {
 		runReplayVerifyWithDoPost(out);
 	}
 
+  @Test
+  public void testMissingRequest() throws Exception {
+    expect(request.getServletPath()).andReturn("nigori");
+    expect(request.getRequestURI()).andReturn("nigori/");
+    ServletOutputStream out = expectedCallsForErrorResponse(HttpServletResponse.SC_BAD_REQUEST);
+
+    runReplayVerifyWithDoPost(out);
+  }
+
 	@Test
 	public void testJSONGetRequestWithCorrectFieldsButCorruptedValues() throws Exception {
 
