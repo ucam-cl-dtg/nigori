@@ -355,19 +355,35 @@ public class NigoriServlet extends HttpServlet {
 		return h;
 	}
 
+  /**
+   * Enable cors: http://enable-cors.org/server.html to allow access from javascript/dart clients
+   * using code from a different domain
+   * 
+   * @param resp the response to add the headers to
+   */
+  private void addCorsHeaders(HttpServletResponse resp) {
+    resp.addHeader("Access-Control-Allow-Origin", "*");
+    resp.addHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+    resp.addHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  }
+
+  /**
+   * Add CORS headers to options requests
+   */
+  @Override
+  protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws IOException,
+      javax.servlet.ServletException {
+    addCorsHeaders(resp);
+    super.doOptions(req, resp);
+  }
+
 	/**
 	 * Handle initial request from client and dispatch to appropriate handler or return error message.
 	 */
 	@Override
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-
 	  try {
-      // Enable cors: http://enable-cors.org/server.html to allow access from javascript/dart
-      // clients using code from a different domain
-      resp.addHeader("Access-Control-Allow-Origin", "*");
-      resp.addHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-      resp.addHeader("Access-Control-Allow-Headers",
-          "Origin, X-Requested-With, Content-Type, Accept");
+	    addCorsHeaders(resp);
 	    //Subset of path managed by this servlet; e.g. if URI is "/nigori/get" and servlet path
 	    //is "/nigori, then we want to retrieve "get" as the request type
 	    int startIndex = req.getServletPath().length() + 1;
