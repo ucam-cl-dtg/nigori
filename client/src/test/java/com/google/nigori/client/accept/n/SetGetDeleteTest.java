@@ -1,17 +1,15 @@
 /*
  * Copyright (C) 2011 Daniel Thomas (drt24)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package com.google.nigori.client.accept.n;
 
@@ -52,7 +50,7 @@ public class SetGetDeleteTest extends AcceptanceTest {
 
     public IndexValue(String index, String revision, String value, boolean later) {
       this.index = new Index(index);
-      this.revvalue = new RevValue(toBytes(revision),toBytes(value));
+      this.revvalue = new RevValue(toBytes(revision), toBytes(value));
       this.later = later;
     }
   }
@@ -65,8 +63,11 @@ public class SetGetDeleteTest extends AcceptanceTest {
           new IndexValue("", "1", "foo", true),
           new IndexValue("foo", "", "", false),
           new IndexValue("foo", "0", "", true),
-          new IndexValue("qwertyuiopasdfghjkl;zxcvbnm,./", " ",
-              "jlkvjhskldhjvguyvh78ryfgkjvjhzsahkjrtgagflbakjsdvskjhsjkhdafkjdashlkjajhasfkjsadhf;adshfkjd", false)};
+          new IndexValue(
+              "qwertyuiopasdfghjkl;zxcvbnm,./",
+              " ",
+              "jlkvjhskldhjvguyvh78ryfgkjvjhzsahkjrtgagflbakjsdvskjhsjkhdafkjdashlkjajhasfkjsadhf;adshfkjd",
+              false)};
 
   @Test
   public void setGetDelete() throws NigoriCryptographyException, IOException, UnauthorisedException {
@@ -85,11 +86,11 @@ public class SetGetDeleteTest extends AcceptanceTest {
           assertTrue("Not put " + i, nigori.put(index, revision, value));
           List<RevValue> revs = nigori.get(index);
           assertFalse("Revisions must exist" + i, revs.isEmpty());
-          assertThat(revs,hasItem(iv.revvalue));
+          assertThat(revs, hasItem(iv.revvalue));
           assertEquals("Not one revision " + i, 1, revs.size());
-          assertTrue("Not deleted" + i, nigori.delete(index,NULL_DELETE_TOKEN));
+          assertTrue("Not deleted" + i, nigori.delete(index, NULL_DELETE_TOKEN));
           assertNull("Not deleted" + i, nigori.get(index));
-          assertFalse("Could redelete", nigori.delete(index,NULL_DELETE_TOKEN));
+          assertFalse("Could redelete", nigori.delete(index, NULL_DELETE_TOKEN));
         }
         // allow them to accumulate
         for (IndexValue iv : testCases) {
@@ -109,9 +110,9 @@ public class SetGetDeleteTest extends AcceptanceTest {
           for (IndexValue iv : testCases) {
             final Index index = iv.index;
             if (!iv.later) {
-              assertTrue("Not deleted" + i, nigori.delete(index,NULL_DELETE_TOKEN));
+              assertTrue("Not deleted" + i, nigori.delete(index, NULL_DELETE_TOKEN));
             } else {// should have already been deleted
-              assertFalse("Not deleted" + i, nigori.delete(index,NULL_DELETE_TOKEN));
+              assertFalse("Not deleted" + i, nigori.delete(index, NULL_DELETE_TOKEN));
             }
           }
         }
@@ -138,11 +139,11 @@ public class SetGetDeleteTest extends AcceptanceTest {
       try {
         List<Revision> revisions = nigori.getRevisions(index);
         assertNotNull("No revisions", revisions);
-        assertEquals("Not correct number of revisions", 2,revisions.size());
-        assertThat(revisions,hasItem(a));
-        assertThat(revisions,hasItem(b));
+        assertEquals("Not correct number of revisions", 2, revisions.size());
+        assertThat(revisions, hasItem(a));
+        assertThat(revisions, hasItem(b));
       } finally {
-        nigori.delete(index,NULL_DELETE_TOKEN);
+        nigori.delete(index, NULL_DELETE_TOKEN);
       }
     } finally {
       assertTrue("Not unregistered", nigori.unregister());
@@ -166,15 +167,16 @@ public class SetGetDeleteTest extends AcceptanceTest {
         assertThat(indices, hasItem(indexa));
         assertThat(indices, hasItem(indexb));
       } finally {
-        nigori.delete(indexa,NULL_DELETE_TOKEN);
-        nigori.delete(indexb,NULL_DELETE_TOKEN);
+        nigori.delete(indexa, NULL_DELETE_TOKEN);
+        nigori.delete(indexb, NULL_DELETE_TOKEN);
       }
     } finally {
       assertTrue("Not unregistered", nigori.unregister());
     }
   }
 
-  //@Test //TODO(drt24) Do we want to enforce revisions being immutable? Migori doesn't really need this due to the way revisions are generated.
+  // @Test //TODO(drt24) Do we want to enforce revisions being immutable? Migori doesn't really need
+  // this due to the way revisions are generated.
   public void immutableRevisions() throws IOException, NigoriCryptographyException,
       UnauthorisedException {
     NigoriDatastore nigori = getStore();

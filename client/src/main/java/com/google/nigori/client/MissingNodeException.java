@@ -14,7 +14,8 @@
 package com.google.nigori.client;
 
 /**
- * Exception when an expected node in a {@link DAG} is not present 
+ * Exception when an expected node in a {@link DAG} is not present
+ * 
  * @author drt24
  * 
  */

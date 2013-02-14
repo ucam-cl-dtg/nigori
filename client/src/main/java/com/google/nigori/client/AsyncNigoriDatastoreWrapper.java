@@ -52,7 +52,8 @@ public class AsyncNigoriDatastoreWrapper implements AsyncNigoriDatastore {
   }
 
   @Override
-  public boolean unregister() throws IOException, NigoriCryptographyException, UnauthorisedException {
+  public boolean unregister() throws IOException, NigoriCryptographyException,
+      UnauthorisedException {
     try {
       // Wait for the outstanding tasks to be completed before unregistering
       await(30, TimeUnit.SECONDS);
@@ -192,14 +193,16 @@ public class AsyncNigoriDatastoreWrapper implements AsyncNigoriDatastore {
   }
 
   /**
-   * Wait until all the tasks currently in the executor are done or the timeout is exceeded
-   * Point {@link #executor} to a new ExecutorService and then shut the old one down and wait until this is done.
+   * Wait until all the tasks currently in the executor are done or the timeout is exceeded Point
+   * {@link #executor} to a new ExecutorService and then shut the old one down and wait until this
+   * is done.
+   * 
    * @param timeout
    * @param unit
    * @throws InterruptedException
    */
   private void await(long timeout, TimeUnit unit) throws InterruptedException {
-    
+
     synchronized (executor) {
       ExecutorService lexecutor = executor;
       executor = Executors.newFixedThreadPool(NUM_THREADS);

@@ -43,7 +43,7 @@ public class RegistrationTest extends AcceptanceTest {
     Datastore nigori = getStore();
     for (int i = 0; i < AcceptanceTests.REPEAT; ++i) {// check we can do this more than once
       assertTrue("Not registered", nigori.register());
-      assertTrue("Can't authenticate",nigori.authenticate());
+      assertTrue("Can't authenticate", nigori.authenticate());
       assertTrue("Can't unregister", nigori.unregister());
       assertFalse("Authenticated after unregistration", nigori.authenticate());
       assertFalse("Could re-unregister", nigori.unregister());

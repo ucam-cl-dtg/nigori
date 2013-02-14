@@ -45,7 +45,7 @@ public interface DAG<T> extends Iterable<Node<T>> {
    * 
    * @param node the node to get the predecessors of
    * @return a collection of those predecessors - empty if there are none
-   * @throws MissingNodeException 
+   * @throws MissingNodeException
    */
   Collection<Node<T>> getPredecessors(Node<T> node) throws MissingNodeException;
 
@@ -68,6 +68,7 @@ public interface DAG<T> extends Iterable<Node<T>> {
 
   interface DAGFactory {
     public DAG<Revision> getDag(Collection<Revision> values);
+
     public Node<Revision> getNode(Revision rev);
   }
 }

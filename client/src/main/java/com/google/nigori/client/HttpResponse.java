@@ -101,6 +101,7 @@ class HttpResponse {
       }
     }
   }
+
   public void close() throws IOException {
     input.close();
   }

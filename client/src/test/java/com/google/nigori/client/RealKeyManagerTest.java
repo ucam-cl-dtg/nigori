@@ -120,8 +120,9 @@ public class RealKeyManagerTest extends AbstractKeyManagerTest {
 
   @Test
   public void encryptDeterministically() throws NigoriCryptographyException {
-    for (EncryptionTestCase testCase : detEncryptionTestCases){
-      assertArrayEquals(testCase.answer, testCase.keyManager.encryptDeterministically(testCase.plaintext));
+    for (EncryptionTestCase testCase : detEncryptionTestCases) {
+      assertArrayEquals(testCase.answer,
+          testCase.keyManager.encryptDeterministically(testCase.plaintext));
     }
   }
 }

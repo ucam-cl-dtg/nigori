@@ -71,7 +71,7 @@ public class HashDAG implements DAG<Revision> {
    */
   private void walkGraph(RNode node) {
     Collection<RNode> successors = allSuccessors.get(node.index);
-    if (successors == null){// No successors so a head
+    if (successors == null) {// No successors so a head
       heads.add(node);
       return;
     }
@@ -171,7 +171,7 @@ public class HashDAG implements DAG<Revision> {
     private Collection<RevIndex> predecessors;
     private Set<RNode> successors;
 
-    public RNode(Revision value){
+    public RNode(Revision value) {
       byte[] revBytes = value.getBytes();
       if (revBytes.length < HASH_SIZE) {
         throw new IllegalArgumentException(String.format(
@@ -270,8 +270,9 @@ public class HashDAG implements DAG<Revision> {
 
   /**
    * Do a breadth first walk of the graph avoiding duplicates
+   * 
    * @author drt24
-   *
+   * 
    */
   private class HashIterator implements Iterator<Node<Revision>> {
 
@@ -286,7 +287,7 @@ public class HashDAG implements DAG<Revision> {
     public HashIterator() {
       seen = new HashSet<Node<Revision>>();
       currentIterator = heads.iterator();
-      if (currentIterator.hasNext()){
+      if (currentIterator.hasNext()) {
         next = currentIterator.next();
         seen.add(next);
       }

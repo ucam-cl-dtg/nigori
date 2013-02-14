@@ -31,6 +31,7 @@ public interface AsyncDatastore {
 
   /**
    * Synchronous
+   * 
    * @return
    * @throws IOException
    * @throws NigoriCryptographyException
@@ -39,9 +40,10 @@ public interface AsyncDatastore {
 
   /**
    * Synchronous
-   * @throws UnauthorisedException 
-   * @throws NigoriCryptographyException 
-   * @throws IOException 
+   * 
+   * @throws UnauthorisedException
+   * @throws NigoriCryptographyException
+   * @throws IOException
    */
   boolean unregister() throws IOException, NigoriCryptographyException, UnauthorisedException;
 

@@ -39,7 +39,7 @@ public interface NigoriDatastore extends Datastore {
    * @param value the data value associated with the index and revision.
    * @return true if the data was successfully inserted; false otherwise.
    * @throws NigoriCryptographyException
-   * @throws UnauthorisedException 
+   * @throws UnauthorisedException
    */
   public boolean put(Index index, Revision revision, byte[] value) throws IOException,
       NigoriCryptographyException, UnauthorisedException;
@@ -48,21 +48,24 @@ public interface NigoriDatastore extends Datastore {
    * Retrieve the revision-values associated with {@code index} on the server.
    * 
    * @param index
-   * @return a List of revision-values containing the data associated with {@code index} or {@code null} if no data
-   *         exists.
-   * @throws UnauthorisedException 
+   * @return a List of revision-values containing the data associated with {@code index} or
+   *         {@code null} if no data exists.
+   * @throws UnauthorisedException
    */
-  public List<RevValue> get(Index index) throws IOException, NigoriCryptographyException, UnauthorisedException;
+  public List<RevValue> get(Index index) throws IOException, NigoriCryptographyException,
+      UnauthorisedException;
 
   /**
    * Get the revisions for a particular index
+   * 
    * @param index
    * @return a List of revisions for the index or null if the index does not exist.
    * @throws NigoriCryptographyException
    * @throws IOException
-   * @throws UnauthorisedException 
+   * @throws UnauthorisedException
    */
-  public List<Revision> getRevisions(Index index) throws NigoriCryptographyException, IOException, UnauthorisedException;
+  public List<Revision> getRevisions(Index index) throws NigoriCryptographyException, IOException,
+      UnauthorisedException;
 
   /**
    * Delete the index (and associated revisions and values) on the server
@@ -72,8 +75,9 @@ public interface NigoriDatastore extends Datastore {
    *         occurred.
    * @throws IOException
    * @throws NigoriCryptographyException
-   * @throws UnauthorisedException 
+   * @throws UnauthorisedException
    */
-  public boolean delete(Index index, byte[] token) throws NigoriCryptographyException, IOException, UnauthorisedException;
+  public boolean delete(Index index, byte[] token) throws NigoriCryptographyException, IOException,
+      UnauthorisedException;
 
 }

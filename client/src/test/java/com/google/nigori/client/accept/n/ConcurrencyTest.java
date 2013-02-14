@@ -1,17 +1,15 @@
 /*
  * Copyright (C) 2011 Daniel Thomas (drt24)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package com.google.nigori.client.accept.n;
 
@@ -45,35 +43,40 @@ public class ConcurrencyTest extends AcceptanceTest {
   public ConcurrencyTest(DatastoreFactory store) {
     super(store);
   }
+
   public static final int THREADS = 4;
   public static final int REPEAT_FACTOR = 5;
   protected boolean failed = false;
 
-  public static void startThenJoinThreads(Thread[] threads){
-    for (Thread t : threads){
+  public static void startThenJoinThreads(Thread[] threads) {
+    for (Thread t : threads) {
       t.start();
     }
-    for (Thread t : threads){
+    for (Thread t : threads) {
       try {
         t.join();
       } catch (InterruptedException e) {// just continue
       }
     }
   }
-  public static void ifFailedPrintFailures(boolean failed, List<Throwable> exceptionList) throws UnsupportedEncodingException{
-    if (failed){
+
+  public static void ifFailedPrintFailures(boolean failed, List<Throwable> exceptionList)
+      throws UnsupportedEncodingException {
+    if (failed) {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       PrintStream ps = new PrintStream(baos);
-      for (Throwable e : exceptionList){
+      for (Throwable e : exceptionList) {
         e.printStackTrace(ps);
-        //ps.println();
+        // ps.println();
       }
       String stacktraces = baos.toString(MessageLibrary.CHARSET);
       fail("Exceptions during concurrency testing\n" + stacktraces);
     }
   }
+
   /**
    * Test that multiple users can do stuff at the same time.
+   * 
    * @throws NigoriCryptographyException
    * @throws IOException
    */
@@ -91,8 +94,8 @@ public class ConcurrencyTest extends AcceptanceTest {
           try {
             NigoriDatastore nigori = getStore();
 
-            for (int i = 0; i < AcceptanceTests.REPEAT * REPEAT_FACTOR; ++i) {// check we can do this more than
-                                                                   // once
+            for (int i = 0; i < AcceptanceTests.REPEAT * REPEAT_FACTOR; ++i) {
+              // check we can do this more than once
               assertTrue("Not registered" + i, nigori.register());
               try {
                 for (IndexValue iv : SetGetDeleteTest.testCases) {// once round for each
@@ -101,7 +104,7 @@ public class ConcurrencyTest extends AcceptanceTest {
                   final Revision revision = iv.revvalue.getRevision();
                   assertTrue("Not put" + i, nigori.put(index, revision, value));
                   assertArrayEquals("Got different" + i, value, nigori.getRevision(index, revision));
-                  assertTrue("Not deleted " + i, nigori.delete(index,NULL_DELETE_TOKEN));
+                  assertTrue("Not deleted " + i, nigori.delete(index, NULL_DELETE_TOKEN));
                   assertNull("Still there after deletion " + i, nigori.get(index));
                 }
               } finally {
@@ -112,7 +115,7 @@ public class ConcurrencyTest extends AcceptanceTest {
           } catch (Throwable e) {
             exceptionList.add(e);
           } finally {
-            if (!succeeded && !failed ){
+            if (!succeeded && !failed) {
               failed = true;
             }
           }
@@ -120,23 +123,27 @@ public class ConcurrencyTest extends AcceptanceTest {
       };
     }
     startThenJoinThreads(threads);
-    ifFailedPrintFailures(failed,exceptionList);
+    ifFailedPrintFailures(failed, exceptionList);
   }
+
   /**
    * Test that one user can do lots of things at the same time.
+   * 
    * @throws NigoriCryptographyException
    * @throws IOException
-   * @throws UnauthorisedException 
+   * @throws UnauthorisedException
    */
   @Test
-  public void singleUserConcurrency() throws NigoriCryptographyException, IOException, UnauthorisedException {
+  public void singleUserConcurrency() throws NigoriCryptographyException, IOException,
+      UnauthorisedException {
     failed = false;
     Thread[] threads = new Thread[THREADS];
 
     final NigoriDatastore nigori = getStore();
     assertTrue("Not registered", nigori.register());
     try {
-      final List<Throwable> exceptionList = Collections.synchronizedList(new LinkedList<Throwable>());
+      final List<Throwable> exceptionList =
+          Collections.synchronizedList(new LinkedList<Throwable>());
       for (int j = 0; j < THREADS; ++j) {
         threads[j] = new Thread() {
           @Override
@@ -144,8 +151,8 @@ public class ConcurrencyTest extends AcceptanceTest {
             boolean succeeded = false;
             try {
               Random r = new Random();
-              for (int i = 0; i < AcceptanceTests.REPEAT * REPEAT_FACTOR; ++i) {// check we can do this more than
-                // once
+              for (int i = 0; i < AcceptanceTests.REPEAT * REPEAT_FACTOR; ++i) {
+                // check we can do this more than once
                 for (IndexValue iv : SetGetDeleteTest.testCases) {// once round for each
                   final Index index = new Index(new byte[16]);
                   r.nextBytes(index.getBytes());// need to generate some different indices
@@ -153,7 +160,8 @@ public class ConcurrencyTest extends AcceptanceTest {
                   final Revision revision = iv.revvalue.getRevision();
                   assertTrue("Not put" + i, nigori.put(index, revision, value));
                   try {
-                    assertArrayEquals("Got different" + i, value, nigori.getRevision(index,revision));
+                    assertArrayEquals("Got different" + i, value, nigori.getRevision(index,
+                        revision));
                   } finally {
                     assertTrue("Not deleted" + i, nigori.delete(index, NULL_DELETE_TOKEN));
                   }
@@ -164,7 +172,7 @@ public class ConcurrencyTest extends AcceptanceTest {
             } catch (Throwable e) {
               exceptionList.add(e);
             } finally {
-              if (!succeeded && !failed ){
+              if (!succeeded && !failed) {
                 failed = true;
               }
             }
@@ -173,11 +181,11 @@ public class ConcurrencyTest extends AcceptanceTest {
       }
       startThenJoinThreads(threads);
 
-      ifFailedPrintFailures(failed,exceptionList);
+      ifFailedPrintFailures(failed, exceptionList);
     } finally {
       assertTrue(nigori.unregister());
     }
   }
 
-  //TODO(drt24) once we have versioning then test that concurrent execution on the same keys works. 
+  // TODO(drt24) once we have versioning then test that concurrent execution on the same keys works.
 }

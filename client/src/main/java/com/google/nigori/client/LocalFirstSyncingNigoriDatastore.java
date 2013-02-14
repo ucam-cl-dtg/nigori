@@ -199,8 +199,8 @@ public class LocalFirstSyncingNigoriDatastore extends SyncingNigoriDatastore {
     byte[] firstValue = first.getRevision(index, revision);
     try {
       byte[] secondValue = second.getRevision(index, revision);
-      if (secondValue != null){
-        if (firstValue == null){
+      if (secondValue != null) {
+        if (firstValue == null) {
           ensureSynced();
           return secondValue;
         }

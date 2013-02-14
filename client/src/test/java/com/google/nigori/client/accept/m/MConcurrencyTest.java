@@ -141,13 +141,13 @@ public class MConcurrencyTest extends AcceptanceTest {
       RevValue deleteAt = null;
       for (RevValue head : heads) {
         deleteAt = head;
-        int value =Util.bin2int(head.getValue(), 0);
+        int value = Util.bin2int(head.getValue(), 0);
         total += value;
       }
-      assertEquals(REPEATS*10-4, total);
+      assertEquals(REPEATS * 10 - 4, total);
       assertNotNull(deleteAt);
       if (deleteAt != null)
-      assertTrue(migori.removeIndex(index, deleteAt.getRevision()));
+        assertTrue(migori.removeIndex(index, deleteAt.getRevision()));
 
     } finally {
       assertTrue("Not unregistered", migori.unregister());

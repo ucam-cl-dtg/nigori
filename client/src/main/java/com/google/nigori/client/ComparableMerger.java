@@ -56,7 +56,7 @@ public class ComparableMerger<T extends Comparable<T>> implements MigoriMerger {
     }
     findEquivalences(store, index, items, mapBack);
     T latest = items.get(items.size() - 1);
-    if (items.size() == 1){// we have already reduced it to one so don't need to do anything more
+    if (items.size() == 1) {// we have already reduced it to one so don't need to do anything more
       return mapBack.get(latest);
     }
     T newItem = converter.fromLatest(latest);

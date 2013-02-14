@@ -53,7 +53,8 @@ public class HashMigoriDatastore implements MigoriDatastore {
   }
 
   @Override
-  public boolean unregister() throws IOException, NigoriCryptographyException, UnauthorisedException {
+  public boolean unregister() throws IOException, NigoriCryptographyException,
+      UnauthorisedException {
     return store.unregister();
   }
 
@@ -63,7 +64,8 @@ public class HashMigoriDatastore implements MigoriDatastore {
   }
 
   @Override
-  public List<Index> getIndices() throws NigoriCryptographyException, IOException, UnauthorisedException {
+  public List<Index> getIndices() throws NigoriCryptographyException, IOException,
+      UnauthorisedException {
     return store.getIndices();
   }
 
@@ -89,15 +91,17 @@ public class HashMigoriDatastore implements MigoriDatastore {
       }
       throw new IllegalStateException("Can never happen as must be one head to return");
     } else {
-      assert heads.size() > 1 : "Must be more than one head before we merge and we tested for 0 and 1, was: " + heads.size();
+      assert heads.size() > 1 : "Must be more than one head before we merge and we tested for 0 and 1, was: "
+          + heads.size();
       return merger.merge(this, index, heads);
     }
   }
 
   @Override
-  public List<RevValue> get(Index index) throws NigoriCryptographyException, IOException, UnauthorisedException {
+  public List<RevValue> get(Index index) throws NigoriCryptographyException, IOException,
+      UnauthorisedException {
     DAG<Revision> history = getHistory(index);
-    if (history == null){
+    if (history == null) {
       return null;
     }
     Collection<Node<Revision>> heads = history.getHeads();
@@ -166,7 +170,8 @@ public class HashMigoriDatastore implements MigoriDatastore {
   }
 
   @Override
-  public DAG<Revision> getHistory(Index index) throws NigoriCryptographyException, IOException, UnauthorisedException {
+  public DAG<Revision> getHistory(Index index) throws NigoriCryptographyException, IOException,
+      UnauthorisedException {
     List<Revision> revisions = store.getRevisions(index);
     if (revisions == null) {
       return null;

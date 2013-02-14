@@ -35,11 +35,13 @@ import com.google.nigori.common.NigoriCryptographyException;
  */
 @RunWith(Parameterized.class)
 public class AcceptanceTest {
-  public static final byte[] NULL_DELETE_TOKEN = new byte[]{};
+  public static final byte[] NULL_DELETE_TOKEN = new byte[] {};
 
   @Parameters
   public static Collection<DatastoreFactory[]> stores() {
-    return Arrays.asList(new DatastoreFactory[][] {{new HTTPDatastoreFactory()}, {new SyncingDatastoreFactory()}, /*{new LocalAsyncRemoteDatastoreFactory()}*/});
+    return Arrays.asList(new DatastoreFactory[][] {
+        {new HTTPDatastoreFactory()}, {new SyncingDatastoreFactory()},
+        /*{new LocalAsyncRemoteDatastoreFactory ()}*/});
   }
 
   private DatastoreFactory datastore;
@@ -60,15 +62,16 @@ public class AcceptanceTest {
     @Override
     public NigoriDatastore makeDatastore() throws UnsupportedEncodingException,
         NigoriCryptographyException {
-      return new CryptoNigoriDatastore(AcceptanceTests.HOST, AcceptanceTests.PORT, AcceptanceTests.PATH);
+      return new CryptoNigoriDatastore(AcceptanceTests.HOST, AcceptanceTests.PORT,
+          AcceptanceTests.PATH);
     }
   }
   private static class SyncingDatastoreFactory implements DatastoreFactory {
     @Override
     public NigoriDatastore makeDatastore() throws NigoriCryptographyException, IOException {
-      return new SyncingNigoriDatastore(
-          new CryptoNigoriDatastore(AcceptanceTests.HOST, AcceptanceTests.PORT, AcceptanceTests.PATH),
-          new CryptoNigoriDatastore(AcceptanceTests.HOST, AcceptanceTests.PORT, AcceptanceTests.PATH));
+      return new SyncingNigoriDatastore(new CryptoNigoriDatastore(AcceptanceTests.HOST,
+          AcceptanceTests.PORT, AcceptanceTests.PATH), new CryptoNigoriDatastore(
+          AcceptanceTests.HOST, AcceptanceTests.PORT, AcceptanceTests.PATH));
     }
   }
 
@@ -77,9 +80,10 @@ public class AcceptanceTest {
     @Override
     public NigoriDatastore makeDatastore() throws UnsupportedEncodingException,
         NigoriCryptographyException, IOException {
-      return new LocalAsyncRemoteSyncingNigoriDatastore(
-          new CryptoNigoriDatastore(AcceptanceTests.HOST, AcceptanceTests.PORT, AcceptanceTests.PATH),
-          new CryptoNigoriDatastore(AcceptanceTests.HOST, AcceptanceTests.PORT, AcceptanceTests.PATH));
+      return new LocalAsyncRemoteSyncingNigoriDatastore(new CryptoNigoriDatastore(
+          AcceptanceTests.HOST, AcceptanceTests.PORT, AcceptanceTests.PATH),
+          new CryptoNigoriDatastore(AcceptanceTests.HOST, AcceptanceTests.PORT,
+              AcceptanceTests.PATH));
     }
 
   }

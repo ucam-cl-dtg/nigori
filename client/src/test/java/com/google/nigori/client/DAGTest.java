@@ -51,12 +51,12 @@ public class DAGTest {
   private static final Revision merge;
   static {
     // DAG:
-    //    roota           rootb
-    //   /    \
-    //  /      \
-    // child1  child2
-    //  \      /
-    //    merge
+    // roota rootb
+    // / \
+    // / \
+    // child1 child2
+    // \ /
+    // merge
 
     // Child1
     byte[] childBytes = new byte[HASH * 2];
@@ -200,11 +200,16 @@ public class DAGTest {
     assertThat(nodes, hasItems(nodeContains(roota), nodeContains(child1), nodeContains(child2),
         nodeContains(merge), nodeContains(rootb)));
     assertEquals(values.size(), nodes.size());
-    assertThat(nodes.indexOf(factory.getNode(merge)), lessThan(nodes.indexOf(factory.getNode(roota))));
-    assertThat(nodes.indexOf(factory.getNode(rootb)), lessThan(nodes.indexOf(factory.getNode(child1))));
-    assertThat(nodes.indexOf(factory.getNode(rootb)), lessThan(nodes.indexOf(factory.getNode(child2))));
-    assertThat(nodes.indexOf(factory.getNode(child1)), lessThan(nodes.indexOf(factory.getNode(roota))));
-    assertThat(nodes.indexOf(factory.getNode(child2)), lessThan(nodes.indexOf(factory.getNode(roota))));
+    assertThat(nodes.indexOf(factory.getNode(merge)),
+        lessThan(nodes.indexOf(factory.getNode(roota))));
+    assertThat(nodes.indexOf(factory.getNode(rootb)),
+        lessThan(nodes.indexOf(factory.getNode(child1))));
+    assertThat(nodes.indexOf(factory.getNode(rootb)),
+        lessThan(nodes.indexOf(factory.getNode(child2))));
+    assertThat(nodes.indexOf(factory.getNode(child1)),
+        lessThan(nodes.indexOf(factory.getNode(roota))));
+    assertThat(nodes.indexOf(factory.getNode(child2)),
+        lessThan(nodes.indexOf(factory.getNode(roota))));
   }
 
   private org.hamcrest.Matcher<Node<Revision>> nodeContains(final Revision revision) {

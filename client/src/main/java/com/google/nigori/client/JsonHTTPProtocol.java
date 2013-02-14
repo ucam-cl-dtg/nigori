@@ -53,7 +53,8 @@ public class JsonHTTPProtocol implements NigoriProtocol {
     if ("localhost".equals(server)) {
       protocol = "http://";
     }
-    http = new Http(protocol + server + ":" + port + "/" + serverPrefix + "/", MessageLibrary.MIMETYPE_JSON);
+    http = new Http(protocol + server + ":" + port + "/" + serverPrefix + "/",
+            MessageLibrary.MIMETYPE_JSON);
   }
 
   /**
@@ -77,7 +78,8 @@ public class JsonHTTPProtocol implements NigoriProtocol {
   @Override
   public boolean authenticate(AuthenticateRequest request) throws IOException {
     String json = MessageLibrary.toJson(request);
-    HttpResponse resp = http.post(MessageLibrary.REQUEST_AUTHENTICATE, toBytes(json), MessageLibrary.MIMETYPE_JSON);
+    HttpResponse resp =
+        http.post(MessageLibrary.REQUEST_AUTHENTICATE, toBytes(json), MessageLibrary.MIMETYPE_JSON);
     try {
       return success(resp);
     } finally {
@@ -88,7 +90,8 @@ public class JsonHTTPProtocol implements NigoriProtocol {
   @Override
   public boolean register(RegisterRequest request) throws IOException {
     String json = MessageLibrary.toJson(request);
-    HttpResponse resp = http.post(MessageLibrary.REQUEST_REGISTER, toBytes(json), MessageLibrary.MIMETYPE_JSON);
+    HttpResponse resp =
+        http.post(MessageLibrary.REQUEST_REGISTER, toBytes(json), MessageLibrary.MIMETYPE_JSON);
     try {
       return success(resp);
     } finally {
@@ -99,7 +102,8 @@ public class JsonHTTPProtocol implements NigoriProtocol {
   @Override
   public boolean unregister(UnregisterRequest request) throws IOException {
     String json = MessageLibrary.toJson(request);
-    HttpResponse resp = http.post(MessageLibrary.REQUEST_UNREGISTER, toBytes(json), MessageLibrary.MIMETYPE_JSON);
+    HttpResponse resp =
+        http.post(MessageLibrary.REQUEST_UNREGISTER, toBytes(json), MessageLibrary.MIMETYPE_JSON);
     try {
       return success(resp);
     } finally {
@@ -107,13 +111,14 @@ public class JsonHTTPProtocol implements NigoriProtocol {
     }
   }
 
-  private static void failure(Response response) throws IOException, UnauthorisedException{
-    if (response.resp.getResponseCode() == Http.UNAUTHORIZED){
+  private static void failure(Response response) throws IOException, UnauthorisedException {
+    if (response.resp.getResponseCode() == Http.UNAUTHORIZED) {
       throw new UnauthorisedException(response.jsonResponse);
     }
     throw new IOException("Server did not accept request(" + response.resp.getResponseCode()
         + "). " + response.jsonResponse);
   }
+
   @Override
   public GetResponse get(GetRequest request) throws IOException, UnauthorisedException {
     try {
@@ -133,7 +138,8 @@ public class JsonHTTPProtocol implements NigoriProtocol {
   }
 
   @Override
-  public GetIndicesResponse getIndices(GetIndicesRequest request) throws IOException, UnauthorisedException {
+  public GetIndicesResponse getIndices(GetIndicesRequest request) throws IOException,
+      UnauthorisedException {
     try {
       Response response =
           postResponse(MessageLibrary.REQUEST_GET_INDICES, MessageLibrary.toJson(request));
@@ -152,13 +158,15 @@ public class JsonHTTPProtocol implements NigoriProtocol {
   }
 
   @Override
-  public GetRevisionsResponse getRevisions(GetRevisionsRequest request) throws IOException, NotFoundException, UnauthorisedException {
+  public GetRevisionsResponse getRevisions(GetRevisionsRequest request) throws IOException,
+      NotFoundException, UnauthorisedException {
     try {
       Response response =
           postResponse(MessageLibrary.REQUEST_GET_REVISIONS, MessageLibrary.toJson(request));
 
       if (response.notFound()) {
-        throw new NotFoundException(response.jsonResponse);// request was successful, but no data key by that name was found.
+        // request was successful, but no data key by that name was found.
+        throw new NotFoundException(response.jsonResponse);
       }
 
       if (!success(response.resp)) {
@@ -173,7 +181,8 @@ public class JsonHTTPProtocol implements NigoriProtocol {
   @Override
   public boolean put(PutRequest request) throws IOException {
     String json = MessageLibrary.toJson(request);
-    HttpResponse resp = http.post(MessageLibrary.REQUEST_PUT, toBytes(json), MessageLibrary.MIMETYPE_JSON);
+    HttpResponse resp =
+        http.post(MessageLibrary.REQUEST_PUT, toBytes(json), MessageLibrary.MIMETYPE_JSON);
     try {
       return success(resp);
     } finally {
