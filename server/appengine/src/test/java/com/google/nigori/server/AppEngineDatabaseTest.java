@@ -60,7 +60,7 @@ public class AppEngineDatabaseTest extends AbstractDatabaseTest {
     database.clearOldNonces();
     Nonce oldNonce = new LyingNonce(0);
     Nonce freshNonce = new Nonce();
-    database.addUser(publicKey,publicHash);
+    database.addUser(publicKey, publicHash);
     User user = database.getUser(publicHash);
     try {
       assertTrue(database.checkAndAddNonce(oldNonce, publicHash));

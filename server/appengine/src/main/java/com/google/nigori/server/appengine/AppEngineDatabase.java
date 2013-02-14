@@ -1,17 +1,15 @@
 /*
  * Copyright (C) 2011 Alastair R. Beresford
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package com.google.nigori.server.appengine;
 
@@ -52,7 +50,8 @@ public final class AppEngineDatabase implements Database {
   private static final PersistenceManagerFactory pmfInstance = JDOHelper
       .getPersistenceManagerFactory("transactions-optional");
 
-  private static AEUser getUser(byte[] publicHash, PersistenceManager pm) throws JDOObjectNotFoundException {
+  private static AEUser getUser(byte[] publicHash, PersistenceManager pm)
+      throws JDOObjectNotFoundException {
     return pm.getObjectById(AEUser.class, AEUser.keyForUser(publicHash));
   }
 
@@ -60,7 +59,7 @@ public final class AppEngineDatabase implements Database {
     assert pm != null;
     assert existingUser != null;
     try {
-      AEUser existing = getUser(existingUser,pm);
+      AEUser existing = getUser(existingUser, pm);
       if (existing != null) {
         return true;
       } else {
@@ -152,8 +151,8 @@ public final class AppEngineDatabase implements Database {
     }
   }
 
-  private static AEUser castUser(User user){
-    if (! (user instanceof AEUser)){
+  private static AEUser castUser(User user) {
+    if (!(user instanceof AEUser)) {
       user = new AEUser(user.getPublicKey(), user.getPublicHash(), user.getRegistrationDate());
     }
     return (AEUser) user;
@@ -166,22 +165,23 @@ public final class AppEngineDatabase implements Database {
   @Override
   public Collection<RevValue> getRecord(User user, byte[] index) throws IOException {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
-    try {//TODO(drt24): cleanup this method
-      Key lookupKey = getLookupKey(user,index);
-   // If this doesn't exist there is no key so null gets returned by JDOObjectNotFoundException
+    try {// TODO(drt24): cleanup this method
+      Key lookupKey = getLookupKey(user, index);
+      // If this doesn't exist there is no key so null gets returned by JDOObjectNotFoundException
       Lookup lookup = pm.getObjectById(Lookup.class, lookupKey);
       List<RevValue> answer = new ArrayList<RevValue>();
       Query getRevisionValues = new Query(AppEngineRecord.class.getSimpleName());
       getRevisionValues.setAncestor(lookupKey);
       DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
-      List<Entity> results = datastore.prepare(getRevisionValues).asList(
-          FetchOptions.Builder.withDefaults());
-      for (Entity result : results){
-        ByteArrayInputStream bais = new ByteArrayInputStream(((Blob)result.getProperty("revision")).getBytes());
+      List<Entity> results =
+          datastore.prepare(getRevisionValues).asList(FetchOptions.Builder.withDefaults());
+      for (Entity result : results) {
+        ByteArrayInputStream bais =
+            new ByteArrayInputStream(((Blob) result.getProperty("revision")).getBytes());
         ObjectInputStream ndis = new ObjectInputStream(bais);
-        answer.add(new RevValue(((Revision)ndis.readObject()).getBytes(),
-            ((Blob)result.getProperty("value")).getBytes()));
+        answer.add(new RevValue(((Revision) ndis.readObject()).getBytes(),
+            ((Blob) result.getProperty("value")).getBytes()));
       }
       if (lookup != null) {
         return answer;
@@ -220,16 +220,18 @@ public final class AppEngineDatabase implements Database {
       Query getIndices = new Query(Lookup.class.getSimpleName());
       getIndices.setAncestor(castUser(user).getKey());
       DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-      List<Entity> results = datastore.prepare(getIndices).asList(
-          FetchOptions.Builder.withDefaults());
+      List<Entity> results =
+          datastore.prepare(getIndices).asList(FetchOptions.Builder.withDefaults());
       List<byte[]> answer = new ArrayList<byte[]>();
-      for (Entity result : results){
+      for (Entity result : results) {
         Object index = result.getProperty("index");
-        if (index instanceof ShortBlob){
-        answer.add(((ShortBlob)index).getBytes());
-        } else if (index instanceof Blob){
-          answer.add(((Blob)index).getBytes());
-        } else throw new ClassCastException("Could not transform to byte[] via a (Short)Blob: " +index.getClass().getSimpleName());
+        if (index instanceof ShortBlob) {
+          answer.add(((ShortBlob) index).getBytes());
+        } else if (index instanceof Blob) {
+          answer.add(((Blob) index).getBytes());
+        } else
+          throw new ClassCastException("Could not transform to byte[] via a (Short)Blob: "
+              + index.getClass().getSimpleName());
       }
       return answer;
     } catch (JDOObjectNotFoundException e) {
@@ -242,9 +244,9 @@ public final class AppEngineDatabase implements Database {
   @Override
   public Collection<byte[]> getRevisions(User user, byte[] index) throws IOException {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
-    try {//TODO(drt24): cleanup this method
+    try {// TODO(drt24): cleanup this method
       // TODO(drt24): we can do this faster with a key only lookup
-      Key lookupKey = getLookupKey(user,index);
+      Key lookupKey = getLookupKey(user, index);
       // If this doesn't exist there is no key so null gets returned by JDOObjectNotFoundException
       Lookup lookup = pm.getObjectById(Lookup.class, lookupKey);
       List<byte[]> answer = new ArrayList<byte[]>();
@@ -252,12 +254,13 @@ public final class AppEngineDatabase implements Database {
       getRevisionValues.setAncestor(lookupKey);
       DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
-      List<Entity> results = datastore.prepare(getRevisionValues).asList(
-          FetchOptions.Builder.withDefaults());
-      for (Entity result : results){
-        ByteArrayInputStream bais = new ByteArrayInputStream(((Blob)result.getProperty("revision")).getBytes());
+      List<Entity> results =
+          datastore.prepare(getRevisionValues).asList(FetchOptions.Builder.withDefaults());
+      for (Entity result : results) {
+        ByteArrayInputStream bais =
+            new ByteArrayInputStream(((Blob) result.getProperty("revision")).getBytes());
         ObjectInputStream ndis = new ObjectInputStream(bais);
-        answer.add(((Revision)ndis.readObject()).getBytes());
+        answer.add(((Revision) ndis.readObject()).getBytes());
       }
       if (lookup != null) {
         return answer;
@@ -278,7 +281,7 @@ public final class AppEngineDatabase implements Database {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     Revision revision = new BytesRevision(bRevision);
     try {
-      Key lookupKey = getLookupKey(user,index);
+      Key lookupKey = getLookupKey(user, index);
       Lookup lookup;
       try {
         lookup = pm.getObjectById(Lookup.class, lookupKey);
@@ -286,7 +289,7 @@ public final class AppEngineDatabase implements Database {
         lookup = new Lookup(lookupKey, index);
         pm.makePersistent(lookup);
       }
-    // TODO(drt24): Do revisions properly, need to only add if not already existing.
+      // TODO(drt24): Do revisions properly, need to only add if not already existing.
       AppEngineRecord record = new AppEngineRecord(lookup.getKey(), revision, data);
       pm.makePersistent(record);
       return true;
@@ -299,7 +302,7 @@ public final class AppEngineDatabase implements Database {
   public boolean deleteRecord(User user, byte[] index) {
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {
-      Key lookupKey = getLookupKey(user,index);
+      Key lookupKey = getLookupKey(user, index);
       Lookup lookup = pm.getObjectById(Lookup.class, lookupKey);
       // TODO(drt24) multiple revisions
       // TODO(drt24) cleanup
@@ -308,12 +311,12 @@ public final class AppEngineDatabase implements Database {
         getRevisionValues.setAncestor(lookupKey);
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
-        List<Entity> results = datastore.prepare(getRevisionValues).asList(
-            FetchOptions.Builder.withDefaults());
-        for (Entity entity : results){
-          pm.deletePersistent(pm.getObjectById(AppEngineRecord.class,entity.getKey()));
+        List<Entity> results =
+            datastore.prepare(getRevisionValues).asList(FetchOptions.Builder.withDefaults());
+        for (Entity entity : results) {
+          pm.deletePersistent(pm.getObjectById(AppEngineRecord.class, entity.getKey()));
         }
-        
+
       } finally {// even if there is no value the index still needs to be deleted - but we haven't
                  // actually done a delete
         pm.deletePersistent(lookup);
@@ -338,9 +341,9 @@ public final class AppEngineDatabase implements Database {
     }
     PersistenceManager pm = pmfInstance.getPersistenceManager();
     try {
-      AENonce aeNonce = new AENonce(nonce,publicHash);
+      AENonce aeNonce = new AENonce(nonce, publicHash);
       try {
-        pm.getObjectById(AENonce.class,aeNonce.getKey());
+        pm.getObjectById(AENonce.class, aeNonce.getKey());
         return false;// getObjectById should throw an exception
       } catch (JDOObjectNotFoundException e) {
         // We haven't seen this nonce yet so add it and return true
@@ -362,7 +365,7 @@ public final class AppEngineDatabase implements Database {
       List<Entity> results =
           datastore.prepare(getAllNonces).asList(FetchOptions.Builder.withDefaults());
       for (Entity entity : results) {
-        int sinceEpoch = (int)(long)((Long) entity.getProperty("sinceEpoch"));
+        int sinceEpoch = (int) (long) ((Long) entity.getProperty("sinceEpoch"));
         if (!Nonce.isRecent(sinceEpoch)) {
           pm.deletePersistent(pm.getObjectById(AENonce.class, entity.getKey()));
         }

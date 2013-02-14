@@ -35,6 +35,7 @@ import com.google.protobuf.ByteString;
 
 /**
  * AppEngine user
+ * 
  * @author drt24
  * 
  */
@@ -60,10 +61,11 @@ public class AEUser implements User {
   private Date registrationDate;
 
   public static Key keyForUser(byte[] publicHash) {
-    return KeyFactory.createKey(USERSKEY, AEUser.class.getSimpleName(), ByteString
-        .copyFrom(publicHash).toStringUtf8());
+    return KeyFactory.createKey(USERSKEY, AEUser.class.getSimpleName(),
+        ByteString.copyFrom(publicHash).toStringUtf8());
   }
-  public static Key keyForUser(User user){
+
+  public static Key keyForUser(User user) {
     return keyForUser(user.getPublicHash());
   }
 
@@ -143,13 +145,15 @@ public class AEUser implements User {
   public static class Factory implements UserFactory {
 
     private static final Factory instance = new Factory();
+
     public static Factory getInstance() {
       return instance;
     }
+
     @Override
     public User getUser(byte[] publicKey, byte[] publicHash, Date registrationDate) {
       return new AEUser(publicKey, publicHash, registrationDate);
     }
-    
+
   }
 }
