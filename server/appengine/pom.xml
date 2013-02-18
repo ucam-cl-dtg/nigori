@@ -118,6 +118,11 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>com.google.appengine</groupId>
+        <artifactId>appengine-maven-plugin</artifactId>
+        <version>${appengine.version}</version>
+      </plugin>
+      <plugin>
         <groupId>org.datanucleus</groupId>
         <artifactId>maven-datanucleus-plugin</artifactId>
         <version>3.0.0-release</version>
