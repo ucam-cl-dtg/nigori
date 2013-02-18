@@ -126,6 +126,7 @@ public class DatabaseNigoriProtocol implements NigoriProtocol {
     try {
       authenticateUser(request,toBytes(MessageLibrary.REQUEST_AUTHENTICATE));
     } catch (UnauthorisedException e) {
+      warning("unauthorized authenticate",e);
       return false;
     }
     return true;
