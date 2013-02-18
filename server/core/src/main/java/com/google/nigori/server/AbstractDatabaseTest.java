@@ -24,7 +24,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.Date;
@@ -53,7 +52,7 @@ public abstract class AbstractDatabaseTest {
   protected Database database;
 
   @BeforeClass
-  public static void initPublicKey() throws UnsupportedEncodingException, NoSuchAlgorithmException {
+  public static void initPublicKey() throws NoSuchAlgorithmException {
 
     publicKey = new byte[NigoriConstants.B_DSA];
     Random r = new Random();

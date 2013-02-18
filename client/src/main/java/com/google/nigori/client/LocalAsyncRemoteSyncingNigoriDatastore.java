@@ -119,7 +119,7 @@ public class LocalAsyncRemoteSyncingNigoriDatastore implements NigoriDatastore {
 
       @Override
       public void success(Boolean result) {
-        if (localAuth != (boolean) result) {
+        if (localAuth != result) {
           log.warning(String.format("local and remote authenticate() differ: %b and %b", localAuth,
               result));
         }
@@ -493,7 +493,7 @@ public class LocalAsyncRemoteSyncingNigoriDatastore implements NigoriDatastore {
     @Override
     public void success(Boolean result) throws IOException, NigoriCryptographyException,
         UnauthorisedException {
-      if (localResult != (boolean) result) {
+      if (localResult != result) {
         log.warning(String.format("local and remote " + method + " differ: %b and %b", localResult,
             result));
       } else {

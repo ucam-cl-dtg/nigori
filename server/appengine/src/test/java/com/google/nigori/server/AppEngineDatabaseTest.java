@@ -15,8 +15,6 @@ package com.google.nigori.server;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.UnsupportedEncodingException;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -36,7 +34,7 @@ public class AppEngineDatabaseTest extends AbstractDatabaseTest {
   private static LocalServiceTestHelper helper;
 
   @BeforeClass
-  public static void initHelper() throws UnsupportedEncodingException {
+  public static void initHelper() {
     helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
   }
 

@@ -82,12 +82,10 @@ class HttpResponse {
       }
       String line;
       try {
-        if (reader != null) {
-          while ((line = reader.readLine()) != null) {
-            buffer.append(line);
-          }
-          reader.close();
+        while ((line = reader.readLine()) != null) {
+          buffer.append(line);
         }
+        reader.close();
       } catch (IOException e) {
         buffer.append("*** read interrupted: " + e);
       }
