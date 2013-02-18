@@ -145,7 +145,7 @@ public class NigoriServlet extends HttpServlet {
 
     @Override
     public String toString() {
-      return "<" + mimetype + "," + requestType + "> (hashCode:" + hashCode() + ")";
+      return "<" + mimetype + "," + requestType + ">";
     }
   }
 
@@ -408,7 +408,7 @@ public class NigoriServlet extends HttpServlet {
       RequestHandler handler = handlers.get(handlerType);
       if (handler == null) {
         throw new ServletException(HttpServletResponse.SC_NOT_ACCEPTABLE,
-            "Unsupported request pair: " + handlerType + "\n" + supportedTypes);
+            "Unsupported request pair: " + handlerType + "\n" + supportedTypes + "\n");
       }
       try {
         handler.handle(req, resp);
