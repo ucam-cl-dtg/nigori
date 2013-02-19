@@ -373,9 +373,9 @@ Future specifications:
 
       <t>To authenticate a message M to the server the client sends:
       
-      <list><t>SHA1(DSAPubKey(Kuser)), S, T, R, M, DSASign(Kuser, S || T || R || M)</t></list>
+      <list><t>SHA1(DSAPubKey(Kuser)), S, T, R, M, DSASign(Kuser, S || T || R || C || M)</t></list>
       where S is the server name, T is the time in seconds since 1st January
-      1970, R is a (32 bit) nonce and the output of DSASign is defined in <xref target="dsa"/>.
+      1970, R is a (32 bit) nonce, C is the command as defined in <xref target="protocol"/> and the output of DSASign is defined in <xref target="dsa"/>.
       At least one field must be different every time a message is sent to the server,
       therefore clients MUST ensure that T || R is different for every request.
       The server MUST check that S || T || R || M has not been seen before;
