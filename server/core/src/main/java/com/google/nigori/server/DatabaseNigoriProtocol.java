@@ -76,7 +76,7 @@ public class DatabaseNigoriProtocol implements NigoriProtocol {
    * @param message
    * @throws ServletException
    */
-  private User authenticateUser(AuthenticateRequest auth, byte[]... payload)
+  private User authenticateUser(AuthenticateRequest auth, String command, byte[]... payload)
       throws UnauthorisedException, CryptoException {
 
     byte[] publicHash = auth.getPublicKey().toByteArray();
@@ -89,7 +89,7 @@ public class DatabaseNigoriProtocol implements NigoriProtocol {
       byte[] publicKey = database.getPublicKey(publicHash);
 
       DSASignature sig =
-          new DSASignature(dsaR, dsaS, Util.joinBytes(toBytes(serverName), nonce.nt(), nonce.nr(), Util.joinBytes(payload)));
+          new DSASignature(dsaR, dsaS, Util.joinBytes(toBytes(serverName), nonce.nt(), nonce.nr(), toBytes(command), Util.joinBytes(payload)));
       try {
         DSAVerify v = new DSAVerify(publicKey);
 
@@ -124,7 +124,7 @@ public class DatabaseNigoriProtocol implements NigoriProtocol {
   @Override
   public boolean authenticate(AuthenticateRequest request) throws IOException {
     try {
-      authenticateUser(request,toBytes(MessageLibrary.REQUEST_AUTHENTICATE));
+      authenticateUser(request,MessageLibrary.REQUEST_AUTHENTICATE);
     } catch (UnauthorisedException e) {
       warning("unauthorized authenticate",e);
       return false;
@@ -146,7 +146,7 @@ public class DatabaseNigoriProtocol implements NigoriProtocol {
   @Override
   public boolean unregister(UnregisterRequest request) throws IOException, UnauthorisedException {
     AuthenticateRequest auth = request.getAuth();
-    User user = authenticateUser(auth,toBytes(MessageLibrary.REQUEST_UNREGISTER));
+    User user = authenticateUser(auth,MessageLibrary.REQUEST_UNREGISTER);
 
     return database.deleteUser(user);
   }
@@ -160,9 +160,9 @@ public class DatabaseNigoriProtocol implements NigoriProtocol {
     byte[] revision = null;
     if (request.hasRevision()) {
       revision = request.getRevision().toByteArray();
-      user = authenticateUser(auth, toBytes(MessageLibrary.REQUEST_GET), index, revision);
+      user = authenticateUser(auth, MessageLibrary.REQUEST_GET, index, revision);
     } else {
-      user = authenticateUser(auth, toBytes(MessageLibrary.REQUEST_GET), index);
+      user = authenticateUser(auth, MessageLibrary.REQUEST_GET, index);
     }
 
     Collection<RevValue> value;
@@ -188,7 +188,7 @@ public class DatabaseNigoriProtocol implements NigoriProtocol {
   public GetIndicesResponse getIndices(GetIndicesRequest request) throws IOException,
       NotFoundException, UnauthorisedException {
     AuthenticateRequest auth = request.getAuth();
-    User user = authenticateUser(auth,toBytes(MessageLibrary.REQUEST_GET_INDICES));
+    User user = authenticateUser(auth,MessageLibrary.REQUEST_GET_INDICES);
 
     Collection<byte[]> value = database.getIndices(user);
 
@@ -203,7 +203,7 @@ public class DatabaseNigoriProtocol implements NigoriProtocol {
       NotFoundException, UnauthorisedException {
     byte[] index = request.getKey().toByteArray();
     AuthenticateRequest auth = request.getAuth();
-    User user = authenticateUser(auth,toBytes(MessageLibrary.REQUEST_GET_REVISIONS),index);
+    User user = authenticateUser(auth,MessageLibrary.REQUEST_GET_REVISIONS,index);
 
     Collection<byte[]> value = database.getRevisions(user, index);
 
@@ -220,7 +220,7 @@ public class DatabaseNigoriProtocol implements NigoriProtocol {
     byte[] index = request.getKey().toByteArray();
     byte[] revision = request.getRevision().toByteArray();
     byte[] value = request.getValue().toByteArray();
-    User user = authenticateUser(auth, toBytes(MessageLibrary.REQUEST_PUT), index, revision, value);
+    User user = authenticateUser(auth, MessageLibrary.REQUEST_PUT, index, revision, value);
 
     return database.putRecord(user, index, revision, value);
   }
@@ -231,7 +231,7 @@ public class DatabaseNigoriProtocol implements NigoriProtocol {
     AuthenticateRequest auth = request.getAuth();
 
     byte[] index = request.getKey().toByteArray();
-    User user = authenticateUser(auth,toBytes(MessageLibrary.REQUEST_DELETE),index);
+    User user = authenticateUser(auth,MessageLibrary.REQUEST_DELETE,index);
 
     boolean exists = database.getRecord(user, index) != null;
     if (!exists) {

@@ -121,12 +121,12 @@ public class MessageLibrary {
 
     if (revision != null) {
       return GetRequest.newBuilder()
-          .setAuth(authenticateRequestAsProtobuf(serverName, signer, toBytes(REQUEST_GET), index, revision))
+          .setAuth(authenticateRequestAsProtobuf(serverName, signer, REQUEST_GET, index, revision))
           .setKey(ByteString.copyFrom(index))
           .setRevision(ByteString.copyFrom(revision)).build();
     } else {
       return GetRequest.newBuilder()
-          .setAuth(authenticateRequestAsProtobuf(serverName, signer, toBytes(REQUEST_GET), index))
+          .setAuth(authenticateRequestAsProtobuf(serverName, signer, REQUEST_GET, index))
           .setKey(ByteString.copyFrom(index)).build();
     }
 
@@ -163,7 +163,7 @@ public class MessageLibrary {
 	}
 
 	public static GetIndicesRequest getIndicesRequestAsProtobuf(String serverName, DSASign signer) throws NigoriCryptographyException {
-    return GetIndicesRequest.newBuilder().setAuth(authenticateRequestAsProtobuf(serverName, signer,toBytes(REQUEST_GET_INDICES))).build();
+    return GetIndicesRequest.newBuilder().setAuth(authenticateRequestAsProtobuf(serverName, signer, REQUEST_GET_INDICES)).build();
   }
 
   public static String getIndicesRequestAsJson(String serverName, DSASign signer) throws NigoriCryptographyException {
@@ -192,7 +192,7 @@ public class MessageLibrary {
 
   public static GetRevisionsRequest getRevisionsRequestAsProtobuf(String serverName, DSASign signer, byte[] index) throws NigoriCryptographyException {
     return GetRevisionsRequest.newBuilder()
-        .setAuth(authenticateRequestAsProtobuf(serverName, signer,toBytes(REQUEST_GET_REVISIONS),index))
+        .setAuth(authenticateRequestAsProtobuf(serverName, signer, REQUEST_GET_REVISIONS,index))
         .setKey(ByteString.copyFrom(index)).build();
   }
 
@@ -224,7 +224,7 @@ public class MessageLibrary {
   public static PutRequest putRequestAsProtobuf(String serverName, DSASign signer, byte[] index, byte[] revision, byte[] value) throws NigoriCryptographyException {
 
 	  PutRequest.Builder reqBuilder = PutRequest.newBuilder()
-	      .setAuth(authenticateRequestAsProtobuf(serverName, signer,toBytes(REQUEST_PUT),index,revision,value))
+	      .setAuth(authenticateRequestAsProtobuf(serverName, signer, REQUEST_PUT, index, revision, value))
 	      .setKey(ByteString.copyFrom(index))
 	      .setRevision(ByteString.copyFrom(revision))
 	      .setValue(ByteString.copyFrom(value));
@@ -244,7 +244,7 @@ public class MessageLibrary {
 
 	public static DeleteRequest deleteRequestAsProtobuf(String serverName, DSASign signer, byte[] index) throws NigoriCryptographyException{
 	  DeleteRequest.Builder delBuilder = DeleteRequest.newBuilder()
-	      .setAuth(authenticateRequestAsProtobuf(serverName, signer,toBytes(REQUEST_DELETE),index))
+	      .setAuth(authenticateRequestAsProtobuf(serverName, signer, REQUEST_DELETE, index))
 	      .setKey(ByteString.copyFrom(index));
 
 	  DeleteRequest del = delBuilder.build();
@@ -262,28 +262,30 @@ public class MessageLibrary {
 
   public static AuthenticateRequest authenticateRequestAsProtobuf(String serverName, DSASign signer)
       throws NigoriCryptographyException {
-    return authenticateRequestAsProtobuf(serverName, signer, toBytes(REQUEST_AUTHENTICATE));
+    return authenticateRequestAsProtobuf(serverName, signer, REQUEST_AUTHENTICATE);
   }
 
-  protected static AuthenticateRequest authenticateRequestAsProtobuf(String serverName, DSASign signer,
-      byte[]... payload) throws NigoriCryptographyException {
+  protected static AuthenticateRequest authenticateRequestAsProtobuf(String serverName,
+      DSASign signer, String command, byte[]... payload) throws NigoriCryptographyException {
 
-	  try {
-	    Nonce nonce = new Nonce();
-	    DSASignature signedNonce = signer.sign(Util.joinBytes(MessageLibrary.toBytes(serverName),nonce.nt(),nonce.nr(),Util.joinBytes(payload)));
-	    byte[] sig = Util.joinBytes(signedNonce.getR(),signedNonce.getS());
+    try {
+      Nonce nonce = new Nonce();
+      DSASignature signedNonce =
+          signer.sign(Util.joinBytes(MessageLibrary.toBytes(serverName), nonce.nt(), nonce.nr(),
+              toBytes(command), Util.joinBytes(payload)));
+      byte[] sig = Util.joinBytes(signedNonce.getR(), signedNonce.getS());
 
-	    AuthenticateRequest req = AuthenticateRequest.newBuilder()
-	        .setPublicKey(ByteString.copyFrom(signer.getPublicHash()))
-	        .setSig(ByteString.copyFrom(sig))
-	        .setNonce(ByteString.copyFrom(nonce.toToken()))
-	        .setServerName(serverName)
-	        .build();
+      AuthenticateRequest req =
+          AuthenticateRequest.newBuilder()
+              .setPublicKey(ByteString.copyFrom(signer.getPublicHash())).setSig(
+                  ByteString.copyFrom(sig)).setNonce(ByteString.copyFrom(nonce.toToken()))
+              .setServerName(serverName).build();
 
-	    return req;
-	  } catch (NoSuchAlgorithmException e) {
-	    throw new NigoriCryptographyException("Platform does have required crypto support:" + e.getMessage());
-	  }
+      return req;
+    } catch (NoSuchAlgorithmException e) {
+      throw new NigoriCryptographyException("Platform does have required crypto support:"
+          + e.getMessage());
+    }
 	}
 
 	public static String authenticateRequestAsJson(String serverName, DSASign signer) throws NigoriCryptographyException {
@@ -316,7 +318,7 @@ public class MessageLibrary {
   public static UnregisterRequest unregisterRequestAsProtobuf(String serverName, DSASign signer) throws NigoriCryptographyException {
 
     UnregisterRequest req = UnregisterRequest.newBuilder()
-        .setAuth(authenticateRequestAsProtobuf(serverName, signer,toBytes(REQUEST_UNREGISTER)))
+        .setAuth(authenticateRequestAsProtobuf(serverName, signer, REQUEST_UNREGISTER))
         .build();
 
     return req;
