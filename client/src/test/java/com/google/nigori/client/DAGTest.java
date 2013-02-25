@@ -51,12 +51,12 @@ public class DAGTest {
   private static final Revision merge;
   static {
     // DAG:
-    // roota rootb
-    // / \
-    // / \
+    //   roota rootb
+    //   /   \
+    //  /     \
     // child1 child2
-    // \ /
-    // merge
+    //  \     /
+    //   merge
 
     // Child1
     byte[] childBytes = new byte[HASH * 2];
