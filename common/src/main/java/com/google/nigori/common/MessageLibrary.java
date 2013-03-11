@@ -90,6 +90,7 @@ public class MessageLibrary {
 		gsonBuilder.registerTypeAdapter(RegisterRequest.class, new TypeAdapterProtobuf());
 		gsonBuilder.registerTypeAdapter(UnregisterRequest.class, new TypeAdapterProtobuf());
 		gsonBuilder.registerTypeAdapter(AuthenticateRequest.class, new TypeAdapterProtobuf());
+		gsonBuilder.registerTypeAdapter(RevisionValue.class, new TypeAdapterProtobuf());
 		gsonBuilder.registerTypeAdapter(ByteString.class, new TypeAdapterByteString());
 		gsonBuilder.setPrettyPrinting();
 		return gsonBuilder.create();
