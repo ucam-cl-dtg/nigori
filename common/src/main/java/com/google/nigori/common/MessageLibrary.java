@@ -42,6 +42,8 @@ import com.google.protobuf.GeneratedMessage;
 
 public class MessageLibrary {
 
+  private static final boolean DEBUG = false;
+
 	//The character set used to encode all string-based communications in Nigori.
 	public static final String CHARSET = "UTF-8";
 
@@ -112,9 +114,9 @@ public class MessageLibrary {
     try {
       return gson.fromJson(json, clz);
     } catch (JsonSyntaxException jse) {
-      throw new JsonConversionException("Invalid JSON syntax");
+      throw new JsonConversionException("Invalid JSON syntax" + ( DEBUG ? json : ""));
     } catch (JsonParseException jse) {
-      throw new JsonConversionException("Unable to parse JSON fields into correct message format");
+      throw new JsonConversionException("Unable to parse JSON fields into correct message format" + ( DEBUG ? json : ""));
     }
   }
 
