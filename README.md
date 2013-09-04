@@ -1,4 +1,4 @@
 nigori
 ======
 
-Secrets in the Cloud
+Storing secrets in the cloud
